@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 interface Agent {
   id: string;
-  name: string;
+  title: string;
   slug: string;
   description: string;
   icon: string;
