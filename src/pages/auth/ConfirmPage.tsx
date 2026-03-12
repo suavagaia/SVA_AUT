@@ -8,12 +8,21 @@ export default function ConfirmPage() {
 
   useEffect(() => {
     const handleConfirm = async () => {
-      // Supabase auto-handles the token exchange via the URL hash
-      const { error } = await supabase.auth.getSession();
-      if (error) {
-        setError('Erro ao confirmar e-mail. Tente novamente.');
+      const params = new URLSearchParams(window.location.search);
+      const token_hash = params.get('token_hash');
+      const type = params.get('type') as any;
+      const next = params.get('next') || '/app';
+
+      if (!token_hash || !type) {
+        setError('Link inválido ou expirado.');
+        return;
+      }
+
+      const { error } = await supabase.auth.verifyOtp({ token_hash, type });
+      if (!error) {
+        navigate(next, { replace: true });
       } else {
-        navigate('/thank-you/test', { replace: true });
+        setError('Link inválido ou expirado.');
       }
     };
 
