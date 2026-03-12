@@ -93,7 +93,7 @@ export default function AgentsPage() {
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald/10">
                   <IconComp className="text-emerald" size={24} />
                 </div>
-                <h3 className="font-display text-lg text-card-foreground">{agent.name}</h3>
+                <h3 className="font-display text-lg text-card-foreground">{agent.title}</h3>
                 <p className="mt-1 flex-1 text-sm text-muted-foreground">{agent.description}</p>
                 <Button
                   onClick={() => handleAgentClick(agent)}
