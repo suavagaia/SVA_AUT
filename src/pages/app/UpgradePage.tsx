@@ -17,9 +17,9 @@ export default function UpgradePage() {
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
-          priceId,
-          successUrl: `${window.location.origin}/thank-you/${plan}`,
-          cancelUrl: `${window.location.origin}/app/upgrade`,
+          price_id: priceId,
+          success_url: `${window.location.origin}/thank-you/${plan}`,
+          cancel_url: `${window.location.origin}/app/upgrade`,
         },
       });
 

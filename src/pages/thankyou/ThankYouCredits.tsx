@@ -16,15 +16,9 @@ export default function ThankYouCredits() {
           ⚡ 600.000 Tokens Adicionados!
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          <div className="rounded-lg border border-border bg-card p-4 text-center">
-            <p className="font-display text-2xl text-foreground">300.000</p>
-            <p className="mt-1 text-xs text-muted-foreground">Tokens totais</p>
-          </div>
-          <div className="rounded-lg border border-border bg-card p-4 text-center">
-            <p className="font-display text-2xl text-foreground">300.000</p>
-            <p className="mt-1 text-xs text-muted-foreground">Para todos os agentes</p>
-          </div>
+        <div className="mt-4 rounded-lg border border-border bg-card p-6 text-center">
+          <p className="font-display text-3xl text-foreground">600.000</p>
+          <p className="mt-1 text-sm text-muted-foreground">Tokens disponíveis para todos os agentes</p>
         </div>
 
         <div className="mt-6 rounded-lg bg-emerald/5 border border-emerald/20 p-4 text-left text-sm text-emerald">
