@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 interface Agent {
   id: string;
-  name: string;
+  title: string;
   slug: string;
   description: string;
   icon: string;
@@ -30,7 +30,7 @@ export default function AgentsPage() {
     const fetchAgents = async () => {
       const { data } = await supabase
         .from('agents')
-        .select('id, name, slug, description, icon')
+        .select('id, title, slug, description, icon')
         .eq('subject_id', subjectId)
         .eq('is_active', true)
         .order('display_order');
@@ -50,7 +50,7 @@ export default function AgentsPage() {
       return;
     }
 
-    localStorage.setItem('selectedAgent', JSON.stringify({ id: agent.id, name: agent.name, slug: agent.slug }));
+    localStorage.setItem('selectedAgent', JSON.stringify({ id: agent.id, name: agent.title, slug: agent.slug }));
     toast.info('Em breve! O chat com agentes será lançado na próxima fase.');
   };
 
@@ -93,7 +93,7 @@ export default function AgentsPage() {
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald/10">
                   <IconComp className="text-emerald" size={24} />
                 </div>
-                <h3 className="font-display text-lg text-card-foreground">{agent.name}</h3>
+                <h3 className="font-display text-lg text-card-foreground">{agent.title}</h3>
                 <p className="mt-1 flex-1 text-sm text-muted-foreground">{agent.description}</p>
                 <Button
                   onClick={() => handleAgentClick(agent)}
