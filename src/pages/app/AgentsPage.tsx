@@ -50,7 +50,7 @@ export default function AgentsPage() {
       return;
     }
 
-    localStorage.setItem('selectedAgent', JSON.stringify({ id: agent.id, name: agent.name, slug: agent.slug }));
+    localStorage.setItem('selectedAgent', JSON.stringify({ id: agent.id, name: agent.title, slug: agent.slug }));
     toast.info('Em breve! O chat com agentes será lançado na próxima fase.');
   };
 
