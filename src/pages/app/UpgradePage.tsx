@@ -15,8 +15,15 @@ export default function UpgradePage() {
 
   const handleCheckout = async (priceId: string, plan: 'monthly' | 'annual') => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Sessão expirada');
+      // Lê token diretamente do localStorage — contorna bug do Safari com Web Locks
+      const storageKey = 'sb-lxteajwzovoeclbytdrp-auth-token';
+      const raw = localStorage.getItem(storageKey);
+      const accessToken = raw ? JSON.parse(raw)?.access_token : null;
+
+      if (!accessToken) {
+        toast.error('Sessão expirada. Faça login novamente.');
+        return;
+      }
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
@@ -25,14 +32,12 @@ export default function UpgradePage() {
           cancel_url: `${window.location.origin}/app/upgrade`,
         },
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
       if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
-      }
+      if (data?.url) window.location.href = data.url;
     } catch {
       toast.error('Erro ao iniciar checkout. Tente novamente.');
     }
