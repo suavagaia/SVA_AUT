@@ -195,15 +195,13 @@ export default function BillingPage() {
                 <p className="text-muted-foreground">
                   {planInfo?.subscription_tier === 'monthly' ? 'Mensal — R$129/mês' : 'Anual — R$1.290/ano'}
                 </p>
-<div className="flex items-center gap-3 flex-wrap">
                 {statusLabel && (
                   <Badge className={statusColor}>{statusLabel}</Badge>
                 )}
-                <Button onClick={handlePortal} disabled={portalLoading} className="bg-emerald hover:bg-emerald/90 text-primary-foreground">
+                <Button onClick={handlePortal} disabled={portalLoading} className="mt-4 bg-emerald hover:bg-emerald/90 text-primary-foreground">
                   <ExternalLink className="mr-2 h-4 w-4" />
                   {portalLoading ? 'Abrindo...' : 'Gerenciar no Stripe'}
                 </Button>
-              </div>
               </>
             ) : (
               <>
