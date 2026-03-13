@@ -61,6 +61,7 @@ const App = () => (
             <Route path="/app/contests/:areaSlug" element={<ProtectedRoute><ContestsPage /></ProtectedRoute>} />
             <Route path="/app/subjects/:contestId" element={<ProtectedRoute><SubjectsPage /></ProtectedRoute>} />
             <Route path="/app/agents/:subjectId" element={<ProtectedRoute><AgentsPage /></ProtectedRoute>} />
+            <Route path="/app/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
             <Route path="/app/upgrade" element={<ProtectedRoute><UpgradePage /></ProtectedRoute>} />
 
             {/* Thank You - public */}
