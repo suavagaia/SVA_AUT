@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import {
   Send, Square, History, Plus, ChevronRight, Headset, Lock,
-  Volume2, Pause, Loader2, ThumbsUp, ThumbsDown, Mic, MicOff,
+  Volume2, Pause, Play, Loader2, ThumbsUp, ThumbsDown, Mic, MicOff,
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/button';
