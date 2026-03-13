@@ -24,6 +24,7 @@ import SubjectsPage from "@/pages/app/SubjectsPage";
 import AgentsPage from "@/pages/app/AgentsPage";
 import UpgradePage from "@/pages/app/UpgradePage";
 import ChatPage from "@/pages/app/ChatPage";
+import BillingPage from "@/pages/app/BillingPage";
 
 // Thank You
 import ThankYouMonthly from "@/pages/thankyou/ThankYouMonthly";
