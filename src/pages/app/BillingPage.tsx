@@ -196,9 +196,9 @@ export default function BillingPage() {
                   {planInfo?.subscription_tier === 'monthly' ? 'Mensal — R$129/mês' : 'Anual — R$1.290/ano'}
                 </p>
 {statusLabel && (
-                  <Badge className={statusColor}>{statusLabel}</Badge>
+                  <Badge className={`${statusColor} mr-3`}>{statusLabel}</Badge>
                 )}
-                <Button onClick={handlePortal} disabled={portalLoading} className="mt-3 bg-emerald hover:bg-emerald/90 text-primary-foreground">
+                <Button onClick={handlePortal} disabled={portalLoading} className="bg-emerald hover:bg-emerald/90 text-primary-foreground">
                   <ExternalLink className="mr-2 h-4 w-4" />
                   {portalLoading ? 'Abrindo...' : 'Gerenciar no Stripe'}
                 </Button>
