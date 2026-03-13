@@ -314,25 +314,48 @@ export default function ChatPage() {
     const accessToken = getAccessToken();
     if (!accessToken) { toast.error('Sessão expirada.'); return; }
 
-    // If already playing this message, pause
-    if (playingMsgId === msg.id && audioRef.current) {
+    const cacheKey = `${msg.id}_${speed}`;
+
+    // Caso 1: áudio desta mensagem está tocando → pausar
+    if (ttsActiveMsgId === msg.id && ttsState === 'playing' && audioRef.current) {
       audioRef.current.pause();
-      setPlayingMsgId(null);
+      setTtsState('paused');
       return;
     }
 
-    // Stop any current audio
-    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    // Caso 2: áudio desta mensagem está pausado → retomar
+    if (ttsActiveMsgId === msg.id && ttsState === 'paused' && audioRef.current) {
+      try {
+        await audioRef.current.play();
+        setTtsState('playing');
+      } catch {
+        toast.error('Erro ao reproduzir áudio.');
+        setTtsState('idle');
+        setTtsActiveMsgId(null);
+        audioRef.current = null;
+      }
+      return;
+    }
 
-    const cacheKey = `${msg.id}_${speed}`;
+    // Caso 3: outra mensagem (ou idle) → parar o atual e carregar novo
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.onended = null;
+      audioRef.current = null;
+    }
+
+    setTtsActiveMsgId(msg.id);
+    setTtsState('loading');
+
     let base64 = ttsCache.get(cacheKey);
-
     if (!base64) {
-      setTtsLoadingId(msg.id);
       try {
         const res = await fetch(`${SUPABASE_URL}/functions/v1/openai-tts`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+          },
           body: JSON.stringify({ message_id: msg.id, text: msg.content, voice: 'alloy', speed }),
         });
         if (!res.ok) throw new Error(`TTS error ${res.status}`);
@@ -341,19 +364,46 @@ export default function ChatPage() {
         if (base64) ttsCache.set(cacheKey, base64);
       } catch {
         toast.error('Erro ao gerar áudio.');
-        setTtsLoadingId(null);
+        setTtsState('idle');
+        setTtsActiveMsgId(null);
         return;
       }
-      setTtsLoadingId(null);
     }
 
-    if (base64) {
-      const audio = new Audio(`data:audio/mp3;base64,${base64}`);
-      audio.playbackRate = speed;
-      audio.onended = () => { setPlayingMsgId(null); audioRef.current = null; };
-      audioRef.current = audio;
-      setPlayingMsgId(msg.id);
-      audio.play();
+    if (!base64) {
+      setTtsState('idle');
+      setTtsActiveMsgId(null);
+      return;
+    }
+
+    const audio = new Audio(`data:audio/mp3;base64,${base64}`);
+    audio.playbackRate = speed;
+    audio.onended = () => {
+      setTtsState('idle');
+      setTtsActiveMsgId(null);
+      audioRef.current = null;
+    };
+    audio.onerror = () => {
+      setTtsState('idle');
+      setTtsActiveMsgId(null);
+      audioRef.current = null;
+    };
+    audioRef.current = audio;
+
+    try {
+      await audio.play();
+      setTtsState('playing');
+    } catch {
+      toast.error('Erro ao reproduzir áudio.');
+      setTtsState('idle');
+      setTtsActiveMsgId(null);
+      audioRef.current = null;
+    }
+  };
+
+  const handleSpeedChange = (msg: Message, newSpeed: number) => {
+    if (ttsActiveMsgId === msg.id && audioRef.current) {
+      audioRef.current.playbackRate = newSpeed;
     }
   };
 
