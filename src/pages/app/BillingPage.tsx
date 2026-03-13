@@ -187,7 +187,7 @@ export default function BillingPage() {
                 <Skeleton className="h-10 w-48" />
               </div>
             ) : isSubscriber ? (
-              <>
+              <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-emerald" />
                   <h2 className="text-lg font-semibold text-foreground">Assinatura Ativa</h2>
@@ -198,11 +198,13 @@ export default function BillingPage() {
                 {statusLabel && (
                   <Badge className={statusColor}>{statusLabel}</Badge>
                 )}
-                <Button onClick={handlePortal} disabled={portalLoading} className="mt-4 bg-emerald hover:bg-emerald/90 text-primary-foreground">
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  {portalLoading ? 'Abrindo...' : 'Gerenciar no Stripe'}
-                </Button>
-              </>
+                <div className="pt-2">
+                  <Button onClick={handlePortal} disabled={portalLoading} className="bg-emerald hover:bg-emerald/90 text-primary-foreground">
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    {portalLoading ? 'Abrindo...' : 'Gerenciar no Stripe'}
+                  </Button>
+                </div>
+              </div>
             ) : (
               <>
                 <div className="flex items-center gap-2">
