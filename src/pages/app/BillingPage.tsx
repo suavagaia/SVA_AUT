@@ -65,7 +65,7 @@ export default function BillingPage() {
     if (!user) return;
     const { data } = await supabase
       .from('token_usage_events')
-      .select('id, created_at, tokens_charged, model_used, agents (title)')
+      .select('id, created_at, tokens_charged, model_used, agent_id')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(50);
