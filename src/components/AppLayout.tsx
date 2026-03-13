@@ -55,9 +55,9 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem disabled className="text-muted-foreground">
+                <DropdownMenuItem onClick={() => navigate('/app/billing')} className="cursor-pointer">
                   <CreditCard className="mr-2 h-4 w-4" />
-                  Cobrança & Tokens
+                  Meu Plano
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
