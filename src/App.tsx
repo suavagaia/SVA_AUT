@@ -23,6 +23,7 @@ import ContestsPage from "@/pages/app/ContestsPage";
 import SubjectsPage from "@/pages/app/SubjectsPage";
 import AgentsPage from "@/pages/app/AgentsPage";
 import UpgradePage from "@/pages/app/UpgradePage";
+import ChatPage from "@/pages/app/ChatPage";
 
 // Thank You
 import ThankYouMonthly from "@/pages/thankyou/ThankYouMonthly";
