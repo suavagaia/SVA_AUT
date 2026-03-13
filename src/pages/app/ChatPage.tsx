@@ -105,8 +105,8 @@ export default function ChatPage() {
   const streamRef = useRef<MediaStream | null>(null);
 
   // TTS state (global — one audio at a time)
-  const [playingMsgId, setPlayingMsgId] = useState<string | null>(null);
-  const [ttsLoadingId, setTtsLoadingId] = useState<string | null>(null);
+  const [ttsState, setTtsState] = useState<'idle' | 'loading' | 'playing' | 'paused'>('idle');
+  const [ttsActiveMsgId, setTtsActiveMsgId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Current tab helpers
