@@ -138,8 +138,25 @@ export default function ChatPage() {
       localStorage.removeItem('selectedConversationId');
       const savedTab = localStorage.getItem('selectedTab') as TabType | null;
       localStorage.removeItem('selectedTab');
-      if (savedTab) setActiveTab(savedTab);
-      handleRestoreConversation(savedConversationId);
+
+      // Buscar conversa + agente do banco para popular o estado
+      const restoreFromHistory = async () => {
+        const { data: conv } = await supabase
+          .from('conversations')
+          .select('id, title, agent_id, agents(id, title, slug, description, icon)')
+          .eq('id', savedConversationId)
+          .single();
+
+        if (conv?.agents) {
+          const a = conv.agents as any;
+          setSelectedAgent({ id: a.id, name: a.title, slug: a.slug, description: a.description, icon: a.icon });
+          if (savedTab) setActiveTab(savedTab);
+          handleRestoreConversation(savedConversationId);
+        } else {
+          navigate('/app/areas');
+        }
+      };
+      restoreFromHistory();
     }
   }, [navigate]);
 
