@@ -26,8 +26,16 @@ export default function SettingsPage() {
   const [resetSending, setResetSending] = useState(false);
 
   useEffect(() => {
-    if (profile?.full_name) setFullName(profile.full_name);
-  }, [profile]);
+    if (!user) return;
+    supabase
+      .from('users')
+      .select('full_name')
+      .eq('id', user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.full_name) setFullName(data.full_name);
+      });
+  }, [user]);
 
   const handleSaveProfile = async () => {
     if (!user) return;
