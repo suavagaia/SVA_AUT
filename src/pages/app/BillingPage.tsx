@@ -22,7 +22,7 @@ interface TokenUsageEvent {
   created_at: string;
   tokens_charged: number;
   model_used: string;
-  agents: { title: string } | null;
+  agent_id: string | null;
 }
 
 export default function BillingPage() {
@@ -65,7 +65,7 @@ export default function BillingPage() {
     if (!user) return;
     const { data } = await supabase
       .from('token_usage_events')
-      .select('id, created_at, tokens_charged, model_used, agents (title)')
+      .select('id, created_at, tokens_charged, model_used, agent_id')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(50);
@@ -261,7 +261,7 @@ export default function BillingPage() {
                     {usageEvents.map((evt) => (
                       <TableRow key={evt.id}>
                         <TableCell className="text-sm">{dateFmt.format(new Date(evt.created_at))}</TableCell>
-                        <TableCell className="text-sm">{evt.agents?.title || '—'}</TableCell>
+                        <TableCell className="text-sm">{evt.agent_id || '—'}</TableCell>
                         <TableCell className="text-sm font-mono">{evt.model_used}</TableCell>
                         <TableCell className="text-sm text-right">{numFmt.format(evt.tokens_charged)}</TableCell>
                       </TableRow>
