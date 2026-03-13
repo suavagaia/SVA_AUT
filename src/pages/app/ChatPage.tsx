@@ -442,6 +442,11 @@ export default function ChatPage() {
         agentId={activeTab === 'agente' ? selectedAgent.id : undefined}
         agentSlug={activeTab === 'apoio' ? 'agente-de-apoio' : undefined}
         onRestore={handleRestoreConversation}
+        activeConversationId={convId ?? undefined}
+        onConversationDeleted={() => {
+          setConvId(null);
+          setMessages([]);
+        }}
       />
     </AppLayout>
   );
