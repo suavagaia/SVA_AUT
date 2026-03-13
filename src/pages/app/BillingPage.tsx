@@ -22,7 +22,7 @@ interface TokenUsageEvent {
   created_at: string;
   tokens_charged: number;
   model_used: string;
-  agents: { title: string } | null;
+  agent_id: string | null;
 }
 
 export default function BillingPage() {
