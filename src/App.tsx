@@ -55,7 +55,8 @@ const App = () => (
             {/* Auth - public only */}
             <Route path="/auth/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
             <Route path="/auth/signup" element={<PublicOnlyRoute><SignupPage /></PublicOnlyRoute>} />
-            <Route path="/auth/reset-password" element={<PublicOnlyRoute><ResetPasswordPage /></PublicOnlyRoute>} />
+            <Route path="/auth/forgot-password" element={<PublicOnlyRoute><ForgotPasswordPage /></PublicOnlyRoute>} />
+            <Route path="/auth/reset-password" element={<NewPasswordPage />} />
             <Route path="/auth/update-password" element={<UpdatePasswordPage />} />
             <Route path="/auth/confirm" element={<ConfirmPage />} />
 

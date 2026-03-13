@@ -46,7 +46,7 @@ export default function LoginPage() {
         <div>
           <div className="flex items-center justify-between">
             <Label className="text-muted-light">Senha</Label>
-            <Link to="/auth/reset-password" className="text-xs text-emerald hover:underline">
+            <Link to="/auth/forgot-password" className="text-xs text-emerald hover:underline">
               Esqueceu a senha?
             </Link>
           </div>
