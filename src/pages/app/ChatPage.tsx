@@ -118,18 +118,25 @@ export default function ChatPage() {
   const setIsStreaming = activeTab === 'agente' ? setAgentStreaming : setApoioStreaming;
 
   useEffect(() => {
-    const agent = localStorage.getItem('selectedAgent');
-    if (!agent) { navigate('/app/areas'); return; }
-    setSelectedAgent(JSON.parse(agent));
-    setSelectedArea(JSON.parse(localStorage.getItem('selectedArea') || 'null'));
-    setSelectedContest(JSON.parse(localStorage.getItem('selectedContest') || 'null'));
-    setSelectedSubject(JSON.parse(localStorage.getItem('selectedSubject') || 'null'));
-
-    // Restore conversation from history page
     const savedConversationId = localStorage.getItem('selectedConversationId');
-    const savedTab = localStorage.getItem('selectedTab') as TabType | null;
+    const agent = localStorage.getItem('selectedAgent');
+
+    // Se não tem agente nem conversa salva, redireciona
+    if (!agent && !savedConversationId) {
+      navigate('/app/areas');
+      return;
+    }
+
+    if (agent) {
+      setSelectedAgent(JSON.parse(agent));
+      setSelectedArea(JSON.parse(localStorage.getItem('selectedArea') || 'null'));
+      setSelectedContest(JSON.parse(localStorage.getItem('selectedContest') || 'null'));
+      setSelectedSubject(JSON.parse(localStorage.getItem('selectedSubject') || 'null'));
+    }
+
     if (savedConversationId) {
       localStorage.removeItem('selectedConversationId');
+      const savedTab = localStorage.getItem('selectedTab') as TabType | null;
       localStorage.removeItem('selectedTab');
       if (savedTab) setActiveTab(savedTab);
       handleRestoreConversation(savedConversationId);
