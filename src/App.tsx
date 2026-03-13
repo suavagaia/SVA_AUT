@@ -13,7 +13,8 @@ import NotFound from "@/pages/NotFound";
 // Auth
 import LoginPage from "@/pages/auth/LoginPage";
 import SignupPage from "@/pages/auth/SignupPage";
-import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
+import ForgotPasswordPage from "@/pages/auth/ResetPasswordPage";
+import NewPasswordPage from "@/pages/auth/NewPasswordPage";
 import UpdatePasswordPage from "@/pages/auth/UpdatePasswordPage";
 import ConfirmPage from "@/pages/auth/ConfirmPage";
 
@@ -54,7 +55,8 @@ const App = () => (
             {/* Auth - public only */}
             <Route path="/auth/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
             <Route path="/auth/signup" element={<PublicOnlyRoute><SignupPage /></PublicOnlyRoute>} />
-            <Route path="/auth/reset-password" element={<PublicOnlyRoute><ResetPasswordPage /></PublicOnlyRoute>} />
+            <Route path="/auth/forgot-password" element={<PublicOnlyRoute><ForgotPasswordPage /></PublicOnlyRoute>} />
+            <Route path="/auth/reset-password" element={<NewPasswordPage />} />
             <Route path="/auth/update-password" element={<UpdatePasswordPage />} />
             <Route path="/auth/confirm" element={<ConfirmPage />} />
 

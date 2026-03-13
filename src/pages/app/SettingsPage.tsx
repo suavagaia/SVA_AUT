@@ -54,7 +54,7 @@ export default function SettingsPage() {
     if (!user?.email) return;
     setResetSending(true);
     const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-      redirectTo: `${window.location.origin}/auth/confirm?type=recovery&next=/app/settings`,
+      redirectTo: `${window.location.origin}/auth/reset-password`,
     });
     if (error) {
       toast.error('Erro ao enviar email de redefinição.');
