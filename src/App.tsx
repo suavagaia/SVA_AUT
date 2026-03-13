@@ -24,6 +24,7 @@ import SubjectsPage from "@/pages/app/SubjectsPage";
 import AgentsPage from "@/pages/app/AgentsPage";
 import UpgradePage from "@/pages/app/UpgradePage";
 import ChatPage from "@/pages/app/ChatPage";
+import BillingPage from "@/pages/app/BillingPage";
 
 // Thank You
 import ThankYouMonthly from "@/pages/thankyou/ThankYouMonthly";
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="/app/agents/:subjectId" element={<ProtectedRoute><AgentsPage /></ProtectedRoute>} />
             <Route path="/app/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
             <Route path="/app/upgrade" element={<ProtectedRoute><UpgradePage /></ProtectedRoute>} />
+            <Route path="/app/billing" element={<ProtectedRoute><BillingPage /></ProtectedRoute>} />
 
             {/* Thank You - public */}
             <Route path="/thank-you/monthly" element={<ThankYouMonthly />} />
