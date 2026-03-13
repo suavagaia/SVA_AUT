@@ -311,7 +311,8 @@ export default function ChatPage() {
   // ---- TTS ----
   const handleTTS = async (msg: Message, speed: number) => {
     if (!msg.id) return;
-    const accessToken = getAccessToken();
+    const { data: { session } } = await supabase.auth.getSession();
+    const accessToken = session?.access_token;
     if (!accessToken) { toast.error('Sessão expirada.'); return; }
 
     const cacheKey = `${msg.id}_${speed}`;
@@ -446,7 +447,8 @@ export default function ChatPage() {
   };
 
   const transcribeAudio = async (blob: Blob) => {
-    const accessToken = getAccessToken();
+    const { data: { session } } = await supabase.auth.getSession();
+    const accessToken = session?.access_token;
     if (!accessToken) { toast.error('Sessão expirada.'); return; }
 
     setIsTranscribing(true);
