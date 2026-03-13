@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import {
   Send, Square, History, Plus, ChevronRight, Headset, Lock,
-  Volume2, Pause, Loader2, ThumbsUp, ThumbsDown, Mic, MicOff,
+  Volume2, Pause, Play, Loader2, ThumbsUp, ThumbsDown, Mic, MicOff,
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -105,8 +105,8 @@ export default function ChatPage() {
   const streamRef = useRef<MediaStream | null>(null);
 
   // TTS state (global — one audio at a time)
-  const [playingMsgId, setPlayingMsgId] = useState<string | null>(null);
-  const [ttsLoadingId, setTtsLoadingId] = useState<string | null>(null);
+  const [ttsState, setTtsState] = useState<'idle' | 'loading' | 'playing' | 'paused'>('idle');
+  const [ttsActiveMsgId, setTtsActiveMsgId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Current tab helpers
@@ -314,25 +314,48 @@ export default function ChatPage() {
     const accessToken = getAccessToken();
     if (!accessToken) { toast.error('Sessão expirada.'); return; }
 
-    // If already playing this message, pause
-    if (playingMsgId === msg.id && audioRef.current) {
+    const cacheKey = `${msg.id}_${speed}`;
+
+    // Caso 1: áudio desta mensagem está tocando → pausar
+    if (ttsActiveMsgId === msg.id && ttsState === 'playing' && audioRef.current) {
       audioRef.current.pause();
-      setPlayingMsgId(null);
+      setTtsState('paused');
       return;
     }
 
-    // Stop any current audio
-    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    // Caso 2: áudio desta mensagem está pausado → retomar
+    if (ttsActiveMsgId === msg.id && ttsState === 'paused' && audioRef.current) {
+      try {
+        await audioRef.current.play();
+        setTtsState('playing');
+      } catch {
+        toast.error('Erro ao reproduzir áudio.');
+        setTtsState('idle');
+        setTtsActiveMsgId(null);
+        audioRef.current = null;
+      }
+      return;
+    }
 
-    const cacheKey = `${msg.id}_${speed}`;
+    // Caso 3: outra mensagem (ou idle) → parar o atual e carregar novo
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.onended = null;
+      audioRef.current = null;
+    }
+
+    setTtsActiveMsgId(msg.id);
+    setTtsState('loading');
+
     let base64 = ttsCache.get(cacheKey);
-
     if (!base64) {
-      setTtsLoadingId(msg.id);
       try {
         const res = await fetch(`${SUPABASE_URL}/functions/v1/openai-tts`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+          },
           body: JSON.stringify({ message_id: msg.id, text: msg.content, voice: 'alloy', speed }),
         });
         if (!res.ok) throw new Error(`TTS error ${res.status}`);
@@ -341,19 +364,46 @@ export default function ChatPage() {
         if (base64) ttsCache.set(cacheKey, base64);
       } catch {
         toast.error('Erro ao gerar áudio.');
-        setTtsLoadingId(null);
+        setTtsState('idle');
+        setTtsActiveMsgId(null);
         return;
       }
-      setTtsLoadingId(null);
     }
 
-    if (base64) {
-      const audio = new Audio(`data:audio/mp3;base64,${base64}`);
-      audio.playbackRate = speed;
-      audio.onended = () => { setPlayingMsgId(null); audioRef.current = null; };
-      audioRef.current = audio;
-      setPlayingMsgId(msg.id);
-      audio.play();
+    if (!base64) {
+      setTtsState('idle');
+      setTtsActiveMsgId(null);
+      return;
+    }
+
+    const audio = new Audio(`data:audio/mp3;base64,${base64}`);
+    audio.playbackRate = speed;
+    audio.onended = () => {
+      setTtsState('idle');
+      setTtsActiveMsgId(null);
+      audioRef.current = null;
+    };
+    audio.onerror = () => {
+      setTtsState('idle');
+      setTtsActiveMsgId(null);
+      audioRef.current = null;
+    };
+    audioRef.current = audio;
+
+    try {
+      await audio.play();
+      setTtsState('playing');
+    } catch {
+      toast.error('Erro ao reproduzir áudio.');
+      setTtsState('idle');
+      setTtsActiveMsgId(null);
+      audioRef.current = null;
+    }
+  };
+
+  const handleSpeedChange = (msg: Message, newSpeed: number) => {
+    if (ttsActiveMsgId === msg.id && audioRef.current) {
+      audioRef.current.playbackRate = newSpeed;
     }
   };
 
@@ -489,9 +539,10 @@ export default function ChatPage() {
                   key={msg.id || i}
                   message={msg}
                   isStreaming={isStreaming && i === messages.length - 1 && msg.role === 'assistant'}
-                  playingMsgId={playingMsgId}
-                  ttsLoadingId={ttsLoadingId}
+                  ttsActiveMsgId={ttsActiveMsgId}
+                  ttsState={ttsState}
                   onTTS={handleTTS}
+                  onSpeedChange={handleSpeedChange}
                   onFeedback={handleFeedback}
                 />
               ))}
@@ -641,20 +692,30 @@ function EmptyState({
 const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5] as const;
 
 function ChatBubble({
-  message, isStreaming, playingMsgId, ttsLoadingId, onTTS, onFeedback,
+  message,
+  isStreaming,
+  ttsActiveMsgId,
+  ttsState,
+  onTTS,
+  onSpeedChange,
+  onFeedback,
 }: {
   message: Message;
   isStreaming: boolean;
-  playingMsgId: string | null;
-  ttsLoadingId: string | null;
+  ttsActiveMsgId: string | null;
+  ttsState: 'idle' | 'loading' | 'playing' | 'paused';
   onTTS: (msg: Message, speed: number) => void;
+  onSpeedChange: (msg: Message, speed: number) => void;
   onFeedback: (messageId: string, value: 'like' | 'dislike') => void;
 }) {
   const isUser = message.role === 'user';
   const [ttsSpeed, setTtsSpeed] = useState<number>(1);
-  const isPlaying = playingMsgId === message.id;
-  const isLoadingTTS = ttsLoadingId === message.id;
   const hasId = !!message.id;
+  const isThisActive = ttsActiveMsgId === message.id;
+  const isLoading = isThisActive && ttsState === 'loading';
+  const isPlaying = isThisActive && ttsState === 'playing';
+  const isPaused = isThisActive && ttsState === 'paused';
+  const hasLoadedAudio = isThisActive || SPEED_OPTIONS.some(s => ttsCache.has(`${message.id}_${s}`));
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -687,22 +748,27 @@ function ChatBubble({
               title="Ouvir"
               onClick={() => onTTS(message, ttsSpeed)}
             >
-              {isLoadingTTS ? (
+              {isLoading ? (
                 <Loader2 size={14} className="animate-spin" />
               ) : isPlaying ? (
                 <Pause size={14} />
+              ) : isPaused ? (
+                <Play size={14} />
               ) : (
                 <Volume2 size={14} />
               )}
             </Button>
 
             {/* Speed selector (visible when audio loaded for this message) */}
-            {(isPlaying || ttsCache.has(`${message.id}_${ttsSpeed}`)) && (
+            {hasLoadedAudio && (
               <div className="flex items-center gap-0.5">
                 {SPEED_OPTIONS.map(s => (
                   <button
                     key={s}
-                    onClick={() => { setTtsSpeed(s); onTTS(message, s); }}
+                    onClick={() => {
+                      setTtsSpeed(s);
+                      onSpeedChange(message, s);
+                    }}
                     className={`text-[10px] px-1.5 py-0.5 rounded ${
                       ttsSpeed === s ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
                     }`}
