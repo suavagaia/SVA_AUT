@@ -692,20 +692,30 @@ function EmptyState({
 const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5] as const;
 
 function ChatBubble({
-  message, isStreaming, playingMsgId, ttsLoadingId, onTTS, onFeedback,
+  message,
+  isStreaming,
+  ttsActiveMsgId,
+  ttsState,
+  onTTS,
+  onSpeedChange,
+  onFeedback,
 }: {
   message: Message;
   isStreaming: boolean;
-  playingMsgId: string | null;
-  ttsLoadingId: string | null;
+  ttsActiveMsgId: string | null;
+  ttsState: 'idle' | 'loading' | 'playing' | 'paused';
   onTTS: (msg: Message, speed: number) => void;
+  onSpeedChange: (msg: Message, speed: number) => void;
   onFeedback: (messageId: string, value: 'like' | 'dislike') => void;
 }) {
   const isUser = message.role === 'user';
   const [ttsSpeed, setTtsSpeed] = useState<number>(1);
-  const isPlaying = playingMsgId === message.id;
-  const isLoadingTTS = ttsLoadingId === message.id;
   const hasId = !!message.id;
+  const isThisActive = ttsActiveMsgId === message.id;
+  const isLoading = isThisActive && ttsState === 'loading';
+  const isPlaying = isThisActive && ttsState === 'playing';
+  const isPaused = isThisActive && ttsState === 'paused';
+  const hasLoadedAudio = isThisActive || SPEED_OPTIONS.some(s => ttsCache.has(`${message.id}_${s}`));
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -738,22 +748,27 @@ function ChatBubble({
               title="Ouvir"
               onClick={() => onTTS(message, ttsSpeed)}
             >
-              {isLoadingTTS ? (
+              {isLoading ? (
                 <Loader2 size={14} className="animate-spin" />
               ) : isPlaying ? (
                 <Pause size={14} />
+              ) : isPaused ? (
+                <Play size={14} />
               ) : (
                 <Volume2 size={14} />
               )}
             </Button>
 
             {/* Speed selector (visible when audio loaded for this message) */}
-            {(isPlaying || ttsCache.has(`${message.id}_${ttsSpeed}`)) && (
+            {hasLoadedAudio && (
               <div className="flex items-center gap-0.5">
                 {SPEED_OPTIONS.map(s => (
                   <button
                     key={s}
-                    onClick={() => { setTtsSpeed(s); onTTS(message, s); }}
+                    onClick={() => {
+                      setTtsSpeed(s);
+                      onSpeedChange(message, s);
+                    }}
                     className={`text-[10px] px-1.5 py-0.5 rounded ${
                       ttsSpeed === s ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
                     }`}
