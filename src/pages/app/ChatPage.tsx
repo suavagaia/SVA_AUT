@@ -539,9 +539,10 @@ export default function ChatPage() {
                   key={msg.id || i}
                   message={msg}
                   isStreaming={isStreaming && i === messages.length - 1 && msg.role === 'assistant'}
-                  playingMsgId={playingMsgId}
-                  ttsLoadingId={ttsLoadingId}
+                  ttsActiveMsgId={ttsActiveMsgId}
+                  ttsState={ttsState}
                   onTTS={handleTTS}
+                  onSpeedChange={handleSpeedChange}
                   onFeedback={handleFeedback}
                 />
               ))}
