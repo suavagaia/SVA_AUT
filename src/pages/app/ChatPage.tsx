@@ -124,6 +124,16 @@ export default function ChatPage() {
     setSelectedArea(JSON.parse(localStorage.getItem('selectedArea') || 'null'));
     setSelectedContest(JSON.parse(localStorage.getItem('selectedContest') || 'null'));
     setSelectedSubject(JSON.parse(localStorage.getItem('selectedSubject') || 'null'));
+
+    // Restore conversation from history page
+    const savedConversationId = localStorage.getItem('selectedConversationId');
+    const savedTab = localStorage.getItem('selectedTab') as TabType | null;
+    if (savedConversationId) {
+      localStorage.removeItem('selectedConversationId');
+      localStorage.removeItem('selectedTab');
+      if (savedTab) setActiveTab(savedTab);
+      handleRestoreConversation(savedConversationId);
+    }
   }, [navigate]);
 
   useEffect(() => {

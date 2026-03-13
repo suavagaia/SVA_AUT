@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Bell, LogOut, CreditCard } from 'lucide-react';
+import { Bell, LogOut, CreditCard, History, Settings } from 'lucide-react';
 import { LogoDark } from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -55,9 +55,17 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => navigate('/app/history')} className="cursor-pointer">
+                  <History className="mr-2 h-4 w-4" />
+                  Histórico
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/app/billing')} className="cursor-pointer">
                   <CreditCard className="mr-2 h-4 w-4" />
                   Meu Plano
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/app/settings')} className="cursor-pointer">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Configurações
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />

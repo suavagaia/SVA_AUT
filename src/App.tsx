@@ -25,6 +25,8 @@ import AgentsPage from "@/pages/app/AgentsPage";
 import UpgradePage from "@/pages/app/UpgradePage";
 import ChatPage from "@/pages/app/ChatPage";
 import BillingPage from "@/pages/app/BillingPage";
+import HistoryPage from "@/pages/app/HistoryPage";
+import SettingsPage from "@/pages/app/SettingsPage";
 
 // Thank You
 import ThankYouMonthly from "@/pages/thankyou/ThankYouMonthly";
@@ -65,6 +67,8 @@ const App = () => (
             <Route path="/app/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
             <Route path="/app/upgrade" element={<ProtectedRoute><UpgradePage /></ProtectedRoute>} />
             <Route path="/app/billing" element={<ProtectedRoute><BillingPage /></ProtectedRoute>} />
+            <Route path="/app/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
+            <Route path="/app/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
 
             {/* Thank You - public */}
             <Route path="/thank-you/monthly" element={<ThankYouMonthly />} />
