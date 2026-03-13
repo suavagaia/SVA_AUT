@@ -261,7 +261,7 @@ export default function BillingPage() {
                     {usageEvents.map((evt) => (
                       <TableRow key={evt.id}>
                         <TableCell className="text-sm">{dateFmt.format(new Date(evt.created_at))}</TableCell>
-                        <TableCell className="text-sm">{evt.agent_id || '—'}</TableCell>
+                        <TableCell className="text-sm">{evt.agents?.title || '—'}</TableCell>
                         <TableCell className="text-sm font-mono">{evt.model_used}</TableCell>
                         <TableCell className="text-sm text-right">{numFmt.format(evt.tokens_charged)}</TableCell>
                       </TableRow>
