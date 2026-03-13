@@ -4,7 +4,10 @@ import { AppLayout } from '@/components/AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { Send, Square, History, Plus, ChevronRight, Headset, Lock } from 'lucide-react';
+import {
+  Send, Square, History, Plus, ChevronRight, Headset, Lock,
+  Volume2, Pause, Loader2, ThumbsUp, ThumbsDown, Mic, MicOff,
+} from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,14 +23,18 @@ interface SelectedAgent {
 }
 
 interface Message {
+  id?: string;
   role: 'user' | 'assistant';
   content: string;
   created_at?: string;
+  feedback?: 'like' | 'dislike' | null;
 }
 
 type TabType = 'agente' | 'apoio';
 
 const STORAGE_KEY = 'sb-lxteajwzovoeclbytdrp-auth-token';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://lxteajwzovoeclbytdrp.supabase.co';
+const SUPABASE_ANON = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4dGVhand6b3ZvZWNsYnl0ZHJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMzkxMzcsImV4cCI6MjA4ODkxNTEzN30.BLB9qSJcZMKsWhix46ASUbOW2lA0PSeyHN97jMQQGkQ';
 
 const SUGGESTION_CHIPS: Record<string, string[]> = {
   questoes: ['Gere 5 questões sobre...', 'Explique a alternativa correta de...'],
@@ -57,40 +64,50 @@ function getAccessToken(): string | null {
   return raw ? JSON.parse(raw)?.access_token : null;
 }
 
+// ---- TTS audio cache (in-memory per session) ----
+const ttsCache = new Map<string, string>();
+
 export default function ChatPage() {
   const navigate = useNavigate();
   const { profile, user } = useAuth();
 
-  // Selected context from localStorage
   const [selectedAgent, setSelectedAgent] = useState<SelectedAgent | null>(null);
   const [selectedArea, setSelectedArea] = useState<{ id: string; name: string } | null>(null);
   const [selectedContest, setSelectedContest] = useState<{ id: string; name: string } | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<{ id: string; name: string } | null>(null);
 
-  // Tab state
   const [activeTab, setActiveTab] = useState<TabType>('agente');
 
-  // Agente tab state
   const [agentMessages, setAgentMessages] = useState<Message[]>([]);
   const [agentConvId, setAgentConvId] = useState<string | null>(null);
   const [agentStreaming, setAgentStreaming] = useState(false);
 
-  // Apoio tab state
   const [apoioMessages, setApoioMessages] = useState<Message[]>([]);
   const [apoioConvId, setApoioConvId] = useState<string | null>(null);
   const [apoioStreaming, setApoioStreaming] = useState(false);
 
-  // Input
   const [inputText, setInputText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // History modal
   const [historyOpen, setHistoryOpen] = useState(false);
-
-  // Tokens
   const [tokensRemaining, setTokensRemaining] = useState<number | null>(null);
+
+  // STT state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [autoSend, setAutoSend] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const chunksRef = useRef<BlobPart[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  // TTS state (global — one audio at a time)
+  const [playingMsgId, setPlayingMsgId] = useState<string | null>(null);
+  const [ttsLoadingId, setTtsLoadingId] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Current tab helpers
   const messages = activeTab === 'agente' ? agentMessages : apoioMessages;
@@ -100,20 +117,15 @@ export default function ChatPage() {
   const isStreaming = activeTab === 'agente' ? agentStreaming : apoioStreaming;
   const setIsStreaming = activeTab === 'agente' ? setAgentStreaming : setApoioStreaming;
 
-  // Load context from localStorage
   useEffect(() => {
     const agent = localStorage.getItem('selectedAgent');
-    if (!agent) {
-      navigate('/app/areas');
-      return;
-    }
+    if (!agent) { navigate('/app/areas'); return; }
     setSelectedAgent(JSON.parse(agent));
     setSelectedArea(JSON.parse(localStorage.getItem('selectedArea') || 'null'));
     setSelectedContest(JSON.parse(localStorage.getItem('selectedContest') || 'null'));
     setSelectedSubject(JSON.parse(localStorage.getItem('selectedSubject') || 'null'));
   }, [navigate]);
 
-  // Fetch token balance
   useEffect(() => {
     if (!user) return;
     supabase
@@ -121,23 +133,27 @@ export default function ChatPage() {
       .select('agents_tokens_remaining')
       .eq('user_id', user.id)
       .single()
-      .then(({ data }) => {
-        if (data) setTokensRemaining(data.agents_tokens_remaining);
-      });
+      .then(({ data }) => { if (data) setTokensRemaining(data.agents_tokens_remaining); });
   }, [user]);
 
-  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [agentMessages, apoioMessages]);
 
-  // Auto-resize textarea
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 140) + 'px';
   }, [inputText]);
+
+  // Cleanup recording on unmount
+  useEffect(() => {
+    return () => {
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+      streamRef.current?.getTracks().forEach(t => t.stop());
+    };
+  }, []);
 
   const canUseAgent = useCallback((): boolean => {
     if (profile?.role === 'admin') return true;
@@ -146,67 +162,50 @@ export default function ChatPage() {
     return false;
   }, [profile, activeTab]);
 
-  const handleSend = async () => {
-    if (!inputText.trim() || isStreaming) return;
+  // ---- Send message ----
+  const handleSend = async (overrideText?: string) => {
+    const text = overrideText || inputText;
+    if (!text.trim() || isStreaming) return;
 
     const accessToken = getAccessToken();
-    if (!accessToken) {
-      toast.error('Sessão expirada. Faça login novamente.');
-      return;
-    }
+    if (!accessToken) { toast.error('Sessão expirada. Faça login novamente.'); return; }
 
-    const userMsg: Message = { role: 'user', content: inputText.trim() };
+    const userMsg: Message = { role: 'user', content: text.trim() };
     setMessages(prev => [...prev, userMsg]);
     setInputText('');
     setIsStreaming(true);
 
-    // Add empty assistant message
     const assistantMsg: Message = { role: 'assistant', content: '' };
     setMessages(prev => [...prev, assistantMsg]);
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
-
     const slug = activeTab === 'agente' ? selectedAgent?.slug : 'agente-de-apoio';
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL || 'https://lxteajwzovoeclbytdrp.supabase.co'}/functions/v1/execute-prompt`,
+        `${SUPABASE_URL}/functions/v1/execute-prompt`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken}`,
-            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4dGVhand6b3ZvZWNsYnl0ZHJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMzkxMzcsImV4cCI6MjA4ODkxNTEzN30.BLB9qSJcZMKsWhix46ASUbOW2lA0PSeyHN97jMQQGkQ',
+            'apikey': SUPABASE_ANON,
           },
-          body: JSON.stringify({
-            agent_slug: slug,
-            message: userMsg.content,
-            conversation_id: convId,
-          }),
+          body: JSON.stringify({ agent_slug: slug, message: userMsg.content, conversation_id: convId }),
           signal: controller.signal,
         }
       );
 
       if (response.status === 401) {
         toast.error('Sessão expirada. Faça login novamente.');
-        setIsStreaming(false);
-        setMessages(prev => prev.slice(0, -1));
-        return;
+        setIsStreaming(false); setMessages(prev => prev.slice(0, -1)); return;
       }
-
       if (response.status === 402) {
-        toast.error('Seus tokens acabaram.', {
-          action: { label: 'Ver planos', onClick: () => navigate('/app/upgrade') },
-        });
-        setIsStreaming(false);
-        setMessages(prev => prev.slice(0, -1));
-        return;
+        toast.error('Seus tokens acabaram.', { action: { label: 'Ver planos', onClick: () => navigate('/app/upgrade') } });
+        setIsStreaming(false); setMessages(prev => prev.slice(0, -1)); return;
       }
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const reader = response.body!.getReader();
       const decoder = new TextDecoder();
@@ -215,7 +214,6 @@ export default function ChatPage() {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
         const chunk = decoder.decode(value, { stream: true });
         const lines = chunk.split('\n');
 
@@ -223,48 +221,51 @@ export default function ChatPage() {
           if (!line.startsWith('data: ')) continue;
           const data = line.slice(6).trim();
           if (!data) continue;
-
           try {
             const event = JSON.parse(data);
-
             if (event.conversation_id) {
               if (activeTab === 'agente') setAgentConvId(event.conversation_id);
               else setApoioConvId(event.conversation_id);
             }
-
             if (event.delta) {
               assistantContent += event.delta;
               const updated = assistantContent;
               setMessages(prev => {
                 const copy = [...prev];
-                copy[copy.length - 1] = { role: 'assistant', content: updated };
+                copy[copy.length - 1] = { ...copy[copy.length - 1], role: 'assistant', content: updated };
                 return copy;
               });
             }
-
             if (event.done) {
+              // Capture message IDs from the done event if available
+              if (event.user_message_id || event.assistant_message_id) {
+                setMessages(prev => {
+                  const copy = [...prev];
+                  if (event.user_message_id && copy.length >= 2) {
+                    copy[copy.length - 2] = { ...copy[copy.length - 2], id: event.user_message_id };
+                  }
+                  if (event.assistant_message_id) {
+                    copy[copy.length - 1] = { ...copy[copy.length - 1], id: event.assistant_message_id };
+                  }
+                  return copy;
+                });
+              }
               setIsStreaming(false);
-              // Refresh token balance
               if (user) {
                 supabase
                   .from('user_token_balances')
                   .select('agents_tokens_remaining')
                   .eq('user_id', user.id)
                   .single()
-                  .then(({ data }) => {
-                    if (data) setTokensRemaining(data.agents_tokens_remaining);
-                  });
+                  .then(({ data }) => { if (data) setTokensRemaining(data.agents_tokens_remaining); });
               }
             }
           } catch (_) {}
         }
       }
-
       setIsStreaming(false);
     } catch (err: any) {
-      if (err.name === 'AbortError') {
-        // User cancelled
-      } else {
+      if (err.name !== 'AbortError') {
         toast.error('Erro ao processar resposta. Tente novamente.');
         setMessages(prev => prev.slice(0, -1));
       }
@@ -272,32 +273,19 @@ export default function ChatPage() {
     }
   };
 
-  const handleAbort = () => {
-    abortControllerRef.current?.abort();
-    setIsStreaming(false);
-  };
+  const handleAbort = () => { abortControllerRef.current?.abort(); setIsStreaming(false); };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
-  const handleChipClick = (text: string) => {
-    setInputText(text);
-    textareaRef.current?.focus();
-  };
-
-  const handleNewChat = () => {
-    setMessages([]);
-    setConvId(null);
-  };
+  const handleChipClick = (text: string) => { setInputText(text); textareaRef.current?.focus(); };
+  const handleNewChat = () => { setMessages([]); setConvId(null); };
 
   const handleRestoreConversation = async (conversationId: string) => {
     const { data: msgs } = await supabase
       .from('messages')
-      .select('role, content, created_at')
+      .select('id, role, content, created_at, feedback')
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true });
 
@@ -307,6 +295,136 @@ export default function ChatPage() {
     }
     setHistoryOpen(false);
   };
+
+  // ---- Feedback ----
+  const handleFeedback = async (messageId: string, value: 'like' | 'dislike') => {
+    const msg = messages.find(m => m.id === messageId);
+    const newValue = msg?.feedback === value ? null : value;
+
+    setMessages(prev => prev.map(m =>
+      m.id === messageId ? { ...m, feedback: newValue } : m
+    ));
+
+    await supabase.from('messages').update({ feedback: newValue }).eq('id', messageId);
+  };
+
+  // ---- TTS ----
+  const handleTTS = async (msg: Message, speed: number) => {
+    if (!msg.id) return;
+    const accessToken = getAccessToken();
+    if (!accessToken) { toast.error('Sessão expirada.'); return; }
+
+    // If already playing this message, pause
+    if (playingMsgId === msg.id && audioRef.current) {
+      audioRef.current.pause();
+      setPlayingMsgId(null);
+      return;
+    }
+
+    // Stop any current audio
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+
+    const cacheKey = `${msg.id}_${speed}`;
+    let base64 = ttsCache.get(cacheKey);
+
+    if (!base64) {
+      setTtsLoadingId(msg.id);
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/openai-tts`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+          body: JSON.stringify({ message_id: msg.id, text: msg.content, voice: 'alloy', speed }),
+        });
+        if (!res.ok) throw new Error(`TTS error ${res.status}`);
+        const data = await res.json();
+        base64 = data.audio_base64;
+        if (base64) ttsCache.set(cacheKey, base64);
+      } catch {
+        toast.error('Erro ao gerar áudio.');
+        setTtsLoadingId(null);
+        return;
+      }
+      setTtsLoadingId(null);
+    }
+
+    if (base64) {
+      const audio = new Audio(`data:audio/mp3;base64,${base64}`);
+      audio.playbackRate = speed;
+      audio.onended = () => { setPlayingMsgId(null); audioRef.current = null; };
+      audioRef.current = audio;
+      setPlayingMsgId(msg.id);
+      audio.play();
+    }
+  };
+
+  // ---- STT ----
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => chunksRef.current.push(e.data);
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        stream.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+        await transcribeAudio(blob);
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingTime(prev => {
+          if (prev >= 119) { stopRecording(); return prev; }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch {
+      toast.error('Não foi possível acessar o microfone.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (recordingTimerRef.current) { clearInterval(recordingTimerRef.current); recordingTimerRef.current = null; }
+    mediaRecorderRef.current?.stop();
+    setIsRecording(false);
+    setRecordingTime(0);
+  };
+
+  const transcribeAudio = async (blob: Blob) => {
+    const accessToken = getAccessToken();
+    if (!accessToken) { toast.error('Sessão expirada.'); return; }
+
+    setIsTranscribing(true);
+    const formData = new FormData();
+    formData.append('audio', blob, 'audio.webm');
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/openai-whisper`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+        body: formData,
+      });
+      if (!res.ok) throw new Error(`Whisper error ${res.status}`);
+      const data = await res.json();
+      if (data.text) {
+        setInputText(data.text);
+        if (autoSend) {
+          // Small delay to let state update
+          setTimeout(() => handleSend(data.text), 100);
+        }
+      }
+    } catch {
+      toast.error('Erro ao transcrever áudio.');
+    }
+    setIsTranscribing(false);
+  };
+
+  const formatRecordingTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
   const getAgentIcon = (iconName?: string) => {
     if (!iconName) return LucideIcons.Bot;
@@ -322,7 +440,7 @@ export default function ChatPage() {
   return (
     <AppLayout>
       <div className="flex flex-col" style={{ height: 'calc(100vh - 8rem)' }}>
-        {/* Header: Breadcrumb + Actions */}
+        {/* Header */}
         <div className="flex items-center justify-between gap-2 pb-3 border-b border-border mb-0 flex-wrap">
           <div className="flex items-center gap-1 text-sm text-muted-foreground overflow-hidden">
             {selectedArea && <><span className="truncate max-w-[80px]">{selectedArea.name}</span><ChevronRight size={14} /></>}
@@ -331,9 +449,7 @@ export default function ChatPage() {
             <span className="text-foreground font-medium truncate max-w-[120px]">{selectedAgent.name}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-xs">
-              Trocar agente
-            </Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-xs">Trocar agente</Button>
             <Button variant="ghost" size="sm" onClick={() => setHistoryOpen(true)}>
               <History size={16} className="mr-1" /> Histórico
             </Button>
@@ -360,26 +476,23 @@ export default function ChatPage() {
               <Lock size={40} className="text-muted-foreground mb-3" />
               <h3 className="font-display text-lg text-foreground mb-1">Acesso restrito</h3>
               <p className="text-sm text-muted-foreground mb-4">Este agente requer uma assinatura ativa.</p>
-              <Button onClick={() => navigate('/app/upgrade')} className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
-                Ver planos →
-              </Button>
+              <Button onClick={() => navigate('/app/upgrade')} className="bg-emerald hover:bg-emerald-hover text-primary-foreground">Ver planos →</Button>
             </div>
           )}
 
           {messages.length === 0 ? (
-            <EmptyState
-              activeTab={activeTab}
-              agent={selectedAgent}
-              AgentIcon={AgentIcon}
-              onChipClick={handleChipClick}
-            />
+            <EmptyState activeTab={activeTab} agent={selectedAgent} AgentIcon={AgentIcon} onChipClick={handleChipClick} />
           ) : (
             <div className="space-y-4">
               {messages.map((msg, i) => (
                 <ChatBubble
-                  key={i}
+                  key={msg.id || i}
                   message={msg}
                   isStreaming={isStreaming && i === messages.length - 1 && msg.role === 'assistant'}
+                  playingMsgId={playingMsgId}
+                  ttsLoadingId={ttsLoadingId}
+                  onTTS={handleTTS}
+                  onFeedback={handleFeedback}
                 />
               ))}
               <div ref={messagesEndRef} />
@@ -387,18 +500,28 @@ export default function ChatPage() {
           )}
         </div>
 
-        {/* Token warning banner */}
+        {/* Token warning */}
         {noTokens && (
           <div className="flex items-center justify-between rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-2 mt-2">
             <span className="text-sm text-destructive">⚠️ Seus tokens acabaram.</span>
-            <Button size="sm" variant="link" onClick={() => navigate('/app/upgrade')} className="text-destructive font-semibold">
-              Assinar agora →
-            </Button>
+            <Button size="sm" variant="link" onClick={() => navigate('/app/upgrade')} className="text-destructive font-semibold">Assinar agora →</Button>
           </div>
         )}
 
         {/* Input Bar */}
         <div className="mt-2 rounded-lg border border-border bg-card p-3">
+          {/* Auto-send toggle */}
+          <div className="flex items-center gap-2 mb-2">
+            <label className="flex items-center gap-1.5 cursor-pointer text-xs text-muted-foreground select-none">
+              <input
+                type="checkbox"
+                checked={autoSend}
+                onChange={e => setAutoSend(e.target.checked)}
+                className="rounded border-border h-3.5 w-3.5 accent-emerald"
+              />
+              Enviar após transcrição
+            </label>
+          </div>
           <div className="flex items-end gap-2">
             <textarea
               ref={textareaRef}
@@ -406,11 +529,42 @@ export default function ChatPage() {
               onChange={e => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Digite sua mensagem..."
-              disabled={isStreaming || showUpgradeOverlay}
+              disabled={isStreaming || showUpgradeOverlay || isTranscribing}
               rows={1}
               className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
               style={{ maxHeight: 140 }}
             />
+
+            {/* STT button */}
+            {isRecording ? (
+              <Button
+                size="icon"
+                variant="destructive"
+                onClick={stopRecording}
+                className="shrink-0 h-9 w-9 animate-pulse"
+                title="Parar gravação"
+              >
+                <MicOff size={16} />
+              </Button>
+            ) : (
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={startRecording}
+                disabled={isStreaming || showUpgradeOverlay || isTranscribing}
+                className="shrink-0 h-9 w-9 text-muted-foreground hover:text-foreground"
+                title="Gravar voz"
+              >
+                {isTranscribing ? <Loader2 size={16} className="animate-spin" /> : <Mic size={16} />}
+              </Button>
+            )}
+
+            {/* Recording timer */}
+            {isRecording && (
+              <span className="text-xs text-destructive font-mono shrink-0">{formatRecordingTime(recordingTime)}</span>
+            )}
+
+            {/* Send / Stop */}
             {isStreaming ? (
               <Button size="icon" variant="destructive" onClick={handleAbort} className="shrink-0 h-9 w-9">
                 <Square size={16} />
@@ -418,7 +572,7 @@ export default function ChatPage() {
             ) : (
               <Button
                 size="icon"
-                onClick={handleSend}
+                onClick={() => handleSend()}
                 disabled={!inputText.trim() || showUpgradeOverlay}
                 className="shrink-0 h-9 w-9 bg-emerald hover:bg-emerald-hover text-primary-foreground"
               >
@@ -434,7 +588,6 @@ export default function ChatPage() {
         </div>
       </div>
 
-      {/* History Modal */}
       <ChatHistoryModal
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
@@ -443,10 +596,7 @@ export default function ChatPage() {
         agentSlug={activeTab === 'apoio' ? 'agente-de-apoio' : undefined}
         onRestore={handleRestoreConversation}
         activeConversationId={convId ?? undefined}
-        onConversationDeleted={() => {
-          setConvId(null);
-          setMessages([]);
-        }}
+        onConversationDeleted={() => { setConvId(null); setMessages([]); }}
       />
     </AppLayout>
   );
@@ -455,15 +605,9 @@ export default function ChatPage() {
 // --- Sub-components ---
 
 function EmptyState({
-  activeTab,
-  agent,
-  AgentIcon,
-  onChipClick,
+  activeTab, agent, AgentIcon, onChipClick,
 }: {
-  activeTab: TabType;
-  agent: SelectedAgent;
-  AgentIcon: any;
-  onChipClick: (text: string) => void;
+  activeTab: TabType; agent: SelectedAgent; AgentIcon: any; onChipClick: (text: string) => void;
 }) {
   const chips = activeTab === 'apoio' ? APOIO_CHIPS : getSuggestionsForAgent(agent.slug);
   const title = activeTab === 'apoio' ? 'Agente de Apoio' : agent.name;
@@ -494,24 +638,100 @@ function EmptyState({
   );
 }
 
-function ChatBubble({ message, isStreaming }: { message: Message; isStreaming: boolean }) {
+const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5] as const;
+
+function ChatBubble({
+  message, isStreaming, playingMsgId, ttsLoadingId, onTTS, onFeedback,
+}: {
+  message: Message;
+  isStreaming: boolean;
+  playingMsgId: string | null;
+  ttsLoadingId: string | null;
+  onTTS: (msg: Message, speed: number) => void;
+  onFeedback: (messageId: string, value: 'like' | 'dislike') => void;
+}) {
   const isUser = message.role === 'user';
+  const [ttsSpeed, setTtsSpeed] = useState<number>(1);
+  const isPlaying = playingMsgId === message.id;
+  const isLoadingTTS = ttsLoadingId === message.id;
+  const hasId = !!message.id;
 
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-      <div
-        className={`text-sm leading-relaxed ${
-          isUser
-            ? 'bg-emerald text-primary-foreground rounded-[12px_12px_2px_12px] max-w-[75%]'
-            : 'bg-navy text-[hsl(var(--text-light))] rounded-[12px_12px_12px_2px] max-w-[85%]'
-        } px-4 py-3`}
-      >
-        {isUser ? (
-          <p className="whitespace-pre-wrap">{message.content}</p>
-        ) : (
-          <div className="prose prose-sm prose-invert max-w-none">
-            <ReactMarkdown>{message.content}</ReactMarkdown>
-            {isStreaming && <span className="animate-pulse ml-0.5">▋</span>}
+      <div className="max-w-[85%]">
+        <div
+          className={`text-sm leading-relaxed ${
+            isUser
+              ? 'bg-emerald text-primary-foreground rounded-[12px_12px_2px_12px]'
+              : 'bg-navy text-[hsl(var(--text-light))] rounded-[12px_12px_12px_2px]'
+          } px-4 py-3`}
+        >
+          {isUser ? (
+            <p className="whitespace-pre-wrap">{message.content}</p>
+          ) : (
+            <div className="prose prose-sm prose-invert max-w-none">
+              <ReactMarkdown>{message.content}</ReactMarkdown>
+              {isStreaming && <span className="animate-pulse ml-0.5">▋</span>}
+            </div>
+          )}
+        </div>
+
+        {/* Action buttons for assistant messages */}
+        {!isUser && !isStreaming && hasId && (
+          <div className="flex items-center gap-1 mt-1 opacity-60 hover:opacity-100 transition-opacity">
+            {/* TTS */}
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-7 w-7"
+              title="Ouvir"
+              onClick={() => onTTS(message, ttsSpeed)}
+            >
+              {isLoadingTTS ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : isPlaying ? (
+                <Pause size={14} />
+              ) : (
+                <Volume2 size={14} />
+              )}
+            </Button>
+
+            {/* Speed selector (visible when audio loaded for this message) */}
+            {(isPlaying || ttsCache.has(`${message.id}_${ttsSpeed}`)) && (
+              <div className="flex items-center gap-0.5">
+                {SPEED_OPTIONS.map(s => (
+                  <button
+                    key={s}
+                    onClick={() => { setTtsSpeed(s); onTTS(message, s); }}
+                    className={`text-[10px] px-1.5 py-0.5 rounded ${
+                      ttsSpeed === s ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {s}x
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Feedback */}
+            <Button
+              size="icon"
+              variant="ghost"
+              className={`h-7 w-7 ml-1 ${message.feedback === 'like' ? 'text-primary' : 'text-muted-foreground'}`}
+              title="Gostei"
+              onClick={() => onFeedback(message.id!, 'like')}
+            >
+              <ThumbsUp size={14} />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              className={`h-7 w-7 ${message.feedback === 'dislike' ? 'text-destructive' : 'text-muted-foreground'}`}
+              title="Não gostei"
+              onClick={() => onFeedback(message.id!, 'dislike')}
+            >
+              <ThumbsDown size={14} />
+            </Button>
           </div>
         )}
       </div>
