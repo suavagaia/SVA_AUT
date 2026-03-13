@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 
 export default function ConfirmPage() {
   const navigate = useNavigate();
   const [error, setError] = useState('');
+  const hasVerified = useRef(false);
 
   useEffect(() => {
+    if (hasVerified.current) return;
+    hasVerified.current = true;
+
     const handleConfirm = async () => {
       const params = new URLSearchParams(window.location.search);
       const token_hash = params.get('token_hash');
