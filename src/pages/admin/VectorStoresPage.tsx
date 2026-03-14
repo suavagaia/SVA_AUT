@@ -203,11 +203,11 @@ export default function VectorStoresPage() {
           <h2 className="font-display text-2xl text-light">Vector Stores</h2>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => setCreateOpen(true)}
-              className="border-navy-border text-light hover:bg-navy-border/50">
+              className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">
               <Plus size={16} className="mr-1" /> Novo Vector Store
             </Button>
             <Button variant="outline" size="sm" onClick={fetchData} disabled={loading}
-              className="border-navy-border text-light hover:bg-navy-border/50">
+              className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               Atualizar
             </Button>
