@@ -323,7 +323,7 @@ export default function VectorStoresPage() {
               <input ref={createFileRef} type="file" multiple accept=".pdf,.txt,.md,.docx" className="hidden"
                 onChange={e => { if (e.target.files) setCreateFiles(prev => [...prev, ...Array.from(e.target.files!)]); }} />
               <Button variant="outline" size="sm" onClick={() => createFileRef.current?.click()}
-                className="border-navy-border text-light hover:bg-navy-border/50 w-full border-dashed">
+                className="bg-transparent border-navy-border text-light hover:bg-navy-border/50 w-full border-dashed">
                 <Upload size={14} className="mr-2" /> Selecionar arquivos (.pdf, .txt, .md, .docx)
               </Button>
             </div>
