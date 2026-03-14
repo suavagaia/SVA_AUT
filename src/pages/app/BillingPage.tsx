@@ -68,8 +68,7 @@ export default function BillingPage() {
 
   useEffect(() => {
     if (user) {
-      fetchTokens();
-      fetchPlan();
+      fetchPlanAndTokens();
       fetchUsage();
     }
   }, [user]);
