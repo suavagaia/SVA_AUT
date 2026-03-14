@@ -170,6 +170,8 @@ export default function AdminPromptsPage() {
       effort: editing.effort,
       is_active: editing.is_active,
       tool_web_search: editing.tool_web_search,
+      tool_file_search: editing.tool_file_search,
+      tool_file_search_vector_store_ids: editing.tool_file_search_vector_store_ids,
       store: editing.store,
     }).eq('id', editing.id);
     setSaving(false);
