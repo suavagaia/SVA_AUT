@@ -130,6 +130,7 @@ export default function AdminPromptsPage() {
 
   // Vector stores for agent editing
   const [vectorStores, setVectorStores] = useState<VectorStoreOption[]>([]);
+  const [vectorStoresLoading, setVectorStoresLoading] = useState(false);
 
   const fetchAgents = async () => {
     const { data } = await supabase
