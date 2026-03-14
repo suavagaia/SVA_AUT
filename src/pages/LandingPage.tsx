@@ -76,9 +76,9 @@ export default function LandingPage() {
         style={{ background: 'rgba(8,12,16,0.85)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
         <div className="mx-auto flex max-w-[1100px] items-center justify-between px-4 py-3 md:px-6">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full" style={{ background: '#2ECC71' }}>
-              <span className="text-sm font-bold" style={{ color: '#080C10' }}>✓</span>
-            </div>
+            <LogoIcon size={32} />
+            <span className="text-lg font-semibold text-lp-text">Sua Vaga <span className="text-lp-green">IA</span></span>
+          </div>
             <span className="text-lg font-semibold text-lp-text">Sua Vaga <span className="text-lp-green">IA</span></span>
           </div>
           <div className="flex items-center gap-3">
