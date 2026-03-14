@@ -30,6 +30,7 @@ import BillingPage from "@/pages/app/BillingPage";
 import HistoryPage from "@/pages/app/HistoryPage";
 import SettingsPage from "@/pages/app/SettingsPage";
 import SchedulePage from "@/pages/app/SchedulePage";
+import MentoriaPage from "@/pages/app/MentoriaPage";
 
 // Thank You
 import ThankYouMonthly from "@/pages/thankyou/ThankYouMonthly";
