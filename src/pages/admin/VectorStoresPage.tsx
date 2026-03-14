@@ -80,43 +80,6 @@ export default function VectorStoresPage() {
   const getLinkedAgents = (vsId: string) =>
     agents.filter(a => a.tool_file_search_vector_store_ids?.includes(vsId));
 
-  const openDialog = (store: VectorStore) => {
-    const sel: Record<string, boolean> = {};
-    agents.forEach(a => {
-      sel[a.id] = a.tool_file_search_vector_store_ids?.includes(store.id) ?? false;
-    });
-    setDialogSelections(sel);
-    setDialogStore(store);
-  };
-
-  const handleSave = async () => {
-    if (!dialogStore) return;
-    setSaving(true);
-    const vsId = dialogStore.id;
-
-    try {
-      for (const agent of agents) {
-        const hadIt = agent.tool_file_search_vector_store_ids?.includes(vsId) ?? false;
-        const wantsIt = dialogSelections[agent.id] ?? false;
-        if (hadIt === wantsIt) continue;
-
-        const currentIds = agent.tool_file_search_vector_store_ids ?? [];
-        const newIds = wantsIt
-          ? [...new Set([...currentIds, vsId])]
-          : currentIds.filter(id => id !== vsId);
-
-        await supabase.from('agents').update({ tool_file_search_vector_store_ids: newIds }).eq('id', agent.id);
-      }
-      toast.success('Vínculos atualizados com sucesso');
-      setDialogStore(null);
-      fetchData();
-    } catch {
-      toast.error('Erro ao salvar vínculos');
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const copyId = (id: string) => {
     navigator.clipboard.writeText(id);
     setCopiedId(id);
