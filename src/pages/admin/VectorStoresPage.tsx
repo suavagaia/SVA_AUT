@@ -226,41 +226,6 @@ export default function VectorStoresPage() {
         )}
       </div>
 
-      {/* Link dialog */}
-      <Dialog open={!!dialogStore} onOpenChange={(o) => !o && setDialogStore(null)}>
-        <DialogContent className="bg-navy border-navy-border text-light max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-display text-light">
-              Vínculos — {dialogStore?.name || dialogStore?.id.slice(0, 16)}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 max-h-80 overflow-y-auto py-2">
-            {agents.length === 0 ? (
-              <p className="text-sm text-muted-light">Nenhum agente com file_search ativo.</p>
-            ) : (
-              agents.map(agent => (
-                <label key={agent.id} className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-navy-border/30 cursor-pointer transition-colors">
-                  <Checkbox
-                    checked={dialogSelections[agent.id] ?? false}
-                    onCheckedChange={(v) => setDialogSelections(p => ({ ...p, [agent.id]: !!v }))}
-                  />
-                  <span className="text-sm">{agent.title}</span>
-                </label>
-              ))
-            )}
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" size="sm" onClick={() => setDialogStore(null)}
-              className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">Cancelar</Button>
-            <Button size="sm" onClick={handleSave} disabled={saving}
-              className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
-              {saving ? 'Salvando...' : 'Salvar'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Create dialog */}
       <Dialog open={createOpen} onOpenChange={(o) => { if (!o && !creating) { setCreateOpen(false); setCreateName(''); setCreateFiles([]); } }}>
         <DialogContent className="bg-navy border-navy-border text-light max-w-lg">
           <DialogHeader>
