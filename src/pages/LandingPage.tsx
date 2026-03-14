@@ -45,7 +45,7 @@ export default function LandingPage() {
           <Logo size="default" />
           <div className="flex items-center gap-3">
             <Link to="/auth/login">
-              <Button variant="outline" size="sm" className="border-navy-border text-light hover:bg-navy">Entrar</Button>
+              <Button variant="outline" size="sm" className="bg-transparent border-navy-border text-light hover:bg-navy">Entrar</Button>
             </Link>
             <Link to="/auth/signup">
               <Button size="sm" className="bg-emerald hover:bg-emerald-hover text-primary-foreground font-semibold">Começar grátis</Button>
@@ -73,7 +73,7 @@ export default function LandingPage() {
             </Button>
           </Link>
           <a href="#precos">
-            <Button size="lg" variant="outline" className="border-navy-border text-light hover:bg-navy px-8 text-base">
+            <Button size="lg" variant="outline" className="bg-transparent border-navy-border text-light hover:bg-navy px-8 text-base">
               Ver planos
             </Button>
           </a>
@@ -132,7 +132,7 @@ export default function LandingPage() {
                 <li className="flex items-start gap-2"><CheckCircle size={16} className="mt-0.5 shrink-0 text-emerald" />Geração de cronograma personalizado</li>
               </ul>
               <Link to="/auth/signup" className="mt-8">
-                <Button variant="outline" className="w-full border-navy-border text-light hover:bg-navy">Criar conta grátis</Button>
+                <Button variant="outline" className="w-full bg-transparent border-navy-border text-light hover:bg-navy">Criar conta grátis</Button>
               </Link>
             </div>
 
@@ -163,7 +163,7 @@ export default function LandingPage() {
                 <li className="flex items-start gap-2"><CheckCircle size={16} className="mt-0.5 shrink-0 text-emerald" />Economia de R$258 por ano</li>
               </ul>
               <Link to="/auth/signup" className="mt-8">
-                <Button variant="outline" className="w-full border-emerald text-emerald hover:bg-emerald/10">Assinar anual</Button>
+                <Button variant="outline" className="w-full bg-transparent border-emerald text-emerald hover:bg-emerald/10">Assinar anual</Button>
               </Link>
             </div>
           </div>
