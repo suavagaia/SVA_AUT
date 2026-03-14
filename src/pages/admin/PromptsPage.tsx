@@ -42,6 +42,11 @@ export default function AdminPromptsPage() {
   const [manualLoading, setManualLoading] = useState(true);
   const [manualSaving, setManualSaving] = useState(false);
 
+  // Free user mentoria limit
+  const [mentoriaLimit, setMentoriaLimit] = useState('3');
+  const [mentoriaLimitLoading, setMentoriaLimitLoading] = useState(true);
+  const [mentoriaLimitSaving, setMentoriaLimitSaving] = useState(false);
+
   const fetchMentoriaPrompt = async () => {
     const { data } = await supabase
       .from('system_prompts')
@@ -87,6 +92,26 @@ export default function AdminPromptsPage() {
     toast.success('Manual atualizado');
   };
 
+  const fetchMentoriaLimit = async () => {
+    const { data } = await supabase
+      .from('system_prompts')
+      .select('prompt')
+      .eq('key', 'free_user_mentoria_limit')
+      .maybeSingle();
+    setMentoriaLimit(data?.prompt ?? '3');
+    setMentoriaLimitLoading(false);
+  };
+
+  const saveMentoriaLimit = async () => {
+    setMentoriaLimitSaving(true);
+    const { error } = await supabase
+      .from('system_prompts')
+      .upsert({ key: 'free_user_mentoria_limit', prompt: String(mentoriaLimit), updated_at: new Date().toISOString() }, { onConflict: 'key' });
+    setMentoriaLimitSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Limite atualizado');
+  };
+
   const fetchAgents = async () => {
     const { data } = await supabase
       .from('agents')
@@ -96,7 +121,7 @@ export default function AdminPromptsPage() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchAgents(); fetchMentoriaPrompt(); fetchManual(); }, []);
+  useEffect(() => { fetchAgents(); fetchMentoriaPrompt(); fetchManual(); fetchMentoriaLimit(); }, []);
 
   const toggleActive = async (agent: Agent) => {
     const { error } = await supabase.from('agents').update({ is_active: !agent.is_active }).eq('id', agent.id);

@@ -11,7 +11,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Loader2, ArrowRight, ArrowLeft, Brain } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Plus, Trash2, Loader2, ArrowRight, ArrowLeft, Brain, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const SUPABASE_URL = 'https://lxteajwzovoeclbytdrp.supabase.co';
@@ -36,11 +37,23 @@ interface Subject {
   questions_count?: number;
 }
 
+interface UsageInfo {
+  is_subscriber: boolean;
+  limit: number;
+  used: number;
+  remaining: number;
+  can_generate: boolean;
+}
+
 export default function MentoriaPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [generating, setGenerating] = useState(false);
+
+  // Usage info
+  const [usage, setUsage] = useState<UsageInfo | null>(null);
+  const [usageLoading, setUsageLoading] = useState(true);
 
   // Step 1
   const [wakeUpTimes, setWakeUpTimes] = useState<Record<number, string | 'none'>>({
@@ -54,6 +67,35 @@ export default function MentoriaPage() {
   const [contests, setContests] = useState<Contest[]>([]);
   const [selectedContestId, setSelectedContestId] = useState('');
   const [subjects, setSubjects] = useState<Subject[]>([]);
+
+  // Fetch usage info
+  useEffect(() => {
+    if (authLoading) return;
+
+    const fetchUsage = async () => {
+      try {
+        const storageKey = 'sb-lxteajwzovoeclbytdrp-auth-token';
+        const raw = localStorage.getItem(storageKey);
+        const accessToken = raw ? JSON.parse(raw)?.access_token : null;
+
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/mentorship-chat`, {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${accessToken}` },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setUsage(data);
+        }
+      } catch (err) {
+        console.error('Error fetching usage:', err);
+      } finally {
+        setUsageLoading(false);
+      }
+    };
+
+    fetchUsage();
+  }, [authLoading]);
 
   useEffect(() => {
     supabase.from('contests').select('id, name').eq('is_active', true).order('name').then(({ data }) => {
@@ -122,6 +164,11 @@ export default function MentoriaPage() {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
+        if (err.code === 'MENTORIA_LIMIT_REACHED') {
+          toast.error(err.error || 'Limite de gerações atingido');
+          navigate('/app/upgrade');
+          return;
+        }
         throw new Error(err.error || `Erro ${res.status}`);
       }
 
@@ -140,6 +187,8 @@ export default function MentoriaPage() {
       setGenerating(false);
     }
   };
+
+  const canGenerate = usage?.can_generate !== false;
 
   if (generating) {
     return (
@@ -160,6 +209,36 @@ export default function MentoriaPage() {
           <Brain className="h-7 w-7 text-emerald" />
           <h1 className="text-2xl font-bold text-foreground">Mentoria de Estudos</h1>
         </div>
+
+        {/* Usage card for free users */}
+        {!usageLoading && usage && !usage.is_subscriber && (
+          <Card className="border-border bg-card">
+            <CardContent className="pt-6 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Você usou <span className="font-semibold text-foreground">{usage.used}</span> de <span className="font-semibold text-foreground">{usage.limit}</span> gerações disponíveis no plano gratuito
+                </p>
+              </div>
+              <Progress
+                value={(usage.used / usage.limit) * 100}
+                className="h-2"
+                indicatorClassName={usage.remaining === 0 ? 'bg-destructive' : 'bg-emerald'}
+              />
+              {usage.remaining === 0 && (
+                <div className="flex items-center gap-3 mt-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                  <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-destructive">Limite atingido</p>
+                    <p className="text-xs text-muted-foreground">Assine para gerar cronogramas ilimitados</p>
+                  </div>
+                  <Button size="sm" onClick={() => navigate('/app/upgrade')} className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
+                    Assinar agora
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Step indicators */}
         <div className="flex items-center gap-2">
@@ -314,7 +393,11 @@ export default function MentoriaPage() {
               Próximo <ArrowRight size={16} />
             </Button>
           ) : (
-            <Button onClick={handleGenerate} className="bg-emerald hover:bg-emerald-hover text-primary-foreground gap-2">
+            <Button
+              onClick={handleGenerate}
+              disabled={!canGenerate}
+              className="bg-emerald hover:bg-emerald-hover text-primary-foreground gap-2 disabled:opacity-50"
+            >
               <Brain size={16} /> Gerar Cronograma
             </Button>
           )}
