@@ -389,7 +389,7 @@ export default function VectorStoresPage() {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" size="sm" onClick={() => { setUploadStore(null); setUploadFiles([]); }}
-              disabled={uploading} className="border-navy-border text-light hover:bg-navy-border/50">Cancelar</Button>
+              disabled={uploading} className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">Cancelar</Button>
             <Button size="sm" onClick={handleUploadFiles} disabled={uploading || uploadFiles.length === 0}
               className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
               {uploading ? <><Loader2 size={14} className="animate-spin mr-1" /> Enviando...</> : `Enviar ${uploadFiles.length} arquivo(s)`}
