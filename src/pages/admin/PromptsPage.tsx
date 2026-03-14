@@ -244,6 +244,7 @@ export default function AdminPromptsPage() {
         </CardContent>
       </Card>
 
+      <Card className="bg-navy border-navy-border">
         <CardHeader>
           <CardTitle className="text-light text-base">Agentes / Prompts</CardTitle>
         </CardHeader>
