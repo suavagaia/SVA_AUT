@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Bell, LogOut, CreditCard, History, Settings, ShieldCheck, CalendarDays, Brain } from 'lucide-react';
+import { Bell, LogOut, CreditCard, History, Settings, ShieldCheck, CalendarDays, Brain, BookOpen } from 'lucide-react';
 import { StudyTimerButton } from '@/components/StudyTimerButton';
 import { LogoDark } from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
