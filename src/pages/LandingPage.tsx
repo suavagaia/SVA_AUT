@@ -477,8 +477,6 @@ export default function LandingPage() {
               <span className="text-lg font-semibold text-lp-text">Sua Vaga <span className="text-lp-green">IA</span></span>
             </div>
             <p className="font-serif italic text-sm text-lp-text-muted">Inteligência que aprova.</p>
-            </div>
-            <p className="font-serif italic text-sm text-lp-text-muted">Inteligência que aprova.</p>
           </div>
           <div>
             <p className="text-sm text-lp-text font-medium mb-2">Empresa</p>
