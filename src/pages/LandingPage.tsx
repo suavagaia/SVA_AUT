@@ -19,7 +19,7 @@ function useScrollReveal() {
 
 function Section({ children, className = '', id, style }: { children: React.ReactNode; className?: string; id?: string; style?: React.CSSProperties }) {
   const ref = useScrollReveal();
-  return <section id={id} ref={ref} className={`animate-on-scroll ${className}`}>{children}</section>;
+  return <section id={id} ref={ref} style={style} className={`animate-on-scroll ${className}`}>{children}</section>;
 }
 
 /* ───── Data ───── */
