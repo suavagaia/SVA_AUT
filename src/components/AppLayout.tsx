@@ -56,6 +56,12 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                {isAdmin && (
+                  <DropdownMenuItem onClick={() => navigate('/admin')} className="cursor-pointer">
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    Admin
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => navigate('/app/history')} className="cursor-pointer">
                   <History className="mr-2 h-4 w-4" />
                   Histórico
