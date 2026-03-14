@@ -287,7 +287,6 @@ export default function LandingPage() {
                   }}>
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="text-2xl mb-2">{a.emoji}</div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-lp-green">Agente {i + 1}</p>
                       <h3 className="font-serif text-lg text-lp-text mt-0.5">{a.title}</h3>
                       <p className="text-sm italic text-lp-text-muted mt-1">{a.subtitle}</p>
