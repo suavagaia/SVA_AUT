@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Bell, LogOut, CreditCard, History, Settings, ShieldCheck } from 'lucide-react';
+import { Bell, LogOut, CreditCard, History, Settings, ShieldCheck, CalendarDays } from 'lucide-react';
+import { StudyTimerButton } from '@/components/StudyTimerButton';
 import { LogoDark } from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,14 @@ export function AppLayout({ children }: AppLayoutProps) {
                 ASSINAR
               </Button>
             )}
+            <StudyTimerButton />
+            <button
+              onClick={() => navigate('/app/schedule')}
+              className="relative rounded-full p-2 text-muted-foreground hover:bg-secondary transition-colors"
+              title="Cronograma"
+            >
+              <CalendarDays size={20} />
+            </button>
             <button className="relative rounded-full p-2 text-muted-foreground hover:bg-secondary transition-colors">
               <Bell size={20} />
             </button>

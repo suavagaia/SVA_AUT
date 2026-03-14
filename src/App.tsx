@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { StudyTimerProvider } from "@/contexts/StudyTimerContext";
 import { ProtectedRoute, PublicOnlyRoute } from "@/components/RouteGuards";
 
 // Pages
@@ -28,6 +29,7 @@ import ChatPage from "@/pages/app/ChatPage";
 import BillingPage from "@/pages/app/BillingPage";
 import HistoryPage from "@/pages/app/HistoryPage";
 import SettingsPage from "@/pages/app/SettingsPage";
+import SchedulePage from "@/pages/app/SchedulePage";
 
 // Thank You
 import ThankYouMonthly from "@/pages/thankyou/ThankYouMonthly";
@@ -54,6 +56,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+        <StudyTimerProvider>
           <Routes>
             {/* Landing */}
             <Route path="/" element={<LandingPage />} />
@@ -77,6 +80,7 @@ const App = () => (
             <Route path="/app/billing" element={<ProtectedRoute><BillingPage /></ProtectedRoute>} />
             <Route path="/app/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
             <Route path="/app/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/app/schedule" element={<ProtectedRoute><SchedulePage /></ProtectedRoute>} />
 
             {/* Thank You - public */}
             <Route path="/thank-you/monthly" element={<ThankYouMonthly />} />
@@ -97,6 +101,7 @@ const App = () => (
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+        </StudyTimerProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
