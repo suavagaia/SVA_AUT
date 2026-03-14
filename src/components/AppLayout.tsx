@@ -28,7 +28,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen app-light bg-background text-foreground">
       <header className="sticky top-0 z-50 border-b border-border bg-card">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <LogoDark />
