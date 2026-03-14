@@ -3,7 +3,7 @@ import AdminLayout from '@/components/AdminLayout';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { RefreshCw, Copy, Check, Link2, Plus, Upload, X, FileText, Loader2 } from 'lucide-react';
+import { RefreshCw, Copy, Check, Plus, Upload, X, FileText, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
@@ -242,10 +242,6 @@ export default function VectorStoresPage() {
                       <Button variant="outline" size="sm" onClick={() => { setUploadStore(store); setUploadFiles([]); }}
                         className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">
                         <Upload size={14} className="mr-1" /> Adicionar arquivos
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => openDialog(store)}
-                        className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">
-                        <Link2 size={14} className="mr-1" /> Gerenciar vínculos
                       </Button>
                     </div>
                   </div>

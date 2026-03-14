@@ -9,8 +9,22 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Pencil } from 'lucide-react';
 import { toast } from 'sonner';
+
+const SUPABASE_URL = 'https://lxteajwzovoeclbytdrp.supabase.co';
+
+function getAccessToken() {
+  const raw = localStorage.getItem('sb-lxteajwzovoeclbytdrp-auth-token');
+  return raw ? JSON.parse(raw)?.access_token : null;
+}
+
+interface VectorStoreOption {
+  id: string;
+  name: string;
+  file_counts: { total: number };
+}
 
 interface Agent {
   id: string;
@@ -22,6 +36,8 @@ interface Agent {
   display_order: number;
   system_prompt: string | null;
   tool_web_search: boolean;
+  tool_file_search: boolean;
+  tool_file_search_vector_store_ids: string[] | null;
   store: boolean;
 }
 
@@ -112,14 +128,29 @@ export default function AdminPromptsPage() {
     toast.success('Limite atualizado');
   };
 
+  // Vector stores for agent editing
+  const [vectorStores, setVectorStores] = useState<VectorStoreOption[]>([]);
+
   const fetchAgents = async () => {
     const { data } = await supabase
       .from('agents')
-      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, store')
+      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, store')
       .order('display_order');
     setAgents((data as Agent[]) ?? []);
     setLoading(false);
   };
+
+  // Fetch vector stores when editing agent
+  useEffect(() => {
+    if (!editing) return;
+    const token = getAccessToken();
+    fetch(`${SUPABASE_URL}/functions/v1/openai-vector-stores`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => r.json())
+      .then(d => setVectorStores(d.vector_stores ?? []))
+      .catch(() => setVectorStores([]));
+  }, [editing?.id]);
 
   useEffect(() => { fetchAgents(); fetchMentoriaPrompt(); fetchManual(); fetchMentoriaLimit(); }, []);
 
@@ -139,6 +170,8 @@ export default function AdminPromptsPage() {
       effort: editing.effort,
       is_active: editing.is_active,
       tool_web_search: editing.tool_web_search,
+      tool_file_search: editing.tool_file_search,
+      tool_file_search_vector_store_ids: editing.tool_file_search_vector_store_ids,
       store: editing.store,
     }).eq('id', editing.id);
     setSaving(false);
@@ -344,6 +377,42 @@ export default function AdminPromptsPage() {
                 <Label className="text-muted-light">Web Search</Label>
                 <Switch checked={editing.tool_web_search} onCheckedChange={(v) => updateField('tool_web_search', v)} />
               </div>
+              <div className="flex items-center justify-between">
+                <Label className="text-muted-light">File Search</Label>
+                <Switch checked={editing.tool_file_search} onCheckedChange={(v) => updateField('tool_file_search', v)} />
+              </div>
+              {editing.tool_file_search && (
+                <div className="rounded-lg border border-navy-border bg-navy-deep p-3 space-y-2">
+                  <Label className="text-muted-light text-xs">Vector Stores</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Selecione as bases de conhecimento que este agente deve consultar.
+                  </p>
+                  {vectorStores.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">
+                      Nenhum vector store encontrado. Crie um em Vector Stores.
+                    </p>
+                  ) : (
+                    vectorStores.map(vs => (
+                      <label key={vs.id} className="flex items-center gap-2 py-1 cursor-pointer hover:bg-navy-border/20 rounded px-1 transition-colors">
+                        <Checkbox
+                          checked={editing.tool_file_search_vector_store_ids?.includes(vs.id) ?? false}
+                          onCheckedChange={(checked) => {
+                            const current = editing.tool_file_search_vector_store_ids ?? [];
+                            const newIds = checked
+                              ? [...new Set([...current, vs.id])]
+                              : current.filter(id => id !== vs.id);
+                            updateField('tool_file_search_vector_store_ids', newIds as any);
+                          }}
+                        />
+                        <span className="text-sm text-light">{vs.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          ({vs.file_counts?.total ?? 0} arquivos)
+                        </span>
+                      </label>
+                    ))
+                  )}
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <Label className="text-muted-light">Store</Label>
                 <Switch checked={editing.store} onCheckedChange={(v) => updateField('store', v)} />
