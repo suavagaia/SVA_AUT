@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RefreshCw, Copy, Check, Plus, Upload, X, FileText, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -41,9 +40,6 @@ export default function VectorStoresPage() {
   const [stores, setStores] = useState<VectorStore[]>([]);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dialogStore, setDialogStore] = useState<VectorStore | null>(null);
-  const [dialogSelections, setDialogSelections] = useState<Record<string, boolean>>({});
-  const [saving, setSaving] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Create dialog
@@ -83,43 +79,6 @@ export default function VectorStoresPage() {
 
   const getLinkedAgents = (vsId: string) =>
     agents.filter(a => a.tool_file_search_vector_store_ids?.includes(vsId));
-
-  const openDialog = (store: VectorStore) => {
-    const sel: Record<string, boolean> = {};
-    agents.forEach(a => {
-      sel[a.id] = a.tool_file_search_vector_store_ids?.includes(store.id) ?? false;
-    });
-    setDialogSelections(sel);
-    setDialogStore(store);
-  };
-
-  const handleSave = async () => {
-    if (!dialogStore) return;
-    setSaving(true);
-    const vsId = dialogStore.id;
-
-    try {
-      for (const agent of agents) {
-        const hadIt = agent.tool_file_search_vector_store_ids?.includes(vsId) ?? false;
-        const wantsIt = dialogSelections[agent.id] ?? false;
-        if (hadIt === wantsIt) continue;
-
-        const currentIds = agent.tool_file_search_vector_store_ids ?? [];
-        const newIds = wantsIt
-          ? [...new Set([...currentIds, vsId])]
-          : currentIds.filter(id => id !== vsId);
-
-        await supabase.from('agents').update({ tool_file_search_vector_store_ids: newIds }).eq('id', agent.id);
-      }
-      toast.success('Vínculos atualizados com sucesso');
-      setDialogStore(null);
-      fetchData();
-    } catch {
-      toast.error('Erro ao salvar vínculos');
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const copyId = (id: string) => {
     navigator.clipboard.writeText(id);
@@ -267,41 +226,6 @@ export default function VectorStoresPage() {
         )}
       </div>
 
-      {/* Link dialog */}
-      <Dialog open={!!dialogStore} onOpenChange={(o) => !o && setDialogStore(null)}>
-        <DialogContent className="bg-navy border-navy-border text-light max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-display text-light">
-              Vínculos — {dialogStore?.name || dialogStore?.id.slice(0, 16)}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 max-h-80 overflow-y-auto py-2">
-            {agents.length === 0 ? (
-              <p className="text-sm text-muted-light">Nenhum agente com file_search ativo.</p>
-            ) : (
-              agents.map(agent => (
-                <label key={agent.id} className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-navy-border/30 cursor-pointer transition-colors">
-                  <Checkbox
-                    checked={dialogSelections[agent.id] ?? false}
-                    onCheckedChange={(v) => setDialogSelections(p => ({ ...p, [agent.id]: !!v }))}
-                  />
-                  <span className="text-sm">{agent.title}</span>
-                </label>
-              ))
-            )}
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" size="sm" onClick={() => setDialogStore(null)}
-              className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">Cancelar</Button>
-            <Button size="sm" onClick={handleSave} disabled={saving}
-              className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
-              {saving ? 'Salvando...' : 'Salvar'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Create dialog */}
       <Dialog open={createOpen} onOpenChange={(o) => { if (!o && !creating) { setCreateOpen(false); setCreateName(''); setCreateFiles([]); } }}>
         <DialogContent className="bg-navy border-navy-border text-light max-w-lg">
           <DialogHeader>
