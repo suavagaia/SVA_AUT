@@ -79,8 +79,6 @@ export default function LandingPage() {
             <LogoIcon size={32} />
             <span className="text-lg font-semibold text-lp-text">Sua Vaga <span className="text-lp-green">IA</span></span>
           </div>
-            <span className="text-lg font-semibold text-lp-text">Sua Vaga <span className="text-lp-green">IA</span></span>
-          </div>
           <div className="flex items-center gap-3">
             <Link to="/auth/login" className="text-sm text-lp-text-secondary hover:text-lp-text transition-colors">Entrar</Link>
             <Link to="/auth/signup">
