@@ -102,6 +102,7 @@ const App = () => (
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/prompts" element={<AdminPromptsPage />} />
             <Route path="/admin/interactions" element={<AdminInteractionsPage />} />
+            <Route path="/admin/vector-stores" element={<AdminVectorStoresPage />} />
 
             {/* Legal */}
             <Route path="/terms" element={<TermsPage />} />

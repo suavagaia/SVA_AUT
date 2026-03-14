@@ -9,6 +9,7 @@ const navItems = [
   { label: 'Usuários', path: '/admin/users', icon: Users },
   { label: 'Prompts', path: '/admin/prompts', icon: FileText },
   { label: 'Interações', path: '/admin/interactions', icon: Activity },
+  { label: 'Vector Stores', path: '/admin/vector-stores', icon: Database },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
