@@ -37,6 +37,11 @@ export default function AdminPromptsPage() {
   const [mentoriaLoading, setMentoriaLoading] = useState(true);
   const [mentoriaSaving, setMentoriaSaving] = useState(false);
 
+  // Manual
+  const [manualContent, setManualContent] = useState('');
+  const [manualLoading, setManualLoading] = useState(true);
+  const [manualSaving, setManualSaving] = useState(false);
+
   const fetchMentoriaPrompt = async () => {
     const { data } = await supabase
       .from('system_prompts')
@@ -59,6 +64,27 @@ export default function AdminPromptsPage() {
     setMentoriaSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success('Prompt de mentoria atualizado');
+  };
+
+  const fetchManual = async () => {
+    const { data } = await supabase
+      .from('system_prompts')
+      .select('prompt')
+      .eq('key', 'user_manual')
+      .single();
+    setManualContent(data?.prompt ?? '');
+    setManualLoading(false);
+  };
+
+  const saveManual = async () => {
+    setManualSaving(true);
+    const { error } = await supabase
+      .from('system_prompts')
+      .update({ prompt: manualContent, updated_at: new Date().toISOString() })
+      .eq('key', 'user_manual');
+    setManualSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Manual atualizado');
   };
 
   const fetchAgents = async () => {
