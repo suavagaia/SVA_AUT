@@ -64,7 +64,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                   </span>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-48 bg-emerald border-emerald text-white">
                 {isAdmin && (
                   <DropdownMenuItem onClick={() => navigate('/admin')} className="cursor-pointer">
                     <ShieldCheck className="mr-2 h-4 w-4" />
