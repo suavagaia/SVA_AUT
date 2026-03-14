@@ -14,8 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["DM Sans", "sans-serif"],
-        display: ["DM Serif Display", "serif"],
+        sans: ['"DM Sans"', 'sans-serif'],
+        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+        display: ['"Instrument Serif"', 'Georgia', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -51,6 +52,18 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Landing page
+        "lp-deep": "hsl(var(--bg-deep))",
+        "lp-card": "hsl(var(--bg-card))",
+        "lp-card-hover": "hsl(var(--bg-card-hover))",
+        "lp-elevated": "hsl(var(--bg-elevated))",
+        "lp-green": "hsl(var(--green-primary))",
+        "lp-green-glow": "hsl(var(--green-glow))",
+        "lp-text": "hsl(var(--text-primary))",
+        "lp-text-secondary": "hsl(var(--text-secondary))",
+        "lp-text-muted": "hsl(var(--text-muted))",
+        "lp-coral": "hsl(var(--coral))",
+        // Legacy
         navy: {
           DEFAULT: "hsl(var(--navy))",
           deep: "hsl(var(--navy-deep))",
