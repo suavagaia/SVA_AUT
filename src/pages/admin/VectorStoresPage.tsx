@@ -296,7 +296,7 @@ export default function VectorStoresPage() {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" size="sm" onClick={() => setDialogStore(null)}
-              className="border-navy-border text-light hover:bg-navy-border/50">Cancelar</Button>
+              className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">Cancelar</Button>
             <Button size="sm" onClick={handleSave} disabled={saving}
               className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
               {saving ? 'Salvando...' : 'Salvar'}
