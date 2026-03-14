@@ -17,7 +17,7 @@ interface Interaction {
   model_used: string;
   users: { email: string } | null;
   agents: { title: string } | null;
-  conversations: { title: string } | null;
+  
 }
 
 interface AgentOption { id: string; title: string; }
