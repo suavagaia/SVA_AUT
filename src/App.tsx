@@ -3,9 +3,15 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { StudyTimerProvider } from "@/contexts/StudyTimerContext";
 import { ProtectedRoute, PublicOnlyRoute } from "@/components/RouteGuards";
+
+function LandingRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  return user ? <Navigate to="/app" replace /> : <LandingPage />;
+}
 
 // Pages
 import LandingPage from "@/pages/LandingPage";
@@ -60,7 +66,7 @@ const App = () => (
         <StudyTimerProvider>
           <Routes>
             {/* Landing */}
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<LandingRoute />} />
 
             {/* Auth - public only */}
             <Route path="/auth/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
