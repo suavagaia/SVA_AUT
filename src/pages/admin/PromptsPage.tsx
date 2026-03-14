@@ -103,6 +103,36 @@ export default function AdminPromptsPage() {
 
   return (
     <AdminLayout>
+      {/* Mentoria Prompt Section */}
+      <Card className="bg-navy border-navy-border mb-6">
+        <CardHeader>
+          <CardTitle className="text-light text-base">Prompt de Mentoria</CardTitle>
+          <p className="text-muted-light text-xs">{mentoriaDesc || 'Prompt usado para gerar cronogramas de estudo personalizados'}</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {mentoriaLoading ? (
+            <div className="flex justify-center py-6">
+              <div className="h-6 w-6 animate-spin rounded-full border-4 border-emerald border-t-transparent" />
+            </div>
+          ) : (
+            <>
+              <Textarea
+                value={mentoriaPrompt}
+                onChange={(e) => setMentoriaPrompt(e.target.value)}
+                className="min-h-[300px] border-navy-border bg-navy-deep text-light font-mono text-xs"
+                placeholder="Prompt de mentoria..."
+              />
+              <p className="text-xs text-muted-light">
+                Variáveis disponíveis: <code className="text-emerald">{'{{wakeUpText}}'}</code>, <code className="text-emerald">{'{{schedulesText}}'}</code>, <code className="text-emerald">{'{{subjectsText}}'}</code>
+              </p>
+              <Button onClick={saveMentoriaPrompt} disabled={mentoriaSaving} className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
+                {mentoriaSaving ? 'Salvando...' : 'Salvar'}
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
       <Card className="bg-navy border-navy-border">
         <CardHeader>
           <CardTitle className="text-light text-base">Agentes / Prompts</CardTitle>

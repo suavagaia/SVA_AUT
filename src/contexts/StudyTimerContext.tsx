@@ -5,13 +5,27 @@ import { toast } from 'sonner';
 
 type TimerStatus = 'idle' | 'running' | 'paused';
 
+interface ScheduleActivity {
+  id: string;
+  subject: string;
+  start_time: string;
+  end_time: string;
+  activity_type: string | null;
+}
+
 interface StudyTimerContextType {
   status: TimerStatus;
   elapsed: number;
-  start: () => void;
-  pause: () => void;
-  resume: () => void;
-  stop: () => void;
+  selectedActivity: ScheduleActivity | null;
+  todayActivities: ScheduleActivity[];
+  loadingActivities: boolean;
+  currentSessionId: string | null;
+  setSelectedActivity: (a: ScheduleActivity | null) => void;
+  fetchTodayActivities: () => Promise<void>;
+  start: () => Promise<void>;
+  pause: () => Promise<void>;
+  resume: () => Promise<void>;
+  stop: () => Promise<void>;
 }
 
 const StudyTimerContext = createContext<StudyTimerContextType | null>(null);
@@ -31,9 +45,9 @@ function formatTime(seconds: number) {
 
 export function StudyTimerProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+
   const [status, setStatus] = useState<TimerStatus>(() => {
-    const saved = localStorage.getItem('study_timer_status');
-    return (saved as TimerStatus) || 'idle';
+    return (localStorage.getItem('study_timer_status') as TimerStatus) || 'idle';
   });
   const [elapsed, setElapsed] = useState(() => {
     const saved = localStorage.getItem('study_timer_elapsed');
@@ -43,6 +57,15 @@ export function StudyTimerProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem('study_timer_started_at');
     return saved ? parseInt(saved, 10) : null;
   });
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(() => {
+    return localStorage.getItem('study_timer_session_id');
+  });
+  const [selectedActivity, setSelectedActivity] = useState<ScheduleActivity | null>(() => {
+    const saved = localStorage.getItem('study_timer_activity');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [todayActivities, setTodayActivities] = useState<ScheduleActivity[]>([]);
+  const [loadingActivities, setLoadingActivities] = useState(false);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -52,44 +75,82 @@ export function StudyTimerProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('study_timer_elapsed', String(elapsed));
     if (startedAt) localStorage.setItem('study_timer_started_at', String(startedAt));
     else localStorage.removeItem('study_timer_started_at');
-  }, [status, elapsed, startedAt]);
+    if (currentSessionId) localStorage.setItem('study_timer_session_id', currentSessionId);
+    else localStorage.removeItem('study_timer_session_id');
+    if (selectedActivity) localStorage.setItem('study_timer_activity', JSON.stringify(selectedActivity));
+    else localStorage.removeItem('study_timer_activity');
+  }, [status, elapsed, startedAt, currentSessionId, selectedActivity]);
 
   // Tick
   useEffect(() => {
     if (status === 'running' && startedAt) {
-      // Recover elapsed on mount
-      const now = Date.now();
-      const recoveredElapsed = Math.floor((now - startedAt) / 1000);
-      setElapsed(recoveredElapsed);
-
+      setElapsed(Math.floor((Date.now() - startedAt) / 1000));
       intervalRef.current = setInterval(() => {
         setElapsed(Math.floor((Date.now() - startedAt) / 1000));
       }, 1000);
     }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [status, startedAt]);
 
-  const start = useCallback(() => {
+  const fetchTodayActivities = useCallback(async () => {
+    if (!user) return;
+    setLoadingActivities(true);
+    const todayDow = new Date().getDay();
+    const { data } = await supabase
+      .from('user_schedule_entries')
+      .select('id, subject, start_time, end_time, activity_type')
+      .eq('user_id', user.id)
+      .eq('day_of_week', todayDow)
+      .order('start_time');
+    setTodayActivities((data as ScheduleActivity[]) ?? []);
+    setLoadingActivities(false);
+  }, [user]);
+
+  const start = useCallback(async () => {
+    if (!user || !selectedActivity) return;
+
+    const { data: session, error } = await supabase
+      .from('study_sessions')
+      .insert({
+        user_id: user.id,
+        schedule_entry_id: selectedActivity.id,
+        activity_name: selectedActivity.subject,
+        day_of_week: new Date().getDay(),
+        start_time: new Date().toISOString(),
+        status: 'em_progresso',
+      })
+      .select('id')
+      .single();
+
+    if (error) {
+      console.error('Error creating study session:', error);
+      toast.error('Erro ao iniciar sessão');
+      return;
+    }
+
+    setCurrentSessionId(session.id);
     const now = Date.now();
     setStartedAt(now);
     setElapsed(0);
     setStatus('running');
-  }, []);
+  }, [user, selectedActivity]);
 
-  const pause = useCallback(() => {
+  const pause = useCallback(async () => {
     setStatus('paused');
-    // Store accumulated elapsed, clear startedAt
     setStartedAt(null);
-  }, []);
+    if (currentSessionId) {
+      await supabase.from('study_sessions').update({ status: 'pausada' }).eq('id', currentSessionId);
+    }
+  }, [currentSessionId]);
 
-  const resume = useCallback(() => {
-    // Set new startedAt offset by already elapsed time
+  const resume = useCallback(async () => {
     const now = Date.now() - elapsed * 1000;
     setStartedAt(now);
     setStatus('running');
-  }, [elapsed]);
+    if (currentSessionId) {
+      await supabase.from('study_sessions').update({ status: 'em_progresso' }).eq('id', currentSessionId);
+    }
+  }, [elapsed, currentSessionId]);
 
   const stop = useCallback(async () => {
     const finalElapsed = elapsed;
@@ -97,13 +158,17 @@ export function StudyTimerProvider({ children }: { children: ReactNode }) {
     setElapsed(0);
     setStartedAt(null);
 
-    if (finalElapsed > 0 && user) {
-      const { error } = await supabase.from('study_sessions').insert({
-        user_id: user.id,
-        duration: finalElapsed,
-        status: 'completed',
-        created_at: new Date().toISOString(),
-      });
+    if (currentSessionId && finalElapsed > 0) {
+      const durationMinutes = Math.floor(finalElapsed / 60);
+      const { error } = await supabase
+        .from('study_sessions')
+        .update({
+          end_time: new Date().toISOString(),
+          duration_minutes: durationMinutes,
+          status: 'concluida',
+        })
+        .eq('id', currentSessionId);
+
       if (error) {
         console.error('Error saving study session:', error);
         toast.error('Erro ao salvar sessão de estudo');
@@ -111,10 +176,16 @@ export function StudyTimerProvider({ children }: { children: ReactNode }) {
         toast.success(`Sessão de ${formatTime(finalElapsed)} registrada!`);
       }
     }
-  }, [elapsed, user]);
+
+    setCurrentSessionId(null);
+    setSelectedActivity(null);
+  }, [elapsed, currentSessionId]);
 
   return (
-    <StudyTimerContext.Provider value={{ status, elapsed, start, pause, resume, stop }}>
+    <StudyTimerContext.Provider value={{
+      status, elapsed, selectedActivity, todayActivities, loadingActivities, currentSessionId,
+      setSelectedActivity, fetchTodayActivities, start, pause, resume, stop,
+    }}>
       {children}
     </StudyTimerContext.Provider>
   );

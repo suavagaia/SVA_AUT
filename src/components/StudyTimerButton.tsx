@@ -1,7 +1,10 @@
-import { Timer, Play, Pause, Square } from 'lucide-react';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Timer, Play, Pause, Square, Loader2 } from 'lucide-react';
 import { useStudyTimer } from '@/contexts/StudyTimerContext';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 function formatTime(seconds: number) {
   const h = Math.floor(seconds / 3600);
@@ -11,8 +14,16 @@ function formatTime(seconds: number) {
 }
 
 export function StudyTimerButton() {
-  const { status, elapsed, start, pause, resume, stop } = useStudyTimer();
+  const {
+    status, elapsed, selectedActivity, todayActivities, loadingActivities,
+    setSelectedActivity, fetchTodayActivities, start, pause, resume, stop,
+  } = useStudyTimer();
+  const navigate = useNavigate();
   const isActive = status !== 'idle';
+
+  useEffect(() => {
+    fetchTodayActivities();
+  }, [fetchTodayActivities]);
 
   return (
     <Popover>
@@ -27,38 +38,87 @@ export function StudyTimerButton() {
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-64 p-4">
+      <PopoverContent align="end" className="w-72 p-4">
         <p className="text-xs font-medium text-muted-foreground mb-2">Cronômetro de Estudos</p>
         <p className="text-3xl font-mono font-bold text-foreground text-center my-4 tabular-nums">
           {formatTime(elapsed)}
         </p>
-        <div className="flex items-center justify-center gap-2">
-          {status === 'idle' && (
-            <Button onClick={start} size="sm" className="bg-emerald hover:bg-emerald-hover text-primary-foreground gap-1.5">
-              <Play size={14} /> Iniciar
-            </Button>
-          )}
-          {status === 'running' && (
-            <>
+
+        {status === 'idle' && (
+          <div className="space-y-3">
+            {loadingActivities ? (
+              <div className="flex justify-center py-2"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
+            ) : todayActivities.length === 0 ? (
+              <div className="text-center space-y-2">
+                <p className="text-xs text-muted-foreground">Nenhuma atividade programada para hoje.</p>
+                <Button variant="link" size="sm" className="text-emerald" onClick={() => navigate('/app/schedule')}>
+                  Ver cronograma
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Select
+                  value={selectedActivity?.id ?? ''}
+                  onValueChange={(id) => {
+                    const act = todayActivities.find(a => a.id === id);
+                    setSelectedActivity(act ?? null);
+                  }}
+                >
+                  <SelectTrigger className="border-border text-sm">
+                    <SelectValue placeholder="Selecione uma atividade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {todayActivities.map(a => (
+                      <SelectItem key={a.id} value={a.id}>
+                        {a.subject} ({a.start_time.slice(0, 5)}–{a.end_time.slice(0, 5)})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  onClick={start}
+                  size="sm"
+                  disabled={!selectedActivity}
+                  className="w-full bg-emerald hover:bg-emerald-hover text-primary-foreground gap-1.5"
+                >
+                  <Play size={14} /> Iniciar
+                </Button>
+              </>
+            )}
+          </div>
+        )}
+
+        {status === 'running' && (
+          <div className="space-y-2">
+            {selectedActivity && (
+              <p className="text-xs text-center text-muted-foreground">{selectedActivity.subject}</p>
+            )}
+            <div className="flex items-center justify-center gap-2">
               <Button onClick={pause} size="sm" variant="secondary" className="gap-1.5">
                 <Pause size={14} /> Pausar
               </Button>
               <Button onClick={stop} size="sm" variant="destructive" className="gap-1.5">
                 <Square size={14} /> Encerrar
               </Button>
-            </>
-          )}
-          {status === 'paused' && (
-            <>
+            </div>
+          </div>
+        )}
+
+        {status === 'paused' && (
+          <div className="space-y-2">
+            {selectedActivity && (
+              <p className="text-xs text-center text-muted-foreground">{selectedActivity.subject}</p>
+            )}
+            <div className="flex items-center justify-center gap-2">
               <Button onClick={resume} size="sm" className="bg-emerald hover:bg-emerald-hover text-primary-foreground gap-1.5">
                 <Play size={14} /> Retomar
               </Button>
               <Button onClick={stop} size="sm" variant="destructive" className="gap-1.5">
                 <Square size={14} /> Encerrar
               </Button>
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   );

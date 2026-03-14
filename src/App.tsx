@@ -82,6 +82,7 @@ const App = () => (
             <Route path="/app/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
             <Route path="/app/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="/app/schedule" element={<ProtectedRoute><SchedulePage /></ProtectedRoute>} />
+            <Route path="/app/mentoria" element={<ProtectedRoute><MentoriaPage /></ProtectedRoute>} />
 
             {/* Thank You - public */}
             <Route path="/thank-you/monthly" element={<ThankYouMonthly />} />
