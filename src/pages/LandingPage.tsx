@@ -241,7 +241,7 @@ export default function LandingPage() {
                 <div className="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-sm"
                   style={{ background: 'rgba(46,204,113,0.15)', color: '#2ECC71' }}>✦</div>
                 <div className="rounded-2xl px-5 py-4 max-w-2xl space-y-4" style={{ background: '#1A222B' }}>
-                  <p className="font-semibold text-lp-text">📚 Análise Doutrinária — Prisão Preventiva</p>
+                  <p className="font-semibold text-lp-text">Análise Doutrinária — Prisão Preventiva</p>
                   <div>
                     <p className="text-sm font-semibold text-lp-green mb-1">Conceito:</p>
                     <p className="text-sm text-lp-text-secondary leading-relaxed">
