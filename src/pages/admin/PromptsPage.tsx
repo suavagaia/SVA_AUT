@@ -9,8 +9,22 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Pencil } from 'lucide-react';
 import { toast } from 'sonner';
+
+const SUPABASE_URL = 'https://lxteajwzovoeclbytdrp.supabase.co';
+
+function getAccessToken() {
+  const raw = localStorage.getItem('sb-lxteajwzovoeclbytdrp-auth-token');
+  return raw ? JSON.parse(raw)?.access_token : null;
+}
+
+interface VectorStoreOption {
+  id: string;
+  name: string;
+  file_counts: { total: number };
+}
 
 interface Agent {
   id: string;
@@ -22,6 +36,8 @@ interface Agent {
   display_order: number;
   system_prompt: string | null;
   tool_web_search: boolean;
+  tool_file_search: boolean;
+  tool_file_search_vector_store_ids: string[] | null;
   store: boolean;
 }
 
