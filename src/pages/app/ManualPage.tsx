@@ -46,17 +46,22 @@ export default function ManualPage() {
           </div>
         ) : (
           <>
-            <article className="prose prose-sm max-w-none
-              prose-headings:font-display prose-headings:text-foreground
-              prose-p:text-foreground prose-li:text-foreground prose-strong:text-foreground
+            <ReactMarkdown className="prose prose-invert max-w-none
+              prose-h1:text-2xl prose-h1:font-display prose-h1:mt-8 prose-h1:mb-4
+              prose-h2:text-xl prose-h2:font-display prose-h2:mt-8 prose-h2:mb-3 prose-h2:text-emerald
+              prose-h3:text-lg prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-2
+              prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4
+              prose-li:text-muted-foreground prose-li:mb-2
+              prose-ul:my-4 prose-ol:my-4
+              prose-hr:border-border prose-hr:my-8
+              prose-strong:text-foreground
               prose-a:text-emerald prose-a:no-underline hover:prose-a:underline
-              prose-code:bg-muted prose-code:text-foreground prose-code:rounded prose-code:px-1.5 prose-code:py-0.5 prose-code:text-xs
-              prose-hr:border-border
+              prose-code:bg-secondary prose-code:px-1 prose-code:rounded prose-code:text-sm
               prose-blockquote:border-emerald prose-blockquote:text-muted-foreground
               prose-th:text-foreground prose-td:text-foreground
             ">
-              <ReactMarkdown>{content}</ReactMarkdown>
-            </article>
+              {content}
+            </ReactMarkdown>
 
             {updatedAt && (
               <p className="text-xs text-muted-foreground pt-4 border-t border-border">
