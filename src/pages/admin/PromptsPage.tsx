@@ -31,6 +31,36 @@ export default function AdminPromptsPage() {
   const [editing, setEditing] = useState<Agent | null>(null);
   const [saving, setSaving] = useState(false);
 
+  // Mentoria prompt
+  const [mentoriaPrompt, setMentoriaPrompt] = useState('');
+  const [mentoriaDesc, setMentoriaDesc] = useState('');
+  const [mentoriaLoading, setMentoriaLoading] = useState(true);
+  const [mentoriaSaving, setMentoriaSaving] = useState(false);
+
+  const fetchMentoriaPrompt = async () => {
+    const { data } = await supabase
+      .from('system_prompts')
+      .select('id, prompt, description')
+      .eq('key', 'mentorship_chat')
+      .single();
+    if (data) {
+      setMentoriaPrompt(data.prompt ?? '');
+      setMentoriaDesc(data.description ?? '');
+    }
+    setMentoriaLoading(false);
+  };
+
+  const saveMentoriaPrompt = async () => {
+    setMentoriaSaving(true);
+    const { error } = await supabase
+      .from('system_prompts')
+      .update({ prompt: mentoriaPrompt, updated_at: new Date().toISOString() })
+      .eq('key', 'mentorship_chat');
+    setMentoriaSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Prompt de mentoria atualizado');
+  };
+
   const fetchAgents = async () => {
     const { data } = await supabase
       .from('agents')
