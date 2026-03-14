@@ -132,7 +132,7 @@ export default function LandingPage() {
                 <li className="flex items-start gap-2"><CheckCircle size={16} className="mt-0.5 shrink-0 text-emerald" />Geração de cronograma personalizado</li>
               </ul>
               <Link to="/auth/signup" className="mt-8">
-                <Button variant="outline" className="w-full border-navy-border text-light hover:bg-navy">Criar conta grátis</Button>
+                <Button variant="outline" className="w-full bg-transparent border-navy-border text-light hover:bg-navy">Criar conta grátis</Button>
               </Link>
             </div>
 
