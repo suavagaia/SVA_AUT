@@ -19,6 +19,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { profile, user, signOut } = useAuth();
   const navigate = useNavigate();
   const isFreeUser = profile?.role === 'free_user';
+  const isAdmin = profile?.role === 'admin';
 
   const handleSignOut = async () => {
     await signOut();
