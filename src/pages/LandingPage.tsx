@@ -475,10 +475,10 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1100px] grid gap-10 md:grid-cols-4">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full" style={{ background: '#2ECC71' }}>
-                <span className="text-sm font-bold" style={{ color: '#080C10' }}>✓</span>
-              </div>
+              <LogoIcon size={32} />
               <span className="text-lg font-semibold text-lp-text">Sua Vaga <span className="text-lp-green">IA</span></span>
+            </div>
+            <p className="font-serif italic text-sm text-lp-text-muted">Inteligência que aprova.</p>
             </div>
             <p className="font-serif italic text-sm text-lp-text-muted">Inteligência que aprova.</p>
           </div>
