@@ -28,7 +28,7 @@ export default function AdminDashboardPage() {
 
       const [usersRes, subsRes, usageRes, recentRes] = await Promise.all([
         supabase.from('users').select('*', { count: 'exact', head: true }),
-        supabase.from('user_roles').select('*', { count: 'exact', head: true }).eq('role', 'subscriber'),
+        supabase.from('users').select('*', { count: 'exact', head: true }).eq('stripe_subscription_status', 'active'),
         supabase.from('token_usage_events').select('tokens_charged').gte('created_at', today.toISOString()),
         supabase
           .from('token_usage_events')
