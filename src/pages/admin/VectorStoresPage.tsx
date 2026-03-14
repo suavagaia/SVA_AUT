@@ -203,11 +203,11 @@ export default function VectorStoresPage() {
           <h2 className="font-display text-2xl text-light">Vector Stores</h2>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => setCreateOpen(true)}
-              className="border-navy-border text-light hover:bg-navy-border/50">
+              className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">
               <Plus size={16} className="mr-1" /> Novo Vector Store
             </Button>
             <Button variant="outline" size="sm" onClick={fetchData} disabled={loading}
-              className="border-navy-border text-light hover:bg-navy-border/50">
+              className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
               Atualizar
             </Button>
@@ -240,11 +240,11 @@ export default function VectorStoresPage() {
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <Button variant="outline" size="sm" onClick={() => { setUploadStore(store); setUploadFiles([]); }}
-                        className="border-navy-border text-light hover:bg-navy-border/50">
+                        className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">
                         <Upload size={14} className="mr-1" /> Adicionar arquivos
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => openDialog(store)}
-                        className="border-navy-border text-light hover:bg-navy-border/50">
+                        className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">
                         <Link2 size={14} className="mr-1" /> Gerenciar vínculos
                       </Button>
                     </div>
@@ -296,7 +296,7 @@ export default function VectorStoresPage() {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" size="sm" onClick={() => setDialogStore(null)}
-              className="border-navy-border text-light hover:bg-navy-border/50">Cancelar</Button>
+              className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">Cancelar</Button>
             <Button size="sm" onClick={handleSave} disabled={saving}
               className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
               {saving ? 'Salvando...' : 'Salvar'}
@@ -323,7 +323,7 @@ export default function VectorStoresPage() {
               <input ref={createFileRef} type="file" multiple accept=".pdf,.txt,.md,.docx" className="hidden"
                 onChange={e => { if (e.target.files) setCreateFiles(prev => [...prev, ...Array.from(e.target.files!)]); }} />
               <Button variant="outline" size="sm" onClick={() => createFileRef.current?.click()}
-                className="border-navy-border text-light hover:bg-navy-border/50 w-full border-dashed">
+                className="bg-transparent border-navy-border text-light hover:bg-navy-border/50 w-full border-dashed">
                 <Upload size={14} className="mr-2" /> Selecionar arquivos (.pdf, .txt, .md, .docx)
               </Button>
             </div>
@@ -346,7 +346,7 @@ export default function VectorStoresPage() {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" size="sm" onClick={() => { setCreateOpen(false); setCreateName(''); setCreateFiles([]); }}
-              disabled={creating} className="border-navy-border text-light hover:bg-navy-border/50">Cancelar</Button>
+              disabled={creating} className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">Cancelar</Button>
             <Button size="sm" onClick={handleCreate} disabled={creating || !createName.trim() || createFiles.length === 0}
               className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
               {creating ? <><Loader2 size={14} className="animate-spin mr-1" /> Criando...</> : 'Criar'}
@@ -367,7 +367,7 @@ export default function VectorStoresPage() {
             <input ref={uploadFileRef} type="file" multiple accept=".pdf,.txt,.md,.docx" className="hidden"
               onChange={e => { if (e.target.files) setUploadFiles(prev => [...prev, ...Array.from(e.target.files!)]); }} />
             <Button variant="outline" size="sm" onClick={() => uploadFileRef.current?.click()}
-              className="border-navy-border text-light hover:bg-navy-border/50 w-full border-dashed">
+              className="bg-transparent border-navy-border text-light hover:bg-navy-border/50 w-full border-dashed">
               <Upload size={14} className="mr-2" /> Selecionar arquivos (.pdf, .txt, .md, .docx)
             </Button>
             {uploadFiles.length > 0 && (
@@ -389,7 +389,7 @@ export default function VectorStoresPage() {
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" size="sm" onClick={() => { setUploadStore(null); setUploadFiles([]); }}
-              disabled={uploading} className="border-navy-border text-light hover:bg-navy-border/50">Cancelar</Button>
+              disabled={uploading} className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">Cancelar</Button>
             <Button size="sm" onClick={handleUploadFiles} disabled={uploading || uploadFiles.length === 0}
               className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
               {uploading ? <><Loader2 size={14} className="animate-spin mr-1" /> Enviando...</> : `Enviar ${uploadFiles.length} arquivo(s)`}
