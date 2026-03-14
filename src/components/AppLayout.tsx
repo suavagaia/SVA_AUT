@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Bell, LogOut, CreditCard, History, Settings } from 'lucide-react';
+import { Bell, LogOut, CreditCard, History, Settings, ShieldCheck } from 'lucide-react';
 import { LogoDark } from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
