@@ -53,6 +53,7 @@ import AdminDashboardPage from "@/pages/admin/DashboardPage";
 import AdminUsersPage from "@/pages/admin/UsersPage";
 import AdminPromptsPage from "@/pages/admin/PromptsPage";
 import AdminInteractionsPage from "@/pages/admin/InteractionsPage";
+import AdminVectorStoresPage from "@/pages/admin/VectorStoresPage";
 
 const queryClient = new QueryClient();
 
