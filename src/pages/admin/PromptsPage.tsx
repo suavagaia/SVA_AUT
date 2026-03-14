@@ -37,6 +37,11 @@ export default function AdminPromptsPage() {
   const [mentoriaLoading, setMentoriaLoading] = useState(true);
   const [mentoriaSaving, setMentoriaSaving] = useState(false);
 
+  // Manual
+  const [manualContent, setManualContent] = useState('');
+  const [manualLoading, setManualLoading] = useState(true);
+  const [manualSaving, setManualSaving] = useState(false);
+
   const fetchMentoriaPrompt = async () => {
     const { data } = await supabase
       .from('system_prompts')
@@ -61,6 +66,27 @@ export default function AdminPromptsPage() {
     toast.success('Prompt de mentoria atualizado');
   };
 
+  const fetchManual = async () => {
+    const { data } = await supabase
+      .from('system_prompts')
+      .select('prompt')
+      .eq('key', 'user_manual')
+      .single();
+    setManualContent(data?.prompt ?? '');
+    setManualLoading(false);
+  };
+
+  const saveManual = async () => {
+    setManualSaving(true);
+    const { error } = await supabase
+      .from('system_prompts')
+      .update({ prompt: manualContent, updated_at: new Date().toISOString() })
+      .eq('key', 'user_manual');
+    setManualSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Manual atualizado');
+  };
+
   const fetchAgents = async () => {
     const { data } = await supabase
       .from('agents')
@@ -70,7 +96,7 @@ export default function AdminPromptsPage() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchAgents(); fetchMentoriaPrompt(); }, []);
+  useEffect(() => { fetchAgents(); fetchMentoriaPrompt(); fetchManual(); }, []);
 
   const toggleActive = async (agent: Agent) => {
     const { error } = await supabase.from('agents').update({ is_active: !agent.is_active }).eq('id', agent.id);
@@ -128,6 +154,38 @@ export default function AdminPromptsPage() {
               <Button onClick={saveMentoriaPrompt} disabled={mentoriaSaving} className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
                 {mentoriaSaving ? 'Salvando...' : 'Salvar'}
               </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Manual Section */}
+      <Card className="bg-navy border-navy-border mb-6">
+        <CardHeader>
+          <CardTitle className="text-light text-base">Manual do Usuário</CardTitle>
+          <p className="text-muted-light text-xs">Conteúdo exibido na página /app/manual. Suporta Markdown.</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {manualLoading ? (
+            <div className="flex justify-center py-6">
+              <div className="h-6 w-6 animate-spin rounded-full border-4 border-emerald border-t-transparent" />
+            </div>
+          ) : (
+            <>
+              <Textarea
+                value={manualContent}
+                onChange={(e) => setManualContent(e.target.value)}
+                className="min-h-[400px] border-navy-border bg-navy-deep text-light font-mono text-xs"
+                placeholder="Conteúdo do manual em Markdown..."
+              />
+              <div className="flex items-center gap-3">
+                <Button onClick={saveManual} disabled={manualSaving} className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
+                  {manualSaving ? 'Salvando...' : 'Salvar'}
+                </Button>
+                <a href="/app/manual" target="_blank" rel="noopener noreferrer" className="text-xs text-emerald hover:underline">
+                  Ver manual →
+                </a>
+              </div>
             </>
           )}
         </CardContent>
