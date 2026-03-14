@@ -66,7 +66,7 @@ const App = () => (
         <StudyTimerProvider>
           <Routes>
             {/* Landing */}
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<LandingRoute />} />
 
             {/* Auth - public only */}
             <Route path="/auth/login" element={<PublicOnlyRoute><LoginPage /></PublicOnlyRoute>} />
