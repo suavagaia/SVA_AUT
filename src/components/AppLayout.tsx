@@ -71,31 +71,31 @@ export function AppLayout({ children }: AppLayoutProps) {
                     Admin
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => navigate('/app/history')} className="cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate('/app/history')} className="cursor-pointer text-white focus:bg-white/20 focus:text-white">
                   <History className="mr-2 h-4 w-4" />
                   Histórico
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/app/mentoria')} className="cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate('/app/mentoria')} className="cursor-pointer text-white focus:bg-white/20 focus:text-white">
                   <Brain className="mr-2 h-4 w-4" />
                   Mentoria
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/app/schedule')} className="cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate('/app/schedule')} className="cursor-pointer text-white focus:bg-white/20 focus:text-white">
                   <CalendarDays className="mr-2 h-4 w-4" />
                   Cronograma
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/app/billing')} className="cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate('/app/billing')} className="cursor-pointer text-white focus:bg-white/20 focus:text-white">
                   <CreditCard className="mr-2 h-4 w-4" />
                   Meu Plano
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/app/manual')} className="cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate('/app/manual')} className="cursor-pointer text-white focus:bg-white/20 focus:text-white">
                   <BookOpen className="mr-2 h-4 w-4" />
                   Manual
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/app/settings')} className="cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate('/app/settings')} className="cursor-pointer text-white focus:bg-white/20 focus:text-white">
                   <Settings className="mr-2 h-4 w-4" />
                   Configurações
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-white/80 focus:bg-white/20 focus:text-white">
                   <LogOut className="mr-2 h-4 w-4" />
                   Sair
                 </DropdownMenuItem>
