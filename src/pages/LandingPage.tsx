@@ -45,7 +45,7 @@ export default function LandingPage() {
           <Logo size="default" />
           <div className="flex items-center gap-3">
             <Link to="/auth/login">
-              <Button variant="outline" size="sm" className="border-navy-border text-light hover:bg-navy">Entrar</Button>
+              <Button variant="outline" size="sm" className="bg-transparent border-navy-border text-light hover:bg-navy">Entrar</Button>
             </Link>
             <Link to="/auth/signup">
               <Button size="sm" className="bg-emerald hover:bg-emerald-hover text-primary-foreground font-semibold">Começar grátis</Button>
