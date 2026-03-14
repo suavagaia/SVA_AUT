@@ -37,6 +37,7 @@ import HistoryPage from "@/pages/app/HistoryPage";
 import SettingsPage from "@/pages/app/SettingsPage";
 import SchedulePage from "@/pages/app/SchedulePage";
 import MentoriaPage from "@/pages/app/MentoriaPage";
+import ManualPage from "@/pages/app/ManualPage";
 
 // Thank You
 import ThankYouMonthly from "@/pages/thankyou/ThankYouMonthly";
