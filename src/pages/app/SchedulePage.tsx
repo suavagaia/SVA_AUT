@@ -111,13 +111,27 @@ export default function SchedulePage() {
   const weekEntries = entries.filter(e => isThisWeek(e.scheduled_date));
   const monthEntries = entries.filter(e => isThisMonth(e.scheduled_date));
 
+  const handleGoToMentoria = async () => {
+    const { data: agent } = await supabase
+      .from('agents')
+      .select('id, title, slug, description, icon')
+      .eq('slug', 'mentoria')
+      .single();
+    if (agent) {
+      localStorage.setItem('selectedAgent', JSON.stringify(agent));
+      navigate('/app/chat');
+    } else {
+      navigate('/app/areas');
+    }
+  };
+
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <CalendarDays size={48} className="text-muted-foreground mb-4" />
       <p className="text-muted-foreground mb-4">
         Nenhuma entrada no cronograma. Converse com o agente de Mentoria para gerar seu cronograma personalizado.
       </p>
-      <Button onClick={() => navigate('/app/areas')} className="bg-emerald hover:bg-emerald-hover text-primary-foreground gap-2">
+      <Button onClick={handleGoToMentoria} className="bg-emerald hover:bg-emerald-hover text-primary-foreground gap-2">
         <MessageSquare size={16} /> Ir para Mentoria
       </Button>
     </div>

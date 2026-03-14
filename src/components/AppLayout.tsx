@@ -75,6 +75,10 @@ export function AppLayout({ children }: AppLayoutProps) {
                   <History className="mr-2 h-4 w-4" />
                   Histórico
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/app/schedule')} className="cursor-pointer">
+                  <CalendarDays className="mr-2 h-4 w-4" />
+                  Cronograma
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/app/billing')} className="cursor-pointer">
                   <CreditCard className="mr-2 h-4 w-4" />
                   Meu Plano
