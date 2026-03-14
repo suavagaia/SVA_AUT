@@ -42,6 +42,14 @@ export function AppLayout({ children }: AppLayoutProps) {
                 ASSINAR
               </Button>
             )}
+            <StudyTimerButton />
+            <button
+              onClick={() => navigate('/app/schedule')}
+              className="relative rounded-full p-2 text-muted-foreground hover:bg-secondary transition-colors"
+              title="Cronograma"
+            >
+              <CalendarDays size={20} />
+            </button>
             <button className="relative rounded-full p-2 text-muted-foreground hover:bg-secondary transition-colors">
               <Bell size={20} />
             </button>
