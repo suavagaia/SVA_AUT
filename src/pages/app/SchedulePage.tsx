@@ -88,7 +88,7 @@ export default function SchedulePage() {
       .eq('user_id', user.id)
       .order('scheduled_date', { ascending: true });
     if (error) console.error('Error fetching schedule:', error);
-    setEntries((data as ScheduleEntry[]) ?? []);
+    setEntries((data as unknown as ScheduleEntry[]) ?? []);
     setLoading(false);
   };
 
