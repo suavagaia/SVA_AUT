@@ -159,6 +159,38 @@ export default function AdminPromptsPage() {
         </CardContent>
       </Card>
 
+      {/* Manual Section */}
+      <Card className="bg-navy border-navy-border mb-6">
+        <CardHeader>
+          <CardTitle className="text-light text-base">Manual do Usuário</CardTitle>
+          <p className="text-muted-light text-xs">Conteúdo exibido na página /app/manual. Suporta Markdown.</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {manualLoading ? (
+            <div className="flex justify-center py-6">
+              <div className="h-6 w-6 animate-spin rounded-full border-4 border-emerald border-t-transparent" />
+            </div>
+          ) : (
+            <>
+              <Textarea
+                value={manualContent}
+                onChange={(e) => setManualContent(e.target.value)}
+                className="min-h-[400px] border-navy-border bg-navy-deep text-light font-mono text-xs"
+                placeholder="Conteúdo do manual em Markdown..."
+              />
+              <div className="flex items-center gap-3">
+                <Button onClick={saveManual} disabled={manualSaving} className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
+                  {manualSaving ? 'Salvando...' : 'Salvar'}
+                </Button>
+                <a href="/app/manual" target="_blank" rel="noopener noreferrer" className="text-xs text-emerald hover:underline">
+                  Ver manual →
+                </a>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
       <Card className="bg-navy border-navy-border">
         <CardHeader>
           <CardTitle className="text-light text-base">Agentes / Prompts</CardTitle>
