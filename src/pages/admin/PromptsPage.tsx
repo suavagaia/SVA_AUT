@@ -351,10 +351,12 @@ export default function AdminPromptsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="gpt-4o">gpt-4o</SelectItem>
-                    <SelectItem value="gpt-4o-mini">gpt-4o-mini</SelectItem>
-                    <SelectItem value="o1">o1</SelectItem>
-                    <SelectItem value="o3-mini">o3-mini</SelectItem>
+                    <SelectItem value="gpt-5.4">GPT-5.4 (Frontier — recomendado)</SelectItem>
+                    <SelectItem value="gpt-5-mini">GPT-5 Mini (rápido e econômico)</SelectItem>
+                    <SelectItem value="gpt-5-nano">GPT-5 Nano (mais rápido e barato)</SelectItem>
+                    <SelectItem value="gpt-5">GPT-5 (original ago/2025)</SelectItem>
+                    <SelectItem value="gpt-4o">GPT-4o (legado)</SelectItem>
+                    <SelectItem value="gpt-4o-mini">GPT-4o Mini (legado)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
