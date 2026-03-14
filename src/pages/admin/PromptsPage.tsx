@@ -385,39 +385,46 @@ export default function AdminPromptsPage() {
                 <Switch checked={editing.tool_file_search} onCheckedChange={(v) => updateField('tool_file_search', v)} />
               </div>
               {editing.tool_file_search && (
-                <div className="rounded-lg border border-navy-border bg-navy-deep p-3 space-y-2">
-                  <Label className="text-muted-light text-xs">Vector Stores</Label>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-light">Vector Stores</label>
                   <p className="text-xs text-muted-foreground">
-                    Selecione as bases de conhecimento que este agente deve consultar.
+                    Bases de conhecimento que este agente vai consultar ao responder.
                   </p>
-                  {vectorStores.length === 0 ? (
-                    <p className="text-xs text-muted-foreground">
-                      Nenhum vector store encontrado. Crie um em Vector Stores.
+                  {vectorStoresLoading ? (
+                    <div className="flex justify-center py-3">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald border-t-transparent" />
+                    </div>
+                  ) : vectorStores.length === 0 ? (
+                    <p className="text-xs text-muted-foreground italic">
+                      Nenhum vector store encontrado. Crie um em{' '}
+                      <a href="/admin/vector-stores" className="text-emerald underline">Vector Stores</a>.
                     </p>
                   ) : (
-                    vectorStores.map(vs => (
-                      <label key={vs.id} className="flex items-center gap-2 py-1 cursor-pointer hover:bg-navy-border/20 rounded px-1 transition-colors">
-                        <Checkbox
-                          checked={editing.tool_file_search_vector_store_ids?.includes(vs.id) ?? false}
-                          onCheckedChange={(checked) => {
-                            const current = editing.tool_file_search_vector_store_ids ?? [];
-                            const newIds = checked
-                              ? [...new Set([...current, vs.id])]
-                              : current.filter(id => id !== vs.id);
-                            updateField('tool_file_search_vector_store_ids', newIds as any);
-                          }}
-                        />
-                        <span className="text-sm text-light">{vs.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          ({vs.file_counts?.total ?? 0} arquivos)
-                        </span>
-                      </label>
-                    ))
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {vectorStores.map(vs => (
+                        <label key={vs.id} className="flex items-center gap-2 cursor-pointer">
+                          <Checkbox
+                            checked={editing.tool_file_search_vector_store_ids?.includes(vs.id) ?? false}
+                            onCheckedChange={(checked) => {
+                              const current = editing.tool_file_search_vector_store_ids ?? [];
+                              const newIds = checked
+                                ? [...new Set([...current, vs.id])]
+                                : current.filter(id => id !== vs.id);
+                              updateField('tool_file_search_vector_store_ids', newIds as any);
+                            }}
+                          />
+                          <span className="text-sm text-light">{vs.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            ({vs.file_counts?.total ?? 0} arquivos)
+                          </span>
+                        </label>
+                      ))}
+                    </div>
                   )}
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <Label className="text-muted-light">Store</Label>
+                <Label className="text-muted-light">Store (salvar contexto)</Label>
                 <Switch checked={editing.store} onCheckedChange={(v) => updateField('store', v)} />
               </div>
             </div>
