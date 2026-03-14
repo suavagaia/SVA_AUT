@@ -75,7 +75,7 @@ export default function BillingPage() {
 
   const handleSync = async () => {
     setSyncing(true);
-    await fetchTokens();
+    await fetchPlanAndTokens();
     setSyncing(false);
     toast({ title: 'Saldo atualizado!' });
   };
