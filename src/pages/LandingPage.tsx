@@ -163,13 +163,12 @@ export default function LandingPage() {
           </h2>
           <div className="mt-14 grid gap-5 md:grid-cols-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
             {[
-              { emoji: '💸', title: 'Material caro e disperso', text: 'Livros de doutrina, banco de questões, informativos, mentoria — tudo separado, tudo caro. Facilmente R$4.900/mês se quiser ter uma preparação completa.' },
-              { emoji: '😰', title: 'A sensação de estar ficando para trás', text: 'Você estuda, mas não sabe se está estudando certo. O edital é enorme, o tempo é curto, e parece que todo mundo está mais preparado que você.' },
-              { emoji: '⚖️', title: 'Preparação completa não pode ser privilégio', text: 'Não é justo que só quem pode investir milhares por mês tenha acesso a doutrina de qualidade, jurisprudência organizada e questões bem fundamentadas.' },
+              { title: 'Material caro e disperso', text: 'Livros de doutrina, banco de questões, informativos, mentoria — tudo separado, tudo caro. Facilmente R$4.900/mês se quiser ter uma preparação completa.' },
+              { title: 'A sensação de estar ficando para trás', text: 'Você estuda, mas não sabe se está estudando certo. O edital é enorme, o tempo é curto, e parece que todo mundo está mais preparado que você.' },
+              { title: 'Preparação completa não pode ser privilégio', text: 'Não é justo que só quem pode investir milhares por mês tenha acesso a doutrina de qualidade, jurisprudência organizada e questões bem fundamentadas.' },
             ].map(c => (
               <div key={c.title} className="rounded-[20px] p-8 transition-all duration-300 hover:-translate-y-1"
                 style={{ background: '#0F1419', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <div className="text-3xl mb-4">{c.emoji}</div>
                 <h3 className="font-serif text-xl text-lp-text mb-3">{c.title}</h3>
                 <p className="text-sm leading-relaxed text-lp-text-secondary">{c.text}</p>
               </div>
