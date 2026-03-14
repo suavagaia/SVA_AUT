@@ -80,6 +80,7 @@ const App = () => (
             <Route path="/app/billing" element={<ProtectedRoute><BillingPage /></ProtectedRoute>} />
             <Route path="/app/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
             <Route path="/app/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/app/schedule" element={<ProtectedRoute><SchedulePage /></ProtectedRoute>} />
 
             {/* Thank You - public */}
             <Route path="/thank-you/monthly" element={<ThankYouMonthly />} />
@@ -100,6 +101,7 @@ const App = () => (
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+        </StudyTimerProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
