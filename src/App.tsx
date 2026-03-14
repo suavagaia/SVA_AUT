@@ -39,6 +39,12 @@ import ThankYouCredits from "@/pages/thankyou/ThankYouCredits";
 import TermsPage from "@/pages/legal/TermsPage";
 import PrivacyPage from "@/pages/legal/PrivacyPage";
 
+// Admin
+import AdminDashboardPage from "@/pages/admin/DashboardPage";
+import AdminUsersPage from "@/pages/admin/UsersPage";
+import AdminPromptsPage from "@/pages/admin/PromptsPage";
+import AdminInteractionsPage from "@/pages/admin/InteractionsPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
