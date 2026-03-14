@@ -56,6 +56,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+        <StudyTimerProvider>
           <Routes>
             {/* Landing */}
             <Route path="/" element={<LandingPage />} />
