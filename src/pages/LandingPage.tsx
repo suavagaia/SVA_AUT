@@ -403,8 +403,8 @@ export default function LandingPage() {
             </div>
             <p className="text-sm text-lp-text-muted mt-2">ou R$1.290,00 à vista (1 ano)</p>
             <div className="mt-6 flex justify-center gap-4 text-sm text-lp-text-secondary">
-              <span>💳 Cartão de crédito</span>
-              <span>💰 PIX</span>
+              <span>Cartão de crédito</span>
+              <span>PIX</span>
             </div>
             <Link to="/auth/signup" className="block mt-8">
               <button className="w-full rounded-full py-4 text-lg font-semibold transition-all hover:-translate-y-0.5"
