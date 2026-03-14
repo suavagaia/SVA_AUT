@@ -39,6 +39,12 @@ import ThankYouCredits from "@/pages/thankyou/ThankYouCredits";
 import TermsPage from "@/pages/legal/TermsPage";
 import PrivacyPage from "@/pages/legal/PrivacyPage";
 
+// Admin
+import AdminDashboardPage from "@/pages/admin/DashboardPage";
+import AdminUsersPage from "@/pages/admin/UsersPage";
+import AdminPromptsPage from "@/pages/admin/PromptsPage";
+import AdminInteractionsPage from "@/pages/admin/InteractionsPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -77,6 +83,12 @@ const App = () => (
             <Route path="/thank-you/annual" element={<ThankYouAnnual />} />
             <Route path="/thank-you/test" element={<ThankYouTest />} />
             <Route path="/thank-you/credits" element={<ThankYouCredits />} />
+
+            {/* Admin */}
+            <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/prompts" element={<AdminPromptsPage />} />
+            <Route path="/admin/interactions" element={<AdminInteractionsPage />} />
 
             {/* Legal */}
             <Route path="/terms" element={<TermsPage />} />
