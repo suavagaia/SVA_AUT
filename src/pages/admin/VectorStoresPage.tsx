@@ -240,11 +240,11 @@ export default function VectorStoresPage() {
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <Button variant="outline" size="sm" onClick={() => { setUploadStore(store); setUploadFiles([]); }}
-                        className="border-navy-border text-light hover:bg-navy-border/50">
+                        className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">
                         <Upload size={14} className="mr-1" /> Adicionar arquivos
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => openDialog(store)}
-                        className="border-navy-border text-light hover:bg-navy-border/50">
+                        className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">
                         <Link2 size={14} className="mr-1" /> Gerenciar vínculos
                       </Button>
                     </div>
