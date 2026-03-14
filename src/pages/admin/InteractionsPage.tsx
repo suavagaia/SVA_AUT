@@ -56,7 +56,7 @@ export default function AdminInteractionsPage() {
 
     let query = supabase
       .from('token_usage_events')
-      .select('id, created_at, tokens_charged, prompt_tokens, completion_tokens, model_used, users(email), agents(title), conversations(title)')
+      .select('id, created_at, tokens_charged, prompt_tokens, completion_tokens, model_used, users(email), agents(title)')
       .order('created_at', { ascending: false })
       .limit(100);
 
