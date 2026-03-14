@@ -73,7 +73,7 @@ export default function LandingPage() {
             </Button>
           </Link>
           <a href="#precos">
-            <Button size="lg" variant="outline" className="border-navy-border text-light hover:bg-navy px-8 text-base">
+            <Button size="lg" variant="outline" className="bg-transparent border-navy-border text-light hover:bg-navy px-8 text-base">
               Ver planos
             </Button>
           </a>
