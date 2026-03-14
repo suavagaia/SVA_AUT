@@ -39,25 +39,18 @@ export default function BillingPage() {
   const [portalLoading, setPortalLoading] = useState(false);
   const [creditsLoading, setCreditsLoading] = useState(false);
 
-  const fetchTokens = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from('user_token_balances')
-      .select('agents_tokens_remaining')
-      .eq('user_id', user.id)
-      .single();
-    setTokensRemaining(data?.agents_tokens_remaining ?? 0);
-    setLoadingTokens(false);
-  };
-
-  const fetchPlan = async () => {
+  const fetchPlanAndTokens = async () => {
     if (!user) return;
     const { data } = await supabase
       .from('user_profiles')
-      .select('role, subscription_status, subscription_plan')
+      .select('role, subscription_status, subscription_plan, agents_tokens_remaining')
       .eq('id', user.id)
       .single();
-    setPlanInfo(data ? { role: data.role, subscription_status: data.subscription_status, subscription_tier: data.subscription_plan } : null);
+    if (data) {
+      setTokensRemaining(data.agents_tokens_remaining ?? 0);
+      setPlanInfo({ role: data.role, subscription_status: data.subscription_status, subscription_tier: data.subscription_plan });
+    }
+    setLoadingTokens(false);
     setLoadingPlan(false);
   };
 
