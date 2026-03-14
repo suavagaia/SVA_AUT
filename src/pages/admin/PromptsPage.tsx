@@ -144,13 +144,15 @@ export default function AdminPromptsPage() {
   // Fetch vector stores when editing agent
   useEffect(() => {
     if (!editing) return;
+    setVectorStoresLoading(true);
     const token = getAccessToken();
     fetch(`${SUPABASE_URL}/functions/v1/openai-vector-stores`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(r => r.json())
       .then(d => setVectorStores(d.vector_stores ?? []))
-      .catch(() => setVectorStores([]));
+      .catch(() => setVectorStores([]))
+      .finally(() => setVectorStoresLoading(false));
   }, [editing?.id]);
 
   useEffect(() => { fetchAgents(); fetchMentoriaPrompt(); fetchManual(); fetchMentoriaLimit(); }, []);
