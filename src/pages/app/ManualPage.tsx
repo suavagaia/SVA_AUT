@@ -1,26 +1,31 @@
 import { useEffect, useState } from 'react';
 import { AppLayout } from '@/components/AppLayout';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import ReactMarkdown from 'react-markdown';
 
 export default function ManualPage() {
+  const { loading: authLoading } = useAuth();
   const [content, setContent] = useState('');
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading) return;
+
     supabase
       .from('system_prompts')
       .select('prompt, updated_at')
       .eq('key', 'user_manual')
-      .single()
-      .then(({ data }) => {
+      .maybeSingle()
+      .then(({ data, error }) => {
+        console.log('manual data:', data, 'error:', error);
         setContent(data?.prompt ?? '');
         setUpdatedAt(data?.updated_at ?? null);
         setLoading(false);
       });
-  }, []);
+  }, [authLoading]);
 
   return (
     <AppLayout>
