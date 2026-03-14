@@ -216,7 +216,34 @@ export default function AdminPromptsPage() {
         </CardContent>
       </Card>
 
-      <Card className="bg-navy border-navy-border">
+      {/* Free User Mentoria Limit */}
+      <Card className="bg-navy border-navy-border mb-6">
+        <CardHeader>
+          <CardTitle className="text-light text-base">Limite de Gerações de Mentoria (Plano Gratuito)</CardTitle>
+          <p className="text-muted-light text-xs">Número máximo de vezes que um usuário gratuito pode gerar o cronograma de mentoria.</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {mentoriaLimitLoading ? (
+            <div className="flex justify-center py-6">
+              <div className="h-6 w-6 animate-spin rounded-full border-4 border-emerald border-t-transparent" />
+            </div>
+          ) : (
+            <>
+              <Input
+                type="number"
+                min={0}
+                value={mentoriaLimit}
+                onChange={(e) => setMentoriaLimit(e.target.value)}
+                className="w-32 border-navy-border bg-navy-deep text-light"
+              />
+              <Button onClick={saveMentoriaLimit} disabled={mentoriaLimitSaving} className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
+                {mentoriaLimitSaving ? 'Salvando...' : 'Salvar'}
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
         <CardHeader>
           <CardTitle className="text-light text-base">Agentes / Prompts</CardTitle>
         </CardHeader>
