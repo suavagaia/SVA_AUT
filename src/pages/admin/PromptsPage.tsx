@@ -70,7 +70,7 @@ export default function AdminPromptsPage() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchAgents(); }, []);
+  useEffect(() => { fetchAgents(); fetchMentoriaPrompt(); }, []);
 
   const toggleActive = async (agent: Agent) => {
     const { error } = await supabase.from('agents').update({ is_active: !agent.is_active }).eq('id', agent.id);
