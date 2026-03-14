@@ -17,7 +17,7 @@ interface Interaction {
   model_used: string;
   users: { email: string } | null;
   agents: { title: string } | null;
-  conversations: { title: string } | null;
+  
 }
 
 interface AgentOption { id: string; title: string; }
@@ -56,7 +56,7 @@ export default function AdminInteractionsPage() {
 
     let query = supabase
       .from('token_usage_events')
-      .select('id, created_at, tokens_charged, prompt_tokens, completion_tokens, model_used, users(email), agents(title), conversations(title)')
+      .select('id, created_at, tokens_charged, prompt_tokens, completion_tokens, model_used, users(email), agents(title)')
       .order('created_at', { ascending: false })
       .limit(100);
 
@@ -138,7 +138,7 @@ export default function AdminInteractionsPage() {
                   <tr key={r.id} className="border-b border-navy-border/50 text-light">
                     <td className="py-2 pr-3 whitespace-nowrap">{new Date(r.created_at).toLocaleString('pt-BR')}</td>
                     <td className="py-2 pr-3">{(r.users as any)?.email ?? '—'}</td>
-                    <td className="py-2 pr-3 max-w-[150px] truncate">{(r.conversations as any)?.title ?? '—'}</td>
+                    <td className="py-2 pr-3 max-w-[150px] truncate">—</td>
                     <td className="py-2 pr-3">{(r.agents as any)?.title ?? '—'}</td>
                     <td className="py-2 pr-3">{r.model_used}</td>
                     <td className="py-2 pr-3">{r.prompt_tokens}</td>
