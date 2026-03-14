@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Bell, LogOut, CreditCard, History, Settings, ShieldCheck, CalendarDays } from 'lucide-react';
+import { Bell, LogOut, CreditCard, History, Settings, ShieldCheck, CalendarDays, Brain } from 'lucide-react';
 import { StudyTimerButton } from '@/components/StudyTimerButton';
 import { LogoDark } from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
@@ -74,6 +74,10 @@ export function AppLayout({ children }: AppLayoutProps) {
                 <DropdownMenuItem onClick={() => navigate('/app/history')} className="cursor-pointer">
                   <History className="mr-2 h-4 w-4" />
                   Histórico
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/app/mentoria')} className="cursor-pointer">
+                  <Brain className="mr-2 h-4 w-4" />
+                  Mentoria
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/app/schedule')} className="cursor-pointer">
                   <CalendarDays className="mr-2 h-4 w-4" />

@@ -31,6 +31,36 @@ export default function AdminPromptsPage() {
   const [editing, setEditing] = useState<Agent | null>(null);
   const [saving, setSaving] = useState(false);
 
+  // Mentoria prompt
+  const [mentoriaPrompt, setMentoriaPrompt] = useState('');
+  const [mentoriaDesc, setMentoriaDesc] = useState('');
+  const [mentoriaLoading, setMentoriaLoading] = useState(true);
+  const [mentoriaSaving, setMentoriaSaving] = useState(false);
+
+  const fetchMentoriaPrompt = async () => {
+    const { data } = await supabase
+      .from('system_prompts')
+      .select('id, prompt, description')
+      .eq('key', 'mentorship_chat')
+      .single();
+    if (data) {
+      setMentoriaPrompt(data.prompt ?? '');
+      setMentoriaDesc(data.description ?? '');
+    }
+    setMentoriaLoading(false);
+  };
+
+  const saveMentoriaPrompt = async () => {
+    setMentoriaSaving(true);
+    const { error } = await supabase
+      .from('system_prompts')
+      .update({ prompt: mentoriaPrompt, updated_at: new Date().toISOString() })
+      .eq('key', 'mentorship_chat');
+    setMentoriaSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Prompt de mentoria atualizado');
+  };
+
   const fetchAgents = async () => {
     const { data } = await supabase
       .from('agents')
@@ -40,7 +70,7 @@ export default function AdminPromptsPage() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchAgents(); }, []);
+  useEffect(() => { fetchAgents(); fetchMentoriaPrompt(); }, []);
 
   const toggleActive = async (agent: Agent) => {
     const { error } = await supabase.from('agents').update({ is_active: !agent.is_active }).eq('id', agent.id);
@@ -73,6 +103,36 @@ export default function AdminPromptsPage() {
 
   return (
     <AdminLayout>
+      {/* Mentoria Prompt Section */}
+      <Card className="bg-navy border-navy-border mb-6">
+        <CardHeader>
+          <CardTitle className="text-light text-base">Prompt de Mentoria</CardTitle>
+          <p className="text-muted-light text-xs">{mentoriaDesc || 'Prompt usado para gerar cronogramas de estudo personalizados'}</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {mentoriaLoading ? (
+            <div className="flex justify-center py-6">
+              <div className="h-6 w-6 animate-spin rounded-full border-4 border-emerald border-t-transparent" />
+            </div>
+          ) : (
+            <>
+              <Textarea
+                value={mentoriaPrompt}
+                onChange={(e) => setMentoriaPrompt(e.target.value)}
+                className="min-h-[300px] border-navy-border bg-navy-deep text-light font-mono text-xs"
+                placeholder="Prompt de mentoria..."
+              />
+              <p className="text-xs text-muted-light">
+                Variáveis disponíveis: <code className="text-emerald">{'{{wakeUpText}}'}</code>, <code className="text-emerald">{'{{schedulesText}}'}</code>, <code className="text-emerald">{'{{subjectsText}}'}</code>
+              </p>
+              <Button onClick={saveMentoriaPrompt} disabled={mentoriaSaving} className="bg-emerald hover:bg-emerald-hover text-primary-foreground">
+                {mentoriaSaving ? 'Salvando...' : 'Salvar'}
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
       <Card className="bg-navy border-navy-border">
         <CardHeader>
           <CardTitle className="text-light text-base">Agentes / Prompts</CardTitle>
