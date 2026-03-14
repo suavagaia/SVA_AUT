@@ -46,7 +46,7 @@ export default function ManualPage() {
           </div>
         ) : (
           <>
-            <ReactMarkdown className="prose prose-invert max-w-none
+            <div className="prose prose-invert max-w-none
               prose-h1:text-2xl prose-h1:font-display prose-h1:mt-8 prose-h1:mb-4
               prose-h2:text-xl prose-h2:font-display prose-h2:mt-8 prose-h2:mb-3 prose-h2:text-emerald
               prose-h3:text-lg prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-2
@@ -60,8 +60,8 @@ export default function ManualPage() {
               prose-blockquote:border-emerald prose-blockquote:text-muted-foreground
               prose-th:text-foreground prose-td:text-foreground
             ">
-              {content}
-            </ReactMarkdown>
+              <ReactMarkdown>{content}</ReactMarkdown>
+            </div>
 
             {updatedAt && (
               <p className="text-xs text-muted-foreground pt-4 border-t border-border">
