@@ -163,7 +163,7 @@ export default function LandingPage() {
                 <li className="flex items-start gap-2"><CheckCircle size={16} className="mt-0.5 shrink-0 text-emerald" />Economia de R$258 por ano</li>
               </ul>
               <Link to="/auth/signup" className="mt-8">
-                <Button variant="outline" className="w-full border-emerald text-emerald hover:bg-emerald/10">Assinar anual</Button>
+                <Button variant="outline" className="w-full bg-transparent border-emerald text-emerald hover:bg-emerald/10">Assinar anual</Button>
               </Link>
             </div>
           </div>
