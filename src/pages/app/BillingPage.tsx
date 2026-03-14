@@ -39,25 +39,18 @@ export default function BillingPage() {
   const [portalLoading, setPortalLoading] = useState(false);
   const [creditsLoading, setCreditsLoading] = useState(false);
 
-  const fetchTokens = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from('user_token_balances')
-      .select('agents_tokens_remaining')
-      .eq('user_id', user.id)
-      .single();
-    setTokensRemaining(data?.agents_tokens_remaining ?? 0);
-    setLoadingTokens(false);
-  };
-
-  const fetchPlan = async () => {
+  const fetchPlanAndTokens = async () => {
     if (!user) return;
     const { data } = await supabase
       .from('user_profiles')
-      .select('role, subscription_status, subscription_plan')
+      .select('role, subscription_status, subscription_plan, agents_tokens_remaining')
       .eq('id', user.id)
       .single();
-    setPlanInfo(data ? { role: data.role, subscription_status: data.subscription_status, subscription_tier: data.subscription_plan } : null);
+    if (data) {
+      setTokensRemaining(data.agents_tokens_remaining ?? 0);
+      setPlanInfo({ role: data.role, subscription_status: data.subscription_status, subscription_tier: data.subscription_plan });
+    }
+    setLoadingTokens(false);
     setLoadingPlan(false);
   };
 
@@ -75,15 +68,14 @@ export default function BillingPage() {
 
   useEffect(() => {
     if (user) {
-      fetchTokens();
-      fetchPlan();
+      fetchPlanAndTokens();
       fetchUsage();
     }
   }, [user]);
 
   const handleSync = async () => {
     setSyncing(true);
-    await fetchTokens();
+    await fetchPlanAndTokens();
     setSyncing(false);
     toast({ title: 'Saldo atualizado!' });
   };
@@ -139,7 +131,7 @@ export default function BillingPage() {
   // Derived
   const tokenPct = tokensRemaining !== null ? Math.min((tokensRemaining / MAX_TOKENS) * 100, 100) : 0;
   const tokenBarColor = tokenPct < 10 ? 'bg-destructive' : tokenPct < 20 ? 'bg-yellow-500' : 'bg-emerald';
-  const isSubscriber = planInfo?.subscription_status === 'active' || planInfo?.subscription_status === 'past_due';
+  const isSubscriber = planInfo?.subscription_status === 'active' || planInfo?.subscription_status === 'past_due' || planInfo?.role === 'admin' || planInfo?.role === 'subscriber';
   const tierLabel = planInfo?.subscription_tier === 'monthly' ? 'Mensal' : planInfo?.subscription_tier === 'annual' ? 'Anual' : 'Gratuito';
   const tierBadgeVariant = planInfo?.subscription_tier === 'monthly' ? 'default' : planInfo?.subscription_tier === 'annual' ? 'secondary' : 'outline';
   const statusLabel = planInfo?.subscription_status === 'active' ? 'Ativa' : planInfo?.subscription_status === 'past_due' ? 'Atrasada' : planInfo?.subscription_status === 'canceled' ? 'Cancelada' : null;
