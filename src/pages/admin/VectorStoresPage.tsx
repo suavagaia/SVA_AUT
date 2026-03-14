@@ -243,10 +243,6 @@ export default function VectorStoresPage() {
                         className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">
                         <Upload size={14} className="mr-1" /> Adicionar arquivos
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => openDialog(store)}
-                        className="bg-transparent border-navy-border text-light hover:bg-navy-border/50">
-                        <Link2 size={14} className="mr-1" /> Gerenciar vínculos
-                      </Button>
                     </div>
                   </div>
 
