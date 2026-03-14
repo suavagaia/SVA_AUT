@@ -87,6 +87,10 @@ export function AppLayout({ children }: AppLayoutProps) {
                   <CreditCard className="mr-2 h-4 w-4" />
                   Meu Plano
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/app/manual')} className="cursor-pointer">
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Manual
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/app/settings')} className="cursor-pointer">
                   <Settings className="mr-2 h-4 w-4" />
                   Configurações
