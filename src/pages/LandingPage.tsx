@@ -25,14 +25,14 @@ function Section({ children, className = '', id, style }: { children: React.Reac
 
 /* ───── Data ───── */
 const agents = [
-  { emoji: '📚', title: 'Análise Doutrinária', subtitle: 'Sua biblioteca jurídica pessoal com IA', highlights: ['Definições dos principais doutrinadores', 'Evolução histórica do instituto', 'Classificações e tipos detalhados', 'Exemplos práticos para fixação'], value: 'Substitui 10+ livros (R$2.000+)' },
-  { emoji: '⚖️', title: 'Legislação Atualizada', subtitle: 'Verificação de vigência em tempo real', highlights: ['Apenas artigos relacionados ao tema', 'Identifica artigos revogados', 'Legislação, provimentos e resoluções vigentes', 'Segurança jurídica nas respostas'], value: 'Economia de horas de pesquisa' },
-  { emoji: '🔍', title: 'Informativos STF/STJ', subtitle: 'Jurisprudência atualizada na palma da mão', highlights: ['Informativos por tema solicitado', 'Prioriza entendimentos recentes', 'Casos práticos após cada informativo', 'Formato estruturado para concursos'], value: '30% da prova em muitos concursos' },
-  { emoji: '📋', title: 'Súmulas STF/STJ', subtitle: 'Vigentes e organizadas por tema', highlights: ['Verificação automática de cancelamento', 'Explicação didática de cada súmula', 'Caso prático para cada súmula', 'Organização temática completa'], value: 'Economiza horas de pesquisa' },
-  { emoji: '🏛️', title: 'Súmulas Vinculantes', subtitle: 'Todas por tema com casos práticos', highlights: ['Base na Lei 11.417/06', 'Casos práticos de aplicação', 'Efeito vinculante explicado', 'Aplicação em órgãos públicos'], value: 'Caem muito em concursos' },
-  { emoji: '✅', title: 'Questões Objetivas', subtitle: '5 alternativas como as bancas fazem', highlights: ['Nível concurso público real', 'Fundamentação de todas as alternativas', 'Base em doutrina e legislação vigente', 'Selecione questões por tema'], value: 'Qualidade de banca organizadora' },
-  { emoji: '🎯', title: 'Questões C/E', subtitle: 'Formato CESPE/CEBRASPE dominado', highlights: ['Estilo pegadinha típico das bancas', 'Precisão técnica exigida', 'Fundamentação que ensina a lógica', 'Base em fontes oficiais'], value: 'Especialização CESPE/CEBRASPE' },
-  { emoji: '📅', title: 'Mentoria & Cronograma', subtitle: 'Sua vida organizada para aprovação', highlights: ['Cronograma baseado na sua rotina', 'Tempo proporcional ao peso de cada matéria', 'Máximo 2h seguidas + intervalos', '100% do tempo livre aproveitado'], value: 'Coaching custa R$2.000+' },
+  { title: 'Análise Doutrinária', subtitle: 'Sua biblioteca jurídica pessoal com IA', highlights: ['Definições dos principais doutrinadores', 'Evolução histórica do instituto', 'Classificações e tipos detalhados', 'Exemplos práticos para fixação'], value: 'Substitui 10+ livros (R$2.000+)' },
+  { title: 'Legislação Atualizada', subtitle: 'Verificação de vigência em tempo real', highlights: ['Apenas artigos relacionados ao tema', 'Identifica artigos revogados', 'Legislação, provimentos e resoluções vigentes', 'Segurança jurídica nas respostas'], value: 'Economia de horas de pesquisa' },
+  { title: 'Informativos STF/STJ', subtitle: 'Jurisprudência atualizada na palma da mão', highlights: ['Informativos por tema solicitado', 'Prioriza entendimentos recentes', 'Casos práticos após cada informativo', 'Formato estruturado para concursos'], value: '30% da prova em muitos concursos' },
+  { title: 'Súmulas STF/STJ', subtitle: 'Vigentes e organizadas por tema', highlights: ['Verificação automática de cancelamento', 'Explicação didática de cada súmula', 'Caso prático para cada súmula', 'Organização temática completa'], value: 'Economiza horas de pesquisa' },
+  { title: 'Súmulas Vinculantes', subtitle: 'Todas por tema com casos práticos', highlights: ['Base na Lei 11.417/06', 'Casos práticos de aplicação', 'Efeito vinculante explicado', 'Aplicação em órgãos públicos'], value: 'Caem muito em concursos' },
+  { title: 'Questões Objetivas', subtitle: '5 alternativas como as bancas fazem', highlights: ['Nível concurso público real', 'Fundamentação de todas as alternativas', 'Base em doutrina e legislação vigente', 'Selecione questões por tema'], value: 'Qualidade de banca organizadora' },
+  { title: 'Questões C/E', subtitle: 'Formato CESPE/CEBRASPE dominado', highlights: ['Estilo pegadinha típico das bancas', 'Precisão técnica exigida', 'Fundamentação que ensina a lógica', 'Base em fontes oficiais'], value: 'Especialização CESPE/CEBRASPE' },
+  { title: 'Mentoria & Cronograma', subtitle: 'Sua vida organizada para aprovação', highlights: ['Cronograma baseado na sua rotina', 'Tempo proporcional ao peso de cada matéria', 'Máximo 2h seguidas + intervalos', '100% do tempo livre aproveitado'], value: 'Coaching custa R$2.000+' },
 ];
 
 const areas = [
@@ -163,13 +163,12 @@ export default function LandingPage() {
           </h2>
           <div className="mt-14 grid gap-5 md:grid-cols-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
             {[
-              { emoji: '💸', title: 'Material caro e disperso', text: 'Livros de doutrina, banco de questões, informativos, mentoria — tudo separado, tudo caro. Facilmente R$4.900/mês se quiser ter uma preparação completa.' },
-              { emoji: '😰', title: 'A sensação de estar ficando para trás', text: 'Você estuda, mas não sabe se está estudando certo. O edital é enorme, o tempo é curto, e parece que todo mundo está mais preparado que você.' },
-              { emoji: '⚖️', title: 'Preparação completa não pode ser privilégio', text: 'Não é justo que só quem pode investir milhares por mês tenha acesso a doutrina de qualidade, jurisprudência organizada e questões bem fundamentadas.' },
+              { title: 'Material caro e disperso', text: 'Livros de doutrina, banco de questões, informativos, mentoria — tudo separado, tudo caro. Facilmente R$4.900/mês se quiser ter uma preparação completa.' },
+              { title: 'A sensação de estar ficando para trás', text: 'Você estuda, mas não sabe se está estudando certo. O edital é enorme, o tempo é curto, e parece que todo mundo está mais preparado que você.' },
+              { title: 'Preparação completa não pode ser privilégio', text: 'Não é justo que só quem pode investir milhares por mês tenha acesso a doutrina de qualidade, jurisprudência organizada e questões bem fundamentadas.' },
             ].map(c => (
               <div key={c.title} className="rounded-[20px] p-8 transition-all duration-300 hover:-translate-y-1"
                 style={{ background: '#0F1419', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <div className="text-3xl mb-4">{c.emoji}</div>
                 <h3 className="font-serif text-xl text-lp-text mb-3">{c.title}</h3>
                 <p className="text-sm leading-relaxed text-lp-text-secondary">{c.text}</p>
               </div>
@@ -242,7 +241,7 @@ export default function LandingPage() {
                 <div className="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-sm"
                   style={{ background: 'rgba(46,204,113,0.15)', color: '#2ECC71' }}>✦</div>
                 <div className="rounded-2xl px-5 py-4 max-w-2xl space-y-4" style={{ background: '#1A222B' }}>
-                  <p className="font-semibold text-lp-text">📚 Análise Doutrinária — Prisão Preventiva</p>
+                  <p className="font-semibold text-lp-text">Análise Doutrinária — Prisão Preventiva</p>
                   <div>
                     <p className="text-sm font-semibold text-lp-green mb-1">Conceito:</p>
                     <p className="text-sm text-lp-text-secondary leading-relaxed">
@@ -288,7 +287,6 @@ export default function LandingPage() {
                   }}>
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="text-2xl mb-2">{a.emoji}</div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-lp-green">Agente {i + 1}</p>
                       <h3 className="font-serif text-lg text-lp-text mt-0.5">{a.title}</h3>
                       <p className="text-sm italic text-lp-text-muted mt-1">{a.subtitle}</p>
@@ -405,8 +403,8 @@ export default function LandingPage() {
             </div>
             <p className="text-sm text-lp-text-muted mt-2">ou R$1.290,00 à vista (1 ano)</p>
             <div className="mt-6 flex justify-center gap-4 text-sm text-lp-text-secondary">
-              <span>💳 Cartão de crédito</span>
-              <span>💰 PIX</span>
+              <span>Cartão de crédito</span>
+              <span>PIX</span>
             </div>
             <Link to="/auth/signup" className="block mt-8">
               <button className="w-full rounded-full py-4 text-lg font-semibold transition-all hover:-translate-y-0.5"
