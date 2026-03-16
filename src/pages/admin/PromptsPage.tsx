@@ -167,6 +167,32 @@ export default function AdminPromptsPage() {
       .finally(() => setVectorStoresLoading(false));
   }, [editing?.id]);
 
+  // Fetch areas, contests, subjects for the subject selector
+  useEffect(() => {
+    const fetchHierarchy = async () => {
+      const [areasRes, contestsRes, subjectsRes] = await Promise.all([
+        supabase.from('areas').select('id, name').order('display_order'),
+        supabase.from('contests').select('id, name, area_id').order('display_order'),
+        supabase.from('subjects').select('id, name, contest_id').order('display_order'),
+      ]);
+      setAreas(areasRes.data ?? []);
+      setContests(contestsRes.data ?? []);
+      setSubjectOptions(subjectsRes.data ?? []);
+    };
+    fetchHierarchy();
+  }, []);
+
+  // When editing starts, resolve area/contest from subject_id
+  useEffect(() => {
+    if (!editing?.subject_id) { setSelectedAreaId(''); setSelectedContestId(''); return; }
+    const subject = subjectOptions.find(s => s.id === editing.subject_id);
+    if (subject) {
+      setSelectedContestId(subject.contest_id);
+      const contest = contests.find(c => c.id === subject.contest_id);
+      setSelectedAreaId(contest?.area_id ?? '');
+    }
+  }, [editing?.id]);
+
   useEffect(() => { fetchAgents(); fetchMentoriaPrompt(); fetchManual(); fetchMentoriaLimit(); }, []);
 
   const toggleActive = async (agent: Agent) => {
