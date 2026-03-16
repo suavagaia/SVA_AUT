@@ -24,6 +24,8 @@ import ForgotPasswordPage from "@/pages/auth/ResetPasswordPage";
 import NewPasswordPage from "@/pages/auth/NewPasswordPage";
 import UpdatePasswordPage from "@/pages/auth/UpdatePasswordPage";
 import ConfirmPage from "@/pages/auth/ConfirmPage";
+import Setup2FAPage from "@/pages/auth/Setup2FAPage";
+import Verify2FAPage from "@/pages/auth/Verify2FAPage";
 
 // App
 import AreasPage from "@/pages/app/AreasPage";
