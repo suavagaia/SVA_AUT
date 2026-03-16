@@ -29,13 +29,17 @@ export default function AgentsPage() {
   useEffect(() => {
     const fetchAgents = async () => {
       const { data } = await supabase
-        .from('agents')
-        .select('id, title, slug, description, icon')
-        .eq('subject_id', subjectId)
-        .eq('is_active', true)
-        .order('display_order');
+        .from('agent_subjects')
+        .select('agents:agent_id(id, title, slug, description, icon, is_active, display_order)')
+        .eq('subject_id', subjectId);
 
-      if (data) setAgents(data);
+      if (data) {
+        const parsed = data
+          .map((row: any) => row.agents)
+          .filter((a: any) => a && a.is_active)
+          .sort((a: any, b: any) => (a.display_order ?? 0) - (b.display_order ?? 0));
+        setAgents(parsed);
+      }
       setLoading(false);
     };
     fetchAgents();
