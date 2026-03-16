@@ -475,11 +475,11 @@ export default function LandingPage() {
               <LogoIcon size={32} />
               <span className="text-lg font-semibold text-lp-text">Sua Vaga <span className="text-lp-green">IA</span></span>
             </div>
-            <p className="font-serif italic text-sm text-lp-text-muted">Inteligência que aprova.</p>
+            <p className="font-serif italic text-sm text-lp-text-muted">{t.footer_tagline}</p>
           </div>
           <div>
             <p className="text-sm text-lp-text font-medium mb-2">Empresa</p>
-            <p className="text-sm text-lp-text-muted leading-relaxed">Sua Vaga Concursos — 2026<br />CNPJ 39.177.511/0001-19</p>
+            <p className="text-sm text-lp-text-muted leading-relaxed">{t.footer_copyright}<br />CNPJ 39.177.511/0001-19</p>
           </div>
           <div>
             <p className="text-sm text-lp-text font-medium mb-2">Endereço</p>
