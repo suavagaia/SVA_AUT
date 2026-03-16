@@ -126,7 +126,7 @@ export default function LandingPage() {
             <button onClick={() => scrollTo('demo')}
               className="rounded-full px-8 py-3.5 text-base font-medium transition-all hover:-translate-y-0.5"
               style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#F2F4F7' }}>
-              Ver como funciona
+              {t.hero_cta_secondary}
             </button>
           </div>
 
