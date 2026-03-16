@@ -215,6 +215,7 @@ export default function AdminPromptsPage() {
       tool_file_search_vector_store_ids: editing.tool_file_search_vector_store_ids,
       verbosity: editing.verbosity,
       response_format: editing.response_format,
+      subject_id: editing.subject_id,
     }).eq('id', editing.id);
     setSaving(false);
     if (error) { toast.error(error.message); return; }
