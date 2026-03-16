@@ -25,6 +25,15 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [resetSending, setResetSending] = useState(false);
 
+  // 2FA state
+  const [has2FA, setHas2FA] = useState(false);
+  const [show2FASetup, setShow2FASetup] = useState(false);
+  const [qrCode, setQrCode] = useState('');
+  const [factorId, setFactorId] = useState('');
+  const [totpCode, setTotpCode] = useState('');
+  const [verifying2FA, setVerifying2FA] = useState(false);
+  const [disabling2FA, setDisabling2FA] = useState(false);
+
   useEffect(() => {
     if (!user) return;
     supabase
