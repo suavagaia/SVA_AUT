@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { AuthLayout } from '@/components/AuthLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/PasswordInput';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 
