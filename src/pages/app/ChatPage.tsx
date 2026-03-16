@@ -72,8 +72,8 @@ export default function ChatPage() {
   const { profile, user } = useAuth();
 
   const [selectedAgent, setSelectedAgent] = useState<SelectedAgent | null>(null);
-  const [selectedArea, setSelectedArea] = useState<{ id: string; name: string } | null>(null);
-  const [selectedContest, setSelectedContest] = useState<{ id: string; name: string } | null>(null);
+  const [selectedArea, setSelectedArea] = useState<{ id: string; name: string; slug?: string } | null>(null);
+  const [selectedContest, setSelectedContest] = useState<{ id: string; name: string; slug?: string } | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<{ id: string; name: string } | null>(null);
 
   const [activeTab, setActiveTab] = useState<TabType>('agente');
@@ -529,9 +529,9 @@ export default function ChatPage() {
         {/* Header */}
         <div className="flex items-center justify-between gap-2 pb-3 border-b border-border mb-0 flex-wrap">
           <div className="flex items-center gap-1 text-sm text-muted-foreground overflow-hidden">
-            {selectedArea && <><span className="truncate max-w-[80px]">{selectedArea.name}</span><ChevronRight size={14} /></>}
-            {selectedContest && <><span className="truncate max-w-[80px]">{selectedContest.name}</span><ChevronRight size={14} /></>}
-            {selectedSubject && <><span className="truncate max-w-[80px]">{selectedSubject.name}</span><ChevronRight size={14} /></>}
+            {selectedArea && <><span className="truncate max-w-[80px] cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate('/app/areas')}>{selectedArea.name}</span><ChevronRight size={14} /></>}
+            {selectedContest && <><span className="truncate max-w-[80px] cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate(`/app/contests/${selectedArea?.slug || ''}`)}>{selectedContest.name}</span><ChevronRight size={14} /></>}
+            {selectedSubject && <><span className="truncate max-w-[80px] cursor-pointer hover:text-foreground transition-colors" onClick={() => navigate(`/app/subjects/${selectedContest?.id || ''}`)}>{selectedSubject.name}</span><ChevronRight size={14} /></>}
             <span className="text-foreground font-medium truncate max-w-[120px]">{selectedAgent.name}</span>
           </div>
           <div className="flex items-center gap-2">
