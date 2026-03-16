@@ -113,8 +113,7 @@ export default function LandingPage() {
 
           {/* Subtitle */}
           <p className="mt-6 max-w-[580px] text-lg leading-relaxed" style={{ color: '#98A2B3' }}>
-            Doutrina, jurisprudência, questões e cronograma personalizado — 8 agentes de IA especializados trabalhando por você por{' '}
-            <strong className="text-lp-text">R$129/mês</strong>.
+            {t.hero_subtitle}
           </p>
 
           {/* CTAs */}
