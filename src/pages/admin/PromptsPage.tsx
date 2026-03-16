@@ -38,7 +38,8 @@ interface Agent {
   tool_web_search: boolean;
   tool_file_search: boolean;
   tool_file_search_vector_store_ids: string[] | null;
-  store: boolean;
+  verbosity: string;
+  response_format: string;
 }
 
 export default function AdminPromptsPage() {
