@@ -55,6 +55,8 @@ import AdminUsersPage from "@/pages/admin/UsersPage";
 import AdminPromptsPage from "@/pages/admin/PromptsPage";
 import AdminInteractionsPage from "@/pages/admin/InteractionsPage";
 import AdminVectorStoresPage from "@/pages/admin/VectorStoresPage";
+import AdminAreasPage from "@/pages/admin/AreasPage";
+import AdminContestsPage from "@/pages/admin/ContestsPage";
 
 const queryClient = new QueryClient();
 
@@ -105,6 +107,8 @@ const App = () => (
             <Route path="/admin/prompts" element={<AdminPromptsPage />} />
             <Route path="/admin/interactions" element={<AdminInteractionsPage />} />
             <Route path="/admin/vector-stores" element={<AdminVectorStoresPage />} />
+            <Route path="/admin/areas" element={<AdminAreasPage />} />
+            <Route path="/admin/contests" element={<AdminContestsPage />} />
 
             {/* Legal */}
             <Route path="/terms" element={<TermsPage />} />
