@@ -86,6 +86,8 @@ export default function ChatPage() {
   const [apoioConvId, setApoioConvId] = useState<string | null>(null);
   const [apoioStreaming, setApoioStreaming] = useState(false);
 
+  const [isThinking, setIsThinking] = useState(false);
+
   const [inputText, setInputText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -215,6 +217,7 @@ export default function ChatPage() {
     const controller = new AbortController();
     abortControllerRef.current = controller;
     const slug = activeTab === 'agente' ? selectedAgent?.slug : 'agente-de-apoio';
+    let thinkingHandled = false;
 
     try {
       const response = await fetch(
@@ -260,8 +263,18 @@ export default function ChatPage() {
             if (event.conversation_id) {
               if (activeTab === 'agente') setAgentConvId(event.conversation_id);
               else setApoioConvId(event.conversation_id);
+              if (!thinkingHandled && event.thinking === true) {
+                setIsThinking(true);
+                thinkingHandled = true;
+              } else if (!thinkingHandled && event.thinking === false) {
+                thinkingHandled = true;
+              }
+            }
+            if (event.thinking === false && thinkingHandled) {
+              setIsThinking(false);
             }
             if (event.delta) {
+              setIsThinking(false);
               assistantContent += event.delta;
               const updated = assistantContent;
               setMessages(prev => {
@@ -298,12 +311,14 @@ export default function ChatPage() {
         }
       }
       setIsStreaming(false);
+      setIsThinking(false);
     } catch (err: any) {
       if (err.name !== 'AbortError') {
         toast.error('Erro ao processar resposta. Tente novamente.');
         setMessages(prev => prev.slice(0, -1));
       }
       setIsStreaming(false);
+      setIsThinking(false);
     }
   };
 
@@ -575,6 +590,7 @@ export default function ChatPage() {
                   key={msg.id || i}
                   message={msg}
                   isStreaming={isStreaming && i === messages.length - 1 && msg.role === 'assistant'}
+                  isThinking={isThinking && i === messages.length - 1 && msg.role === 'assistant'}
                   ttsActiveMsgId={ttsActiveMsgId}
                   ttsState={ttsState}
                   onTTS={handleTTS}
@@ -727,9 +743,29 @@ function EmptyState({
 
 const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5] as const;
 
+function ThinkingIndicator() {
+  return (
+    <div className="flex justify-start">
+      <div className="max-w-[85%]">
+        <div className="bg-navy text-[hsl(var(--text-light))] rounded-[12px_12px_12px_2px] px-4 py-3">
+          <div className="flex items-center gap-1">
+            <span className="text-sm text-muted-foreground">Analisando</span>
+            <span className="flex gap-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_infinite]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_0.2s_infinite]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_0.4s_infinite]" />
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ChatBubble({
   message,
   isStreaming,
+  isThinking,
   ttsActiveMsgId,
   ttsState,
   onTTS,
@@ -738,6 +774,7 @@ function ChatBubble({
 }: {
   message: Message;
   isStreaming: boolean;
+  isThinking: boolean;
   ttsActiveMsgId: string | null;
   ttsState: 'idle' | 'loading' | 'playing' | 'paused';
   onTTS: (msg: Message, speed: number) => void;
@@ -765,6 +802,15 @@ function ChatBubble({
         >
           {isUser ? (
             <p className="whitespace-pre-wrap">{message.content}</p>
+          ) : isThinking && !message.content ? (
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-muted-foreground">Analisando</span>
+              <span className="flex gap-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_infinite]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_0.2s_infinite]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_0.4s_infinite]" />
+              </span>
+            </div>
           ) : (
             <div className="prose prose-sm prose-invert max-w-none">
               <ReactMarkdown>{message.content}</ReactMarkdown>
