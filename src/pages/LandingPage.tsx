@@ -270,9 +270,9 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1100px]">
           <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4">Seu arsenal completo</p>
           <h2 className="font-serif font-normal" style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: 1.1, color: '#F2F4F7' }}>
-            8 agentes trabalhando por você.
+            {t.features_title}
           </h2>
-          <p className="mt-4 text-lp-text-secondary">Cada um especializado em uma área dos seus estudos — tudo por R$129/mês.</p>
+          <p className="mt-4 text-lp-text-secondary">{t.features_subtitle}</p>
 
           <div className="mt-14 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
             {agents.map((a, i) => {
