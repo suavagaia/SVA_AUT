@@ -72,8 +72,8 @@ export default function ChatPage() {
   const { profile, user } = useAuth();
 
   const [selectedAgent, setSelectedAgent] = useState<SelectedAgent | null>(null);
-  const [selectedArea, setSelectedArea] = useState<{ id: string; name: string } | null>(null);
-  const [selectedContest, setSelectedContest] = useState<{ id: string; name: string } | null>(null);
+  const [selectedArea, setSelectedArea] = useState<{ id: string; name: string; slug?: string } | null>(null);
+  const [selectedContest, setSelectedContest] = useState<{ id: string; name: string; slug?: string } | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<{ id: string; name: string } | null>(null);
 
   const [activeTab, setActiveTab] = useState<TabType>('agente');
