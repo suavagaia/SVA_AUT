@@ -40,13 +40,24 @@ interface Agent {
   tool_file_search_vector_store_ids: string[] | null;
   verbosity: string;
   response_format: string;
+  subject_id: string | null;
 }
+
+interface Area { id: string; name: string; }
+interface Contest { id: string; name: string; area_id: string; }
+interface SubjectOption { id: string; name: string; contest_id: string; }
 
 export default function AdminPromptsPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Agent | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const [areas, setAreas] = useState<Area[]>([]);
+  const [contests, setContests] = useState<Contest[]>([]);
+  const [subjectOptions, setSubjectOptions] = useState<SubjectOption[]>([]);
+  const [selectedAreaId, setSelectedAreaId] = useState<string>('');
+  const [selectedContestId, setSelectedContestId] = useState<string>('');
 
   // Mentoria prompt
   const [mentoriaPrompt, setMentoriaPrompt] = useState('');
@@ -136,7 +147,7 @@ export default function AdminPromptsPage() {
   const fetchAgents = async () => {
     const { data } = await supabase
       .from('agents')
-      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, verbosity, response_format')
+      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, verbosity, response_format, subject_id')
       .order('display_order');
     setAgents((data as Agent[]) ?? []);
     setLoading(false);
@@ -154,6 +165,32 @@ export default function AdminPromptsPage() {
       .then(d => setVectorStores(d.vector_stores ?? []))
       .catch(() => setVectorStores([]))
       .finally(() => setVectorStoresLoading(false));
+  }, [editing?.id]);
+
+  // Fetch areas, contests, subjects for the subject selector
+  useEffect(() => {
+    const fetchHierarchy = async () => {
+      const [areasRes, contestsRes, subjectsRes] = await Promise.all([
+        supabase.from('areas').select('id, name').order('display_order'),
+        supabase.from('contests').select('id, name, area_id').order('display_order'),
+        supabase.from('subjects').select('id, name, contest_id').order('display_order'),
+      ]);
+      setAreas(areasRes.data ?? []);
+      setContests(contestsRes.data ?? []);
+      setSubjectOptions(subjectsRes.data ?? []);
+    };
+    fetchHierarchy();
+  }, []);
+
+  // When editing starts, resolve area/contest from subject_id
+  useEffect(() => {
+    if (!editing?.subject_id) { setSelectedAreaId(''); setSelectedContestId(''); return; }
+    const subject = subjectOptions.find(s => s.id === editing.subject_id);
+    if (subject) {
+      setSelectedContestId(subject.contest_id);
+      const contest = contests.find(c => c.id === subject.contest_id);
+      setSelectedAreaId(contest?.area_id ?? '');
+    }
   }, [editing?.id]);
 
   useEffect(() => { fetchAgents(); fetchMentoriaPrompt(); fetchManual(); fetchMentoriaLimit(); }, []);
@@ -178,6 +215,7 @@ export default function AdminPromptsPage() {
       tool_file_search_vector_store_ids: editing.tool_file_search_vector_store_ids,
       verbosity: editing.verbosity,
       response_format: editing.response_format,
+      subject_id: editing.subject_id,
     }).eq('id', editing.id);
     setSaving(false);
     if (error) { toast.error(error.message); return; }
@@ -402,6 +440,44 @@ export default function AdminPromptsPage() {
                 <Label className="text-muted-light">Título</Label>
                 <Input value={editing.title} onChange={(e) => updateField('title', e.target.value)} className="mt-1 border-navy-border bg-navy-deep text-light" />
               </div>
+              {/* Subject selector (Area > Contest > Subject) */}
+              <div>
+                <Label className="text-muted-light">Área</Label>
+                <Select value={selectedAreaId} onValueChange={(v) => { setSelectedAreaId(v); setSelectedContestId(''); updateField('subject_id', null); }}>
+                  <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light">
+                    <SelectValue placeholder="Selecione a área" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {areas.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              {selectedAreaId && (
+                <div>
+                  <Label className="text-muted-light">Concurso</Label>
+                  <Select value={selectedContestId} onValueChange={(v) => { setSelectedContestId(v); updateField('subject_id', null); }}>
+                    <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light">
+                      <SelectValue placeholder="Selecione o concurso" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {contests.filter(c => c.area_id === selectedAreaId).map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              {selectedContestId && (
+                <div>
+                  <Label className="text-muted-light">Matéria (subject)</Label>
+                  <Select value={editing.subject_id ?? ''} onValueChange={(v) => updateField('subject_id', v)}>
+                    <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light">
+                      <SelectValue placeholder="Selecione a matéria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {subjectOptions.filter(s => s.contest_id === selectedContestId).map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div>
                 <Label className="text-muted-light">System Prompt</Label>
                 <Textarea
