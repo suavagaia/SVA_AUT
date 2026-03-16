@@ -491,9 +491,30 @@ export default function AdminPromptsPage() {
                   )}
                 </div>
               )}
-              <div className="flex items-center justify-between">
-                <Label className="text-muted-light">Store (salvar contexto)</Label>
-                <Switch checked={editing.store} onCheckedChange={(v) => updateField('store', v)} />
+              <div>
+                <Label className="text-muted-light">Verbosidade</Label>
+                <Select value={editing.verbosity ?? 'medium'} onValueChange={(v) => updateField('verbosity', v)}>
+                  <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Conciso (low)</SelectItem>
+                    <SelectItem value="medium">Padrão (medium)</SelectItem>
+                    <SelectItem value="high">Detalhado (high)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-muted-light">Formato de resposta</Label>
+                <Select value={editing.response_format ?? 'text'} onValueChange={(v) => updateField('response_format', v)}>
+                  <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="text">Texto (text)</SelectItem>
+                    <SelectItem value="json">JSON (json)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           )}
