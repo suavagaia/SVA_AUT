@@ -44,7 +44,56 @@ export default function SettingsPage() {
       .then(({ data }) => {
         if (data?.full_name) setFullName(data.full_name);
       });
+    check2FAStatus();
   }, [user]);
+
+  const check2FAStatus = async () => {
+    const { data } = await supabase.auth.mfa.listFactors();
+    const verified = data?.totp?.find(f => f.status === 'verified');
+    setHas2FA(!!verified);
+    if (verified) setFactorId(verified.id);
+  };
+
+  const handleEnable2FA = async () => {
+    const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+    if (error) {
+      toast.error('Erro ao iniciar configuração 2FA.');
+      return;
+    }
+    if (data) {
+      setQrCode(data.totp.qr_code);
+      setFactorId(data.id);
+      setShow2FASetup(true);
+      setTotpCode('');
+    }
+  };
+
+  const handleConfirm2FA = async () => {
+    if (totpCode.length !== 6) return;
+    setVerifying2FA(true);
+    const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId, code: totpCode });
+    if (error) {
+      toast.error('Código inválido.');
+    } else {
+      toast.success('2FA ativado com sucesso!');
+      setShow2FASetup(false);
+      setHas2FA(true);
+    }
+    setVerifying2FA(false);
+  };
+
+  const handleDisable2FA = async () => {
+    setDisabling2FA(true);
+    const { error } = await supabase.auth.mfa.unenroll({ factorId });
+    if (error) {
+      toast.error('Erro ao desativar 2FA.');
+    } else {
+      toast.success('2FA desativado.');
+      setHas2FA(false);
+      setFactorId('');
+    }
+    setDisabling2FA(false);
+  };
 
   const handleSaveProfile = async () => {
     if (!user) return;
