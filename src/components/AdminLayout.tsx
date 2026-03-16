@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, Users, FileText, Activity, ArrowLeft, Database } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, Activity, ArrowLeft, Database, Type } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
