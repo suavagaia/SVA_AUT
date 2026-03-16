@@ -22,9 +22,44 @@ export default function LoginPage() {
 
     if (error) {
       toast.error('E-mail ou senha incorretos');
-    } else {
-      navigate('/app/areas');
+      return;
     }
+
+    // Check MFA requirements
+    try {
+      const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      const currentLevel = aalData?.currentLevel;
+      const nextLevel = aalData?.nextLevel;
+
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', authUser?.id)
+        .single();
+
+      const isAdmin = roleData?.role === 'admin';
+
+      if (isAdmin && currentLevel === 'aal1') {
+        if (nextLevel === 'aal1') {
+          navigate('/setup-2fa', { replace: true });
+          return;
+        }
+        if (nextLevel === 'aal2') {
+          navigate('/verify-2fa', { replace: true });
+          return;
+        }
+      }
+
+      if (!isAdmin && nextLevel === 'aal2' && currentLevel === 'aal1') {
+        navigate('/verify-2fa', { replace: true });
+        return;
+      }
+    } catch {
+      // If MFA check fails, continue to app
+    }
+
+    navigate('/app/areas');
   };
 
   return (

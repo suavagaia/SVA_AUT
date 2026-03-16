@@ -81,6 +81,8 @@ const App = () => (
             <Route path="/auth/reset-password" element={<NewPasswordPage />} />
             <Route path="/auth/update-password" element={<UpdatePasswordPage />} />
             <Route path="/auth/confirm" element={<ConfirmPage />} />
+            <Route path="/setup-2fa" element={<Setup2FAPage />} />
+            <Route path="/verify-2fa" element={<Verify2FAPage />} />
 
             {/* App - protected */}
             <Route path="/app" element={<Navigate to="/app/areas" replace />} />
