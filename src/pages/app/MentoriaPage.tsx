@@ -261,7 +261,7 @@ export default function MentoriaPage() {
         {step === 1 && (
           <Card className="border-border bg-card">
             <CardContent className="pt-6 space-y-4">
-              <p className="text-sm text-muted-foreground">Informe a que horas você acorda em cada dia da semana. Ative os dias que você estuda.</p>
+              <p className="text-sm text-muted-foreground">Informe a que horas você acorda em cada dia da semana. Ative os dias que você não estuda.</p>
               {DAYS.map((day, idx) => {
                 const isOff = wakeUpTimes[idx] === 'none';
                 return (
