@@ -449,44 +449,44 @@ export default function AdminPromptsPage() {
                 <Label className="text-muted-light">Título</Label>
                 <Input value={editing.title} onChange={(e) => updateField('title', e.target.value)} className="mt-1 border-navy-border bg-navy-deep text-light" />
               </div>
-              {/* Subject selector (Area > Contest > Subject) */}
+              {/* Multi-select subjects grouped by Area > Contest */}
               <div>
-                <Label className="text-muted-light">Área</Label>
-                <Select value={selectedAreaId} onValueChange={(v) => { setSelectedAreaId(v); setSelectedContestId(''); updateField('subject_id', null); }}>
-                  <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light">
-                    <SelectValue placeholder="Selecione a área" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {areas.map(a => <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <Label className="text-muted-light">Matérias vinculadas</Label>
+                <p className="text-xs text-muted-foreground mt-1 mb-2">Selecione as matérias onde este agente aparecerá.</p>
+                <div className="max-h-60 overflow-y-auto space-y-3 rounded border border-navy-border bg-navy-deep p-3">
+                  {areas.map(area => {
+                    const areaContests = contests.filter(c => c.area_id === area.id);
+                    if (areaContests.length === 0) return null;
+                    return (
+                      <div key={area.id}>
+                        <p className="text-xs font-semibold text-muted-light mb-1">{area.name}</p>
+                        {areaContests.map(contest => {
+                          const contestSubjects = subjectOptions.filter(s => s.contest_id === contest.id);
+                          if (contestSubjects.length === 0) return null;
+                          return (
+                            <div key={contest.id} className="ml-3 mb-2">
+                              <p className="text-xs text-muted-foreground mb-1">{contest.name}</p>
+                              {contestSubjects.map(sub => (
+                                <label key={sub.id} className="flex items-center gap-2 ml-3 cursor-pointer py-0.5">
+                                  <Checkbox
+                                    checked={editingSubjectIds.includes(sub.id)}
+                                    onCheckedChange={(checked) => {
+                                      setEditingSubjectIds(prev =>
+                                        checked ? [...prev, sub.id] : prev.filter(id => id !== sub.id)
+                                      );
+                                    }}
+                                  />
+                                  <span className="text-sm text-light">{sub.name}</span>
+                                </label>
+                              ))}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              {selectedAreaId && (
-                <div>
-                  <Label className="text-muted-light">Concurso</Label>
-                  <Select value={selectedContestId} onValueChange={(v) => { setSelectedContestId(v); updateField('subject_id', null); }}>
-                    <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light">
-                      <SelectValue placeholder="Selecione o concurso" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {contests.filter(c => c.area_id === selectedAreaId).map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              {selectedContestId && (
-                <div>
-                  <Label className="text-muted-light">Matéria (subject)</Label>
-                  <Select value={editing.subject_id ?? ''} onValueChange={(v) => updateField('subject_id', v)}>
-                    <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light">
-                      <SelectValue placeholder="Selecione a matéria" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {subjectOptions.filter(s => s.contest_id === selectedContestId).map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
               <div>
                 <Label className="text-muted-light">System Prompt</Label>
                 <Textarea
