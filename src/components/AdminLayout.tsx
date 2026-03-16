@@ -10,7 +10,6 @@ const navItems = [
   { label: 'Prompts', path: '/admin/prompts', icon: FileText },
   { label: 'Interações', path: '/admin/interactions', icon: Activity },
   { label: 'Vector Stores', path: '/admin/vector-stores', icon: Database },
-  { label: 'Textos Landing', path: '/admin/landing-texts', icon: Type },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

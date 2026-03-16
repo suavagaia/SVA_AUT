@@ -478,7 +478,7 @@ export default function LandingPage() {
           </div>
           <div>
             <p className="text-sm text-lp-text font-medium mb-2">Empresa</p>
-            <p className="text-sm text-lp-text-muted leading-relaxed">{t.footer_copyright}<br />CNPJ 39.177.511/0001-19</p>
+            <p className="text-sm text-lp-text-muted leading-relaxed">Sua Vaga Concursos — 2026<br />CNPJ 39.177.511/0001-19</p>
           </div>
           <div>
             <p className="text-sm text-lp-text font-medium mb-2">Endereço</p>
