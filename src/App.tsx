@@ -55,6 +55,7 @@ import AdminUsersPage from "@/pages/admin/UsersPage";
 import AdminPromptsPage from "@/pages/admin/PromptsPage";
 import AdminInteractionsPage from "@/pages/admin/InteractionsPage";
 import AdminVectorStoresPage from "@/pages/admin/VectorStoresPage";
+import AdminLandingTextsPage from "@/pages/admin/LandingTextsPage";
 
 const queryClient = new QueryClient();
 
