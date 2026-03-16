@@ -217,6 +217,7 @@ export default function ChatPage() {
     const controller = new AbortController();
     abortControllerRef.current = controller;
     const slug = activeTab === 'agente' ? selectedAgent?.slug : 'agente-de-apoio';
+    let thinkingHandled = false;
 
     try {
       const response = await fetch(
