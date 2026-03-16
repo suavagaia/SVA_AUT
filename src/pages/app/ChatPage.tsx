@@ -86,6 +86,8 @@ export default function ChatPage() {
   const [apoioConvId, setApoioConvId] = useState<string | null>(null);
   const [apoioStreaming, setApoioStreaming] = useState(false);
 
+  const [isThinking, setIsThinking] = useState(false);
+
   const [inputText, setInputText] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
