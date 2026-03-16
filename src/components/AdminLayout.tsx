@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, Users, FileText, Activity, ArrowLeft, Database } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, Activity, ArrowLeft, Database, Type } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -10,6 +10,7 @@ const navItems = [
   { label: 'Prompts', path: '/admin/prompts', icon: FileText },
   { label: 'Interações', path: '/admin/interactions', icon: Activity },
   { label: 'Vector Stores', path: '/admin/vector-stores', icon: Database },
+  { label: 'Textos Landing', path: '/admin/landing-texts', icon: Type },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
