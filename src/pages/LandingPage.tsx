@@ -102,7 +102,7 @@ export default function LandingPage() {
           {/* Badge */}
           <span className="mb-8 inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm"
             style={{ border: '1px solid rgba(46,204,113,0.15)', background: 'rgba(46,204,113,0.08)', color: '#98A2B3' }}>
-            <span className="animate-pulse-badge text-lp-green">✦</span> Primeira plataforma de IA para concursos
+            <span className="animate-pulse-badge text-lp-green">✦</span> {t.hero_badge}
           </span>
 
           {/* H1 */}
