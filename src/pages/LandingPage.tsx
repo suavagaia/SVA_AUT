@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { LogoIcon } from '@/components/LogoIcon';
+import { useLandingTexts } from '@/hooks/useLandingTexts';
 
 /* ───── Scroll animation hook ───── */
 function useScrollReveal() {
