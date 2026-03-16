@@ -263,8 +263,18 @@ export default function ChatPage() {
             if (event.conversation_id) {
               if (activeTab === 'agente') setAgentConvId(event.conversation_id);
               else setApoioConvId(event.conversation_id);
+              if (!thinkingHandled && event.thinking === true) {
+                setIsThinking(true);
+                thinkingHandled = true;
+              } else if (!thinkingHandled && event.thinking === false) {
+                thinkingHandled = true;
+              }
+            }
+            if (event.thinking === false && thinkingHandled) {
+              setIsThinking(false);
             }
             if (event.delta) {
+              setIsThinking(false);
               assistantContent += event.delta;
               const updated = assistantContent;
               setMessages(prev => {
