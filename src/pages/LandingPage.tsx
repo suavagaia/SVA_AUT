@@ -446,7 +446,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[700px]">
           <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4 text-center">Dúvidas</p>
           <h2 className="font-serif font-normal text-center mb-12" style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: 1.1, color: '#F2F4F7' }}>
-            Perguntas frequentes
+            {t.testimonials_title}
           </h2>
           <div className="space-y-3">
             {faqs.map((f, i) => (
