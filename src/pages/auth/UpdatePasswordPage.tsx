@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { AuthLayout } from '@/components/AuthLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/PasswordInput';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 
@@ -44,8 +45,7 @@ export default function UpdatePasswordPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Label className="text-muted-light">Nova Senha</Label>
-          <Input
-            type="password"
+          <PasswordInput
             required
             minLength={8}
             value={password}
@@ -56,8 +56,7 @@ export default function UpdatePasswordPage() {
         </div>
         <div>
           <Label className="text-muted-light">Confirmar Nova Senha</Label>
-          <Input
-            type="password"
+          <PasswordInput
             required
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
