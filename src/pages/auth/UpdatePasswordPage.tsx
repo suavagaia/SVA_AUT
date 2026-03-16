@@ -45,8 +45,7 @@ export default function UpdatePasswordPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Label className="text-muted-light">Nova Senha</Label>
-          <Input
-            type="password"
+          <PasswordInput
             required
             minLength={8}
             value={password}
@@ -57,8 +56,7 @@ export default function UpdatePasswordPage() {
         </div>
         <div>
           <Label className="text-muted-light">Confirmar Nova Senha</Label>
-          <Input
-            type="password"
+          <PasswordInput
             required
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}

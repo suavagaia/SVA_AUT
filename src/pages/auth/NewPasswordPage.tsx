@@ -47,8 +47,7 @@ export default function NewPasswordPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Label className="text-muted-light">Nova senha</Label>
-          <Input
-            type="password"
+          <PasswordInput
             required
             minLength={8}
             value={password}
@@ -59,8 +58,7 @@ export default function NewPasswordPage() {
         </div>
         <div>
           <Label className="text-muted-light">Confirmar nova senha</Label>
-          <Input
-            type="password"
+          <PasswordInput
             required
             minLength={8}
             value={confirmPassword}

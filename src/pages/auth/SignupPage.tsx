@@ -79,8 +79,7 @@ export default function SignupPage() {
         </div>
         <div>
           <Label className="text-muted-light">Senha</Label>
-          <Input
-            type="password"
+          <PasswordInput
             required
             minLength={8}
             value={password}
@@ -91,8 +90,7 @@ export default function SignupPage() {
         </div>
         <div>
           <Label className="text-muted-light">Confirmar Senha</Label>
-          <Input
-            type="password"
+          <PasswordInput
             required
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}

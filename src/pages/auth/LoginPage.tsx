@@ -51,8 +51,7 @@ export default function LoginPage() {
               Esqueceu a senha?
             </Link>
           </div>
-          <Input
-            type="password"
+          <PasswordInput
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
