@@ -4,7 +4,7 @@ import { AppLayout } from '@/components/AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { User, Shield, CreditCard, LogOut, Trash2, ArrowRight } from 'lucide-react';
+import { User, Shield, ShieldCheck, CreditCard, LogOut, Trash2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +25,15 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [resetSending, setResetSending] = useState(false);
 
+  // 2FA state
+  const [has2FA, setHas2FA] = useState(false);
+  const [show2FASetup, setShow2FASetup] = useState(false);
+  const [qrCode, setQrCode] = useState('');
+  const [factorId, setFactorId] = useState('');
+  const [totpCode, setTotpCode] = useState('');
+  const [verifying2FA, setVerifying2FA] = useState(false);
+  const [disabling2FA, setDisabling2FA] = useState(false);
+
   useEffect(() => {
     if (!user) return;
     supabase
@@ -35,7 +44,56 @@ export default function SettingsPage() {
       .then(({ data }) => {
         if (data?.full_name) setFullName(data.full_name);
       });
+    check2FAStatus();
   }, [user]);
+
+  const check2FAStatus = async () => {
+    const { data } = await supabase.auth.mfa.listFactors();
+    const verified = data?.totp?.find(f => f.status === 'verified');
+    setHas2FA(!!verified);
+    if (verified) setFactorId(verified.id);
+  };
+
+  const handleEnable2FA = async () => {
+    const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+    if (error) {
+      toast.error('Erro ao iniciar configuração 2FA.');
+      return;
+    }
+    if (data) {
+      setQrCode(data.totp.qr_code);
+      setFactorId(data.id);
+      setShow2FASetup(true);
+      setTotpCode('');
+    }
+  };
+
+  const handleConfirm2FA = async () => {
+    if (totpCode.length !== 6) return;
+    setVerifying2FA(true);
+    const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId, code: totpCode });
+    if (error) {
+      toast.error('Código inválido.');
+    } else {
+      toast.success('2FA ativado com sucesso!');
+      setShow2FASetup(false);
+      setHas2FA(true);
+    }
+    setVerifying2FA(false);
+  };
+
+  const handleDisable2FA = async () => {
+    setDisabling2FA(true);
+    const { error } = await supabase.auth.mfa.unenroll({ factorId });
+    if (error) {
+      toast.error('Erro ao desativar 2FA.');
+    } else {
+      toast.success('2FA desativado.');
+      setHas2FA(false);
+      setFactorId('');
+    }
+    setDisabling2FA(false);
+  };
 
   const handleSaveProfile = async () => {
     if (!user) return;
@@ -137,17 +195,109 @@ export default function SettingsPage() {
             </div>
             <CardDescription>Gerencie sua senha de acesso</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button
-              variant="outline"
-              onClick={handleResetPassword}
-              disabled={resetSending}
-            >
-              {resetSending ? 'Enviando...' : 'Alterar senha'}
-            </Button>
-            <p className="text-xs text-muted-foreground mt-2">
-              Enviaremos um email com link para redefinição de senha.
-            </p>
+          <CardContent className="space-y-4">
+            <div>
+              <Button
+                variant="outline"
+                onClick={handleResetPassword}
+                disabled={resetSending}
+              >
+                {resetSending ? 'Enviando...' : 'Alterar senha'}
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                Enviaremos um email com link para redefinição de senha.
+              </p>
+            </div>
+
+            <Separator />
+
+            {/* 2FA Section */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldCheck size={16} className="text-emerald" />
+                <span className="text-sm font-medium">Autenticação de dois fatores (2FA)</span>
+                {has2FA && (
+                  <Badge className="bg-emerald/20 text-emerald border-emerald/30 text-xs">Ativo</Badge>
+                )}
+              </div>
+
+              {has2FA && !show2FASetup ? (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="border-destructive text-destructive hover:bg-destructive/10" disabled={disabling2FA}>
+                      {disabling2FA ? 'Desativando...' : 'Desativar 2FA'}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Desativar 2FA</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Ao desativar a autenticação de dois fatores, sua conta ficará menos protegida.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDisable2FA} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        Desativar
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              ) : !show2FASetup ? (
+                <div>
+                  <Button variant="outline" size="sm" onClick={handleEnable2FA}>
+                    Ativar 2FA
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Adicione uma camada extra de segurança à sua conta.
+                  </p>
+                </div>
+              ) : null}
+
+              {show2FASetup && (
+                <div className="mt-3 rounded-lg border border-navy-border bg-navy/50 p-4 space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Escaneie o QR code com seu aplicativo autenticador:
+                  </p>
+                  {qrCode && (
+                    <div className="flex justify-center">
+                      <div className="rounded-lg bg-white p-3">
+                        <img src={qrCode} alt="QR Code 2FA" className="h-40 w-40" />
+                      </div>
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <Label className="text-sm">Código de verificação</Label>
+                    <Input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={totpCode}
+                      onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="000000"
+                      className="text-center text-lg tracking-[0.3em] font-mono max-w-[200px]"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={handleConfirm2FA}
+                      disabled={verifying2FA || totpCode.length !== 6}
+                      className="bg-emerald hover:bg-emerald/90 text-primary-foreground"
+                    >
+                      {verifying2FA ? 'Verificando...' : 'Confirmar'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => { setShow2FASetup(false); setQrCode(''); setTotpCode(''); }}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
 
