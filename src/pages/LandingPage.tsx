@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { LogoIcon } from '@/components/LogoIcon';
+import { useLandingTexts } from '@/hooks/useLandingTexts';
 
 /* ───── Scroll animation hook ───── */
 function useScrollReveal() {
@@ -55,6 +56,7 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [expandedAgent, setExpandedAgent] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const { texts: t } = useLandingTexts();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -84,7 +86,7 @@ export default function LandingPage() {
             <Link to="/auth/signup">
               <button className="rounded-full px-5 py-2 text-sm font-semibold transition-all hover:-translate-y-0.5"
                 style={{ background: '#2ECC71', color: '#080C10', boxShadow: '0 4px 15px rgba(46,204,113,0.3)' }}>
-                Criar Conta Gratuita
+                {t.nav_cta_button}
               </button>
             </Link>
           </div>
@@ -100,19 +102,18 @@ export default function LandingPage() {
           {/* Badge */}
           <span className="mb-8 inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm"
             style={{ border: '1px solid rgba(46,204,113,0.15)', background: 'rgba(46,204,113,0.08)', color: '#98A2B3' }}>
-            <span className="animate-pulse-badge text-lp-green">✦</span> Primeira plataforma de IA para concursos
+            <span className="animate-pulse-badge text-lp-green">✦</span> {t.hero_badge}
           </span>
 
           {/* H1 */}
           <h1 className="font-serif font-normal max-w-3xl" style={{ fontSize: 'clamp(48px, 7vw, 80px)', lineHeight: 1.05, color: '#F2F4F7' }}>
-            Passe no seu concurso<br />
-            com <em className="text-lp-green">inteligência artificial.</em>
+            {t.hero_title_line1}<br />
+            {t.hero_title_line2} <em className="text-lp-green">{t.hero_title_line3}</em>
           </h1>
 
           {/* Subtitle */}
           <p className="mt-6 max-w-[580px] text-lg leading-relaxed" style={{ color: '#98A2B3' }}>
-            Doutrina, jurisprudência, questões e cronograma personalizado — 8 agentes de IA especializados trabalhando por você por{' '}
-            <strong className="text-lp-text">R$129/mês</strong>.
+            {t.hero_subtitle}
           </p>
 
           {/* CTAs */}
@@ -120,12 +121,12 @@ export default function LandingPage() {
             <button onClick={() => scrollTo('pricing')}
               className="rounded-full px-8 py-3.5 text-base font-semibold transition-all hover:-translate-y-0.5"
               style={{ background: '#2ECC71', color: '#080C10', boxShadow: '0 8px 30px rgba(46,204,113,0.3)' }}>
-              Começar agora →
+              {t.hero_cta_primary}
             </button>
             <button onClick={() => scrollTo('demo')}
               className="rounded-full px-8 py-3.5 text-base font-medium transition-all hover:-translate-y-0.5"
               style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#F2F4F7' }}>
-              Ver como funciona
+              {t.hero_cta_secondary}
             </button>
           </div>
 
@@ -269,9 +270,9 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1100px]">
           <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4">Seu arsenal completo</p>
           <h2 className="font-serif font-normal" style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: 1.1, color: '#F2F4F7' }}>
-            8 agentes trabalhando por você.
+            {t.features_title}
           </h2>
-          <p className="mt-4 text-lp-text-secondary">Cada um especializado em uma área dos seus estudos — tudo por R$129/mês.</p>
+          <p className="mt-4 text-lp-text-secondary">{t.features_subtitle}</p>
 
           <div className="mt-14 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
             {agents.map((a, i) => {
@@ -391,9 +392,9 @@ export default function LandingPage() {
       <Section id="pricing" className="relative px-4 py-24 md:py-32 scroll-mt-20 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 50% 50% at 50% 50%, rgba(46,204,113,0.06) 0%, transparent 70%)' }} />
         <div className="relative z-10 mx-auto max-w-[1100px] text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4">Primeiros 1000 usuários</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4">{t.pricing_subtitle}</p>
           <h2 className="font-serif font-normal" style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: 1.1, color: '#F2F4F7' }}>
-            Sua aprovação começa <em className="text-lp-green">hoje</em>.
+            {t.pricing_title.includes('hoje') ? <>Sua aprovação começa <em className="text-lp-green">hoje</em>.</> : t.pricing_title}
           </h2>
 
           <div className="mx-auto mt-14 max-w-[600px] rounded-3xl p-12" style={{ background: '#0F1419', border: '1px solid rgba(46,204,113,0.3)' }}>
@@ -445,7 +446,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[700px]">
           <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4 text-center">Dúvidas</p>
           <h2 className="font-serif font-normal text-center mb-12" style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: 1.1, color: '#F2F4F7' }}>
-            Perguntas frequentes
+            {t.testimonials_title}
           </h2>
           <div className="space-y-3">
             {faqs.map((f, i) => (
@@ -474,11 +475,11 @@ export default function LandingPage() {
               <LogoIcon size={32} />
               <span className="text-lg font-semibold text-lp-text">Sua Vaga <span className="text-lp-green">IA</span></span>
             </div>
-            <p className="font-serif italic text-sm text-lp-text-muted">Inteligência que aprova.</p>
+            <p className="font-serif italic text-sm text-lp-text-muted">{t.footer_tagline}</p>
           </div>
           <div>
             <p className="text-sm text-lp-text font-medium mb-2">Empresa</p>
-            <p className="text-sm text-lp-text-muted leading-relaxed">Sua Vaga Concursos — 2026<br />CNPJ 39.177.511/0001-19</p>
+            <p className="text-sm text-lp-text-muted leading-relaxed">{t.footer_copyright}<br />CNPJ 39.177.511/0001-19</p>
           </div>
           <div>
             <p className="text-sm text-lp-text font-medium mb-2">Endereço</p>
