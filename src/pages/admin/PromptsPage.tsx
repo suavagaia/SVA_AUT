@@ -38,7 +38,8 @@ interface Agent {
   tool_web_search: boolean;
   tool_file_search: boolean;
   tool_file_search_vector_store_ids: string[] | null;
-  store: boolean;
+  verbosity: string;
+  response_format: string;
 }
 
 export default function AdminPromptsPage() {
@@ -135,7 +136,7 @@ export default function AdminPromptsPage() {
   const fetchAgents = async () => {
     const { data } = await supabase
       .from('agents')
-      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, store')
+      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, verbosity, response_format')
       .order('display_order');
     setAgents((data as Agent[]) ?? []);
     setLoading(false);
@@ -175,7 +176,8 @@ export default function AdminPromptsPage() {
       tool_web_search: editing.tool_web_search,
       tool_file_search: editing.tool_file_search,
       tool_file_search_vector_store_ids: editing.tool_file_search_vector_store_ids,
-      store: editing.store,
+      verbosity: editing.verbosity,
+      response_format: editing.response_format,
     }).eq('id', editing.id);
     setSaving(false);
     if (error) { toast.error(error.message); return; }
@@ -489,9 +491,30 @@ export default function AdminPromptsPage() {
                   )}
                 </div>
               )}
-              <div className="flex items-center justify-between">
-                <Label className="text-muted-light">Store (salvar contexto)</Label>
-                <Switch checked={editing.store} onCheckedChange={(v) => updateField('store', v)} />
+              <div>
+                <Label className="text-muted-light">Verbosidade</Label>
+                <Select value={editing.verbosity ?? 'medium'} onValueChange={(v) => updateField('verbosity', v)}>
+                  <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Conciso (low)</SelectItem>
+                    <SelectItem value="medium">Padrão (medium)</SelectItem>
+                    <SelectItem value="high">Detalhado (high)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-muted-light">Formato de resposta</Label>
+                <Select value={editing.response_format ?? 'text'} onValueChange={(v) => updateField('response_format', v)}>
+                  <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="text">Texto (text)</SelectItem>
+                    <SelectItem value="json">JSON (json)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           )}
