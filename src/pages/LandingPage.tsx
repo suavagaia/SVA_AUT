@@ -105,8 +105,8 @@ export default function LandingPage() {
 
           {/* H1 */}
           <h1 className="font-serif font-normal max-w-3xl" style={{ fontSize: 'clamp(48px, 7vw, 80px)', lineHeight: 1.05, color: '#F2F4F7' }}>
-            {t.hero_title_line1}<br />
-            {t.hero_title_line2} <em className="text-lp-green">{t.hero_title_line3}</em>
+            Passe no seu concurso<br />
+            com <em className="text-lp-green">inteligência artificial.</em>
           </h1>
 
           {/* Subtitle */}
