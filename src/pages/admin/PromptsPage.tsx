@@ -204,6 +204,7 @@ export default function AdminPromptsPage() {
   const handleSave = async () => {
     if (!editing) return;
     setSaving(true);
+    // Update agent fields
     const { error } = await supabase.from('agents').update({
       title: editing.title,
       system_prompt: editing.system_prompt,
@@ -215,10 +216,18 @@ export default function AdminPromptsPage() {
       tool_file_search_vector_store_ids: editing.tool_file_search_vector_store_ids,
       verbosity: editing.verbosity,
       response_format: editing.response_format,
-      subject_id: editing.subject_id,
     }).eq('id', editing.id);
+    if (error) { setSaving(false); toast.error(error.message); return; }
+
+    // Sync agent_subjects: delete all then insert current
+    await supabase.from('agent_subjects').delete().eq('agent_id', editing.id);
+    if (editingSubjectIds.length > 0) {
+      const rows = editingSubjectIds.map(sid => ({ agent_id: editing.id, subject_id: sid }));
+      const { error: insertErr } = await supabase.from('agent_subjects').insert(rows);
+      if (insertErr) { setSaving(false); toast.error(insertErr.message); return; }
+    }
+
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
     toast.success('Agente atualizado');
     setEditing(null);
     fetchAgents();
