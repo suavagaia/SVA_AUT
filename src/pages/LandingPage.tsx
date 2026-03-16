@@ -55,7 +55,6 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [expandedAgent, setExpandedAgent] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const { texts: t } = useLandingTexts();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
