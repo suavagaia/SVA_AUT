@@ -180,15 +180,17 @@ export default function AdminPromptsPage() {
     fetchHierarchy();
   }, []);
 
-  // When editing starts, resolve area/contest from subject_id
+  // When editing starts, fetch agent's subject_ids from agent_subjects
   useEffect(() => {
-    if (!editing?.subject_id) { setSelectedAreaId(''); setSelectedContestId(''); return; }
-    const subject = subjectOptions.find(s => s.id === editing.subject_id);
-    if (subject) {
-      setSelectedContestId(subject.contest_id);
-      const contest = contests.find(c => c.id === subject.contest_id);
-      setSelectedAreaId(contest?.area_id ?? '');
-    }
+    if (!editing) { setEditingSubjectIds([]); return; }
+    const fetchAgentSubjects = async () => {
+      const { data } = await supabase
+        .from('agent_subjects')
+        .select('subject_id')
+        .eq('agent_id', editing.id);
+      setEditingSubjectIds(data?.map((r: any) => r.subject_id) ?? []);
+    };
+    fetchAgentSubjects();
   }, [editing?.id]);
 
   useEffect(() => { fetchAgents(); fetchMentoriaPrompt(); fetchManual(); fetchMentoriaLimit(); }, []);
