@@ -40,7 +40,12 @@ interface Agent {
   tool_file_search_vector_store_ids: string[] | null;
   verbosity: string;
   response_format: string;
+  subject_id: string | null;
 }
+
+interface Area { id: string; name: string; }
+interface Contest { id: string; name: string; area_id: string; }
+interface SubjectOption { id: string; name: string; contest_id: string; }
 
 export default function AdminPromptsPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
