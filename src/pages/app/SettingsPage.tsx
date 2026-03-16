@@ -4,7 +4,7 @@ import { AppLayout } from '@/components/AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { User, Shield, CreditCard, LogOut, Trash2, ArrowRight } from 'lucide-react';
+import { User, Shield, ShieldCheck, CreditCard, LogOut, Trash2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
