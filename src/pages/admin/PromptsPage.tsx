@@ -176,7 +176,8 @@ export default function AdminPromptsPage() {
       tool_web_search: editing.tool_web_search,
       tool_file_search: editing.tool_file_search,
       tool_file_search_vector_store_ids: editing.tool_file_search_vector_store_ids,
-      store: editing.store,
+      verbosity: editing.verbosity,
+      response_format: editing.response_format,
     }).eq('id', editing.id);
     setSaving(false);
     if (error) { toast.error(error.message); return; }
