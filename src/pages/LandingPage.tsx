@@ -391,9 +391,9 @@ export default function LandingPage() {
       <Section id="pricing" className="relative px-4 py-24 md:py-32 scroll-mt-20 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 50% 50% at 50% 50%, rgba(46,204,113,0.06) 0%, transparent 70%)' }} />
         <div className="relative z-10 mx-auto max-w-[1100px] text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4">{t.pricing_subtitle}</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4">Primeiros 1000 usuários</p>
           <h2 className="font-serif font-normal" style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: 1.1, color: '#F2F4F7' }}>
-            {t.pricing_title.includes('hoje') ? <>Sua aprovação começa <em className="text-lp-green">hoje</em>.</> : t.pricing_title}
+            Sua aprovação começa <em className="text-lp-green">hoje</em>.
           </h2>
 
           <div className="mx-auto mt-14 max-w-[600px] rounded-3xl p-12" style={{ background: '#0F1419', border: '1px solid rgba(46,204,113,0.3)' }}>
