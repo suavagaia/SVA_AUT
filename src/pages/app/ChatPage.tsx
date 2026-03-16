@@ -311,12 +311,14 @@ export default function ChatPage() {
         }
       }
       setIsStreaming(false);
+      setIsThinking(false);
     } catch (err: any) {
       if (err.name !== 'AbortError') {
         toast.error('Erro ao processar resposta. Tente novamente.');
         setMessages(prev => prev.slice(0, -1));
       }
       setIsStreaming(false);
+      setIsThinking(false);
     }
   };
 
