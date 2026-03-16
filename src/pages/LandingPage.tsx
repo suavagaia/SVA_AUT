@@ -84,7 +84,7 @@ export default function LandingPage() {
             <Link to="/auth/signup">
               <button className="rounded-full px-5 py-2 text-sm font-semibold transition-all hover:-translate-y-0.5"
                 style={{ background: '#2ECC71', color: '#080C10', boxShadow: '0 4px 15px rgba(46,204,113,0.3)' }}>
-                {t.nav_cta_button}
+                Criar Conta Gratuita
               </button>
             </Link>
           </div>
