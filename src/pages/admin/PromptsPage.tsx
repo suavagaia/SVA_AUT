@@ -56,9 +56,7 @@ export default function AdminPromptsPage() {
   const [areas, setAreas] = useState<Area[]>([]);
   const [contests, setContests] = useState<Contest[]>([]);
   const [subjectOptions, setSubjectOptions] = useState<SubjectOption[]>([]);
-  const [selectedAreaId, setSelectedAreaId] = useState<string>('');
-  const [selectedContestId, setSelectedContestId] = useState<string>('');
-
+  const [editingSubjectIds, setEditingSubjectIds] = useState<string[]>([]);
   // Mentoria prompt
   const [mentoriaPrompt, setMentoriaPrompt] = useState('');
   const [mentoriaDesc, setMentoriaDesc] = useState('');
