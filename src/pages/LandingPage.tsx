@@ -132,9 +132,9 @@ export default function LandingPage() {
 
           {/* Trust */}
           <div className="mt-10 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm" style={{ color: '#667085' }}>
-            {['Celular, tablet ou PC', 'Cancele a qualquer momento', 'Sem multa, sem fidelidade'].map(t => (
-              <span key={t} className="flex items-center gap-1.5">
-                <span className="text-lp-green text-xs">●</span> {t}
+            {t.hero_social_proof.split('•').map(item => item.trim()).filter(Boolean).map(item => (
+              <span key={item} className="flex items-center gap-1.5">
+                <span className="text-lp-green text-xs">●</span> {item}
               </span>
             ))}
           </div>
