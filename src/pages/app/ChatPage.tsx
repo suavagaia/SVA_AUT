@@ -331,7 +331,19 @@ export default function ChatPage() {
   const handleChipClick = (text: string) => { setInputText(text); textareaRef.current?.focus(); };
   const handleNewChat = () => { setMessages([]); setConvId(null); };
 
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, []);
+
   const handleRestoreConversation = async (conversationId: string) => {
+    // Stop any existing polling
+    if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null; }
+
     const { data: msgs } = await supabase
       .from('messages')
       .select('id, role, content, created_at, feedback')
@@ -341,6 +353,25 @@ export default function ChatPage() {
     if (msgs) {
       setMessages(msgs as Message[]);
       setConvId(conversationId);
+
+      // If last message is from user (no assistant response yet), start polling
+      if (msgs.length > 0 && msgs[msgs.length - 1].role === 'user') {
+        setIsThinking(true);
+        pollingRef.current = setInterval(async () => {
+          const { data: updatedMsgs } = await supabase
+            .from('messages')
+            .select('id, role, content, created_at, feedback')
+            .eq('conversation_id', conversationId)
+            .order('created_at', { ascending: true });
+
+          if (updatedMsgs && updatedMsgs.length > 0 && updatedMsgs[updatedMsgs.length - 1].role === 'assistant') {
+            // Response arrived — update messages and stop polling
+            setMessages(updatedMsgs as Message[]);
+            setIsThinking(false);
+            if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null; }
+          }
+        }, 3000);
+      }
     }
     setHistoryOpen(false);
   };
@@ -598,6 +629,9 @@ export default function ChatPage() {
                   onFeedback={handleFeedback}
                 />
               ))}
+              {isThinking && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
+                <ThinkingIndicator />
+              )}
               <div ref={messagesEndRef} />
             </div>
           )}
