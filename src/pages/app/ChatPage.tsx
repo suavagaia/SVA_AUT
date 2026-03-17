@@ -629,6 +629,9 @@ export default function ChatPage() {
                   onFeedback={handleFeedback}
                 />
               ))}
+              {isThinking && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
+                <ThinkingIndicator />
+              )}
               <div ref={messagesEndRef} />
             </div>
           )}
