@@ -55,7 +55,7 @@ export default function SettingsPage() {
   };
 
   const handleEnable2FA = async () => {
-    const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+    const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp', issuer: 'Sua Vaga IA', friendlyName: 'Sua Vaga IA' });
     if (error) {
       toast.error('Erro ao iniciar configuração 2FA.');
       return;
