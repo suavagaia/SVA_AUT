@@ -102,7 +102,7 @@ export default function HistoryPage() {
 
     let query = supabase
       .from('conversations')
-      .select(`id, title, created_at, updated_at, is_archived, agents!inner(title, slug, subjects!inner(name, contests!inner(name, areas!inner(name))))`)
+      .select(`id, title, created_at, updated_at, is_archived, agents!conversations_agent_id_fkey(title, slug, subjects!inner(name, contests!inner(name, areas!inner(name))))`)
       .eq('user_id', user.id)
       .eq('is_archived', tab === 'archived')
       .order('updated_at', { ascending: false })
