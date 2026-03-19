@@ -14,6 +14,7 @@ interface Agent {
   slug: string;
   description: string;
   icon: string;
+  tool_file_search?: boolean;
 }
 
 export default function AgentsPage() {

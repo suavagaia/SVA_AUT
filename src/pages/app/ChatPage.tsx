@@ -803,6 +803,7 @@ function ChatBubble({
   message,
   isStreaming,
   isThinking,
+  useFileSearch,
   ttsActiveMsgId,
   ttsState,
   onTTS,
@@ -812,6 +813,7 @@ function ChatBubble({
   message: Message;
   isStreaming: boolean;
   isThinking: boolean;
+  useFileSearch?: boolean;
   ttsActiveMsgId: string | null;
   ttsState: 'idle' | 'loading' | 'playing' | 'paused';
   onTTS: (msg: Message, speed: number) => void;
