@@ -786,8 +786,25 @@ function EmptyState({
 
 const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5] as const;
 
+function getThinkingMessage(elapsedSeconds: number, useFileSearch?: boolean): string {
+  if (!useFileSearch) return 'Analisando...';
+  if (elapsedSeconds < 10) return 'Consultando base jurídica...';
+  if (elapsedSeconds < 30) return 'Analisando conteúdo relevante...';
+  if (elapsedSeconds < 60) return 'Elaborando resposta detalhada...';
+  return 'Resposta complexa em preparação...';
+}
+
 function ThinkingIndicator({ useFileSearch }: { useFileSearch?: boolean }) {
-  const label = useFileSearch ? 'Consultando base jurídica' : 'Analisando';
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    setElapsed(0);
+    const timer = setInterval(() => setElapsed(s => s + 1), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const label = getThinkingMessage(elapsed, useFileSearch);
+
   return (
     <div className="flex justify-start">
       <div className="max-w-[85%]">
