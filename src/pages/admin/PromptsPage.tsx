@@ -38,6 +38,7 @@ interface Agent {
   tool_web_search: boolean;
   tool_file_search: boolean;
   tool_file_search_vector_store_ids: string[] | null;
+  file_search_max_results: number;
   verbosity: string;
   response_format: string;
   subject_id: string | null;
