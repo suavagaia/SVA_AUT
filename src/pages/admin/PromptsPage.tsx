@@ -540,42 +540,61 @@ export default function AdminPromptsPage() {
                 <Switch checked={editing.tool_file_search} onCheckedChange={(v) => updateField('tool_file_search', v)} />
               </div>
               {editing.tool_file_search && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-muted-light">Vector Stores</label>
-                  <p className="text-xs text-muted-foreground">
-                    Bases de conhecimento que este agente vai consultar ao responder.
-                  </p>
-                  {vectorStoresLoading ? (
-                    <div className="flex justify-center py-3">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald border-t-transparent" />
-                    </div>
-                  ) : vectorStores.length === 0 ? (
-                    <p className="text-xs text-muted-foreground italic">
-                      Nenhum vector store encontrado. Crie um em{' '}
-                      <a href="/admin/vector-stores" className="text-emerald underline">Vector Stores</a>.
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-light">Vector Stores</label>
+                    <p className="text-xs text-muted-foreground">
+                      Bases de conhecimento que este agente vai consultar ao responder.
                     </p>
-                  ) : (
-                    <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {vectorStores.map(vs => (
-                        <label key={vs.id} className="flex items-center gap-2 cursor-pointer">
-                          <Checkbox
-                            checked={editing.tool_file_search_vector_store_ids?.includes(vs.id) ?? false}
-                            onCheckedChange={(checked) => {
-                              const current = editing.tool_file_search_vector_store_ids ?? [];
-                              const newIds = checked
-                                ? [...new Set([...current, vs.id])]
-                                : current.filter(id => id !== vs.id);
-                              updateField('tool_file_search_vector_store_ids', newIds as any);
-                            }}
-                          />
-                          <span className="text-sm text-light">{vs.name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            ({vs.file_counts?.total ?? 0} arquivos)
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
+                    {vectorStoresLoading ? (
+                      <div className="flex justify-center py-3">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald border-t-transparent" />
+                      </div>
+                    ) : vectorStores.length === 0 ? (
+                      <p className="text-xs text-muted-foreground italic">
+                        Nenhum vector store encontrado. Crie um em{' '}
+                        <a href="/admin/vector-stores" className="text-emerald underline">Vector Stores</a>.
+                      </p>
+                    ) : (
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {vectorStores.map(vs => (
+                          <label key={vs.id} className="flex items-center gap-2 cursor-pointer">
+                            <Checkbox
+                              checked={editing.tool_file_search_vector_store_ids?.includes(vs.id) ?? false}
+                              onCheckedChange={(checked) => {
+                                const current = editing.tool_file_search_vector_store_ids ?? [];
+                                const newIds = checked
+                                  ? [...new Set([...current, vs.id])]
+                                  : current.filter(id => id !== vs.id);
+                                updateField('tool_file_search_vector_store_ids', newIds as any);
+                              }}
+                            />
+                            <span className="text-sm text-light">{vs.name}</span>
+                            <span className="text-xs text-muted-foreground">
+                              ({vs.file_counts?.total ?? 0} arquivos)
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <Label className="text-muted-light">Resultados da busca (file search)</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={50}
+                      value={editing.file_search_max_results ?? 20}
+                      onChange={(e) => {
+                        const v = Math.min(50, Math.max(1, parseInt(e.target.value) || 20));
+                        updateField('file_search_max_results', v as any);
+                      }}
+                      className="mt-1 w-32 border-navy-border bg-navy-deep text-light"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Menos resultados = resposta mais rápida, porém menos abrangente. Mais resultados = resposta mais completa, porém mais lenta.
+                    </p>
+                  </div>
                 </div>
               )}
               <div>
