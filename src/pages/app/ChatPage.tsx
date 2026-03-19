@@ -623,6 +623,7 @@ export default function ChatPage() {
                   message={msg}
                   isStreaming={isStreaming && i === messages.length - 1 && msg.role === 'assistant'}
                   isThinking={isThinking && i === messages.length - 1 && msg.role === 'assistant'}
+                  useFileSearch={selectedAgent?.tool_file_search}
                   ttsActiveMsgId={ttsActiveMsgId}
                   ttsState={ttsState}
                   onTTS={handleTTS}
