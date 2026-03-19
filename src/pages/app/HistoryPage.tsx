@@ -175,7 +175,7 @@ export default function HistoryPage() {
 
   const handleOpen = (conv: Conversation) => {
     localStorage.setItem('selectedConversationId', conv.id);
-    localStorage.setItem('selectedTab', conv.agents.slug === 'agente-de-apoio' ? 'apoio' : 'agente');
+    localStorage.setItem('selectedTab', conv.agents?.slug === 'agente-de-apoio' ? 'apoio' : 'agente');
     navigate('/app/chat');
   };
 
