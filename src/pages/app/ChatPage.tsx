@@ -778,13 +778,14 @@ function EmptyState({
 
 const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5] as const;
 
-function ThinkingIndicator() {
+function ThinkingIndicator({ useFileSearch }: { useFileSearch?: boolean }) {
+  const label = useFileSearch ? 'Consultando base jurídica' : 'Analisando';
   return (
     <div className="flex justify-start">
       <div className="max-w-[85%]">
         <div className="bg-navy text-[hsl(var(--text-light))] rounded-[12px_12px_12px_2px] px-4 py-3">
           <div className="flex items-center gap-1">
-            <span className="text-sm text-muted-foreground">Analisando</span>
+            <span className="text-sm text-muted-foreground">{label}</span>
             <span className="flex gap-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_infinite]" />
               <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_0.2s_infinite]" />
