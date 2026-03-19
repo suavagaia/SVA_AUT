@@ -341,8 +341,8 @@ export default function HistoryPage() {
                       <h3 className="text-sm font-medium text-foreground truncate">{conv.title}</h3>
                     )}
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      <Badge variant="secondary" className="text-[10px]">{conv.agents.title}</Badge>
-                      <Badge variant="outline" className="text-[10px]">{conv.agents.subjects.name}</Badge>
+                      <Badge variant="secondary" className="text-[10px]">{conv.agents?.title ?? 'Agente'}</Badge>
+                      <Badge variant="outline" className="text-[10px]">{conv.agents?.subjects?.name ?? '-'}</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">{formatDate(conv.updated_at)}</p>
                   </div>
