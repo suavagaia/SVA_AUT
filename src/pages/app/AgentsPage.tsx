@@ -60,6 +60,7 @@ export default function AgentsPage() {
       slug: agent.slug,
       description: agent.description,
       icon: agent.icon,
+      tool_file_search: agent.tool_file_search ?? false,
     }));
     navigate('/app/chat');
   };

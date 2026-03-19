@@ -840,7 +840,7 @@ function ChatBubble({
             <p className="whitespace-pre-wrap">{message.content}</p>
           ) : isThinking && !message.content ? (
             <div className="flex items-center gap-1">
-              <span className="text-sm text-muted-foreground">Analisando</span>
+              <span className="text-sm text-muted-foreground">{useFileSearch ? 'Consultando base jurídica' : 'Analisando'}</span>
               <span className="flex gap-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_infinite]" />
                 <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_0.2s_infinite]" />
