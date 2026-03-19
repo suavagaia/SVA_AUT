@@ -31,7 +31,7 @@ export default function AgentsPage() {
     const fetchAgents = async () => {
       const { data } = await supabase
         .from('agent_subjects')
-        .select('agents:agent_id(id, title, slug, description, icon, is_active, display_order)')
+        .select('agents:agent_id(id, title, slug, description, icon, is_active, display_order, tool_file_search)')
         .eq('subject_id', subjectId);
 
       if (data) {
