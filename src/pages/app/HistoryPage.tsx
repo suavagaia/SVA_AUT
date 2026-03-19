@@ -163,9 +163,9 @@ export default function HistoryPage() {
   // Filtered list (client-side search + area/contest/subject)
   const filtered = conversations.filter(c => {
     if (searchTerm && !c.title.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-    if (areaFilter !== 'all' && c.agents.subjects.contests.areas.name !== areaFilter) return false;
-    if (contestFilter !== 'all' && c.agents.subjects.contests.name !== contestFilter) return false;
-    if (subjectFilter !== 'all' && c.agents.subjects.name !== subjectFilter) return false;
+    if (areaFilter !== 'all' && c.agents?.subjects?.contests?.areas?.name !== areaFilter) return false;
+    if (contestFilter !== 'all' && c.agents?.subjects?.contests?.name !== contestFilter) return false;
+    if (subjectFilter !== 'all' && c.agents?.subjects?.name !== subjectFilter) return false;
     return true;
   });
 
