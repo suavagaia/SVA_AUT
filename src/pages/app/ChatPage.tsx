@@ -358,7 +358,15 @@ export default function ChatPage() {
       // If last message is from user (no assistant response yet), start polling
       if (msgs.length > 0 && msgs[msgs.length - 1].role === 'user') {
         setIsThinking(true);
+        const pollStartTime = Date.now();
         pollingRef.current = setInterval(async () => {
+          // Timeout after 120 seconds
+          if (Date.now() - pollStartTime > 120000) {
+            setIsThinking(false);
+            if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null; }
+            return;
+          }
+
           const { data: updatedMsgs } = await supabase
             .from('messages')
             .select('id, role, content, created_at, feedback')
@@ -366,7 +374,6 @@ export default function ChatPage() {
             .order('created_at', { ascending: true });
 
           if (updatedMsgs && updatedMsgs.length > 0 && updatedMsgs[updatedMsgs.length - 1].role === 'assistant') {
-            // Response arrived — update messages and stop polling
             setMessages(updatedMsgs as Message[]);
             setIsThinking(false);
             if (pollingRef.current) { clearInterval(pollingRef.current); pollingRef.current = null; }
