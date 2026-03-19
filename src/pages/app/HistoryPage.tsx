@@ -144,16 +144,16 @@ export default function HistoryPage() {
   }, [user, tab, period]);
 
   // Derived unique filter values
-  const areas = [...new Set(conversations.map(c => c.agents.subjects.contests.areas.name))].sort();
+  const areas = [...new Set(conversations.map(c => c.agents?.subjects?.contests?.areas?.name).filter(Boolean))].sort();
   const contests = [...new Set(
     conversations
-      .filter(c => areaFilter === 'all' || c.agents.subjects.contests.areas.name === areaFilter)
-      .map(c => c.agents.subjects.contests.name)
+      .filter(c => areaFilter === 'all' || c.agents?.subjects?.contests?.areas?.name === areaFilter)
+      .map(c => c.agents?.subjects?.contests?.name).filter(Boolean)
   )].sort();
   const subjects = [...new Set(
     conversations
-      .filter(c => contestFilter === 'all' || c.agents.subjects.contests.name === contestFilter)
-      .map(c => c.agents.subjects.name)
+      .filter(c => contestFilter === 'all' || c.agents?.subjects?.contests?.name === contestFilter)
+      .map(c => c.agents?.subjects?.name).filter(Boolean)
   )].sort();
 
   // Reset dependent filters
@@ -163,9 +163,9 @@ export default function HistoryPage() {
   // Filtered list (client-side search + area/contest/subject)
   const filtered = conversations.filter(c => {
     if (searchTerm && !c.title.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-    if (areaFilter !== 'all' && c.agents.subjects.contests.areas.name !== areaFilter) return false;
-    if (contestFilter !== 'all' && c.agents.subjects.contests.name !== contestFilter) return false;
-    if (subjectFilter !== 'all' && c.agents.subjects.name !== subjectFilter) return false;
+    if (areaFilter !== 'all' && c.agents?.subjects?.contests?.areas?.name !== areaFilter) return false;
+    if (contestFilter !== 'all' && c.agents?.subjects?.contests?.name !== contestFilter) return false;
+    if (subjectFilter !== 'all' && c.agents?.subjects?.name !== subjectFilter) return false;
     return true;
   });
 
@@ -175,7 +175,7 @@ export default function HistoryPage() {
 
   const handleOpen = (conv: Conversation) => {
     localStorage.setItem('selectedConversationId', conv.id);
-    localStorage.setItem('selectedTab', conv.agents.slug === 'agente-de-apoio' ? 'apoio' : 'agente');
+    localStorage.setItem('selectedTab', conv.agents?.slug === 'agente-de-apoio' ? 'apoio' : 'agente');
     navigate('/app/chat');
   };
 
@@ -341,8 +341,8 @@ export default function HistoryPage() {
                       <h3 className="text-sm font-medium text-foreground truncate">{conv.title}</h3>
                     )}
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      <Badge variant="secondary" className="text-[10px]">{conv.agents.title}</Badge>
-                      <Badge variant="outline" className="text-[10px]">{conv.agents.subjects.name}</Badge>
+                      <Badge variant="secondary" className="text-[10px]">{conv.agents?.title ?? 'Agente'}</Badge>
+                      <Badge variant="outline" className="text-[10px]">{conv.agents?.subjects?.name ?? '-'}</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">{formatDate(conv.updated_at)}</p>
                   </div>
