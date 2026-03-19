@@ -14,6 +14,7 @@ interface Agent {
   slug: string;
   description: string;
   icon: string;
+  tool_file_search?: boolean;
 }
 
 export default function AgentsPage() {
@@ -60,6 +61,7 @@ export default function AgentsPage() {
       slug: agent.slug,
       description: agent.description,
       icon: agent.icon,
+      tool_file_search: agent.tool_file_search ?? false,
     }));
     navigate('/app/chat');
   };

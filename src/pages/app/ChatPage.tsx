@@ -20,6 +20,7 @@ interface SelectedAgent {
   slug: string;
   description?: string;
   icon?: string;
+  tool_file_search?: boolean;
 }
 
 interface Message {
@@ -622,6 +623,7 @@ export default function ChatPage() {
                   message={msg}
                   isStreaming={isStreaming && i === messages.length - 1 && msg.role === 'assistant'}
                   isThinking={isThinking && i === messages.length - 1 && msg.role === 'assistant'}
+                  useFileSearch={selectedAgent?.tool_file_search}
                   ttsActiveMsgId={ttsActiveMsgId}
                   ttsState={ttsState}
                   onTTS={handleTTS}
@@ -630,7 +632,7 @@ export default function ChatPage() {
                 />
               ))}
               {isThinking && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
-                <ThinkingIndicator />
+                <ThinkingIndicator useFileSearch={selectedAgent?.tool_file_search} />
               )}
               <div ref={messagesEndRef} />
             </div>
@@ -777,13 +779,14 @@ function EmptyState({
 
 const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5] as const;
 
-function ThinkingIndicator() {
+function ThinkingIndicator({ useFileSearch }: { useFileSearch?: boolean }) {
+  const label = useFileSearch ? 'Consultando base jurídica' : 'Analisando';
   return (
     <div className="flex justify-start">
       <div className="max-w-[85%]">
         <div className="bg-navy text-[hsl(var(--text-light))] rounded-[12px_12px_12px_2px] px-4 py-3">
           <div className="flex items-center gap-1">
-            <span className="text-sm text-muted-foreground">Analisando</span>
+            <span className="text-sm text-muted-foreground">{label}</span>
             <span className="flex gap-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_infinite]" />
               <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_0.2s_infinite]" />
@@ -800,6 +803,7 @@ function ChatBubble({
   message,
   isStreaming,
   isThinking,
+  useFileSearch,
   ttsActiveMsgId,
   ttsState,
   onTTS,
@@ -809,6 +813,7 @@ function ChatBubble({
   message: Message;
   isStreaming: boolean;
   isThinking: boolean;
+  useFileSearch?: boolean;
   ttsActiveMsgId: string | null;
   ttsState: 'idle' | 'loading' | 'playing' | 'paused';
   onTTS: (msg: Message, speed: number) => void;
@@ -838,7 +843,7 @@ function ChatBubble({
             <p className="whitespace-pre-wrap">{message.content}</p>
           ) : isThinking && !message.content ? (
             <div className="flex items-center gap-1">
-              <span className="text-sm text-muted-foreground">Analisando</span>
+              <span className="text-sm text-muted-foreground">{useFileSearch ? 'Consultando base jurídica' : 'Analisando'}</span>
               <span className="flex gap-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_infinite]" />
                 <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_0.2s_infinite]" />
