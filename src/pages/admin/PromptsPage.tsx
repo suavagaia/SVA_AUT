@@ -215,6 +215,7 @@ export default function AdminPromptsPage() {
       tool_web_search: editing.tool_web_search,
       tool_file_search: editing.tool_file_search,
       tool_file_search_vector_store_ids: editing.tool_file_search_vector_store_ids,
+      file_search_max_results: editing.tool_file_search ? editing.file_search_max_results : 20,
       verbosity: editing.verbosity,
       response_format: editing.response_format,
     }).eq('id', editing.id);
