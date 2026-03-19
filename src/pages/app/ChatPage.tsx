@@ -631,7 +631,7 @@ export default function ChatPage() {
                 />
               ))}
               {isThinking && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
-                <ThinkingIndicator />
+                <ThinkingIndicator useFileSearch={selectedAgent?.tool_file_search} />
               )}
               <div ref={messagesEndRef} />
             </div>
