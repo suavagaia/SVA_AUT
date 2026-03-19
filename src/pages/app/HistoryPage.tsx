@@ -144,16 +144,16 @@ export default function HistoryPage() {
   }, [user, tab, period]);
 
   // Derived unique filter values
-  const areas = [...new Set(conversations.map(c => c.agents.subjects.contests.areas.name))].sort();
+  const areas = [...new Set(conversations.map(c => c.agents?.subjects?.contests?.areas?.name).filter(Boolean))].sort();
   const contests = [...new Set(
     conversations
-      .filter(c => areaFilter === 'all' || c.agents.subjects.contests.areas.name === areaFilter)
-      .map(c => c.agents.subjects.contests.name)
+      .filter(c => areaFilter === 'all' || c.agents?.subjects?.contests?.areas?.name === areaFilter)
+      .map(c => c.agents?.subjects?.contests?.name).filter(Boolean)
   )].sort();
   const subjects = [...new Set(
     conversations
-      .filter(c => contestFilter === 'all' || c.agents.subjects.contests.name === contestFilter)
-      .map(c => c.agents.subjects.name)
+      .filter(c => contestFilter === 'all' || c.agents?.subjects?.contests?.name === contestFilter)
+      .map(c => c.agents?.subjects?.name).filter(Boolean)
   )].sort();
 
   // Reset dependent filters
