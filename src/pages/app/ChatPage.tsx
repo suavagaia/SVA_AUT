@@ -20,6 +20,7 @@ interface SelectedAgent {
   slug: string;
   description?: string;
   icon?: string;
+  tool_file_search?: boolean;
 }
 
 interface Message {
