@@ -625,6 +625,9 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
             <Button variant="ghost" size="sm" onClick={handlePrintChat} disabled={messages.length === 0}>
               <Printer size={16} className="mr-1" /> Imprimir
             </Button>
+            <Button variant="ghost" size="sm" onClick={handleDownloadPDF} disabled={messages.length === 0}>
+              <FileDown size={16} className="mr-1" /> Baixar PDF
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => setHistoryOpen(true)}>
               <History size={16} className="mr-1" /> Histórico
             </Button>
