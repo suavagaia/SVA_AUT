@@ -37,28 +37,7 @@ const STORAGE_KEY = 'sb-lxteajwzovoeclbytdrp-auth-token';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://lxteajwzovoeclbytdrp.supabase.co';
 const SUPABASE_ANON = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4dGVhand6b3ZvZWNsYnl0ZHJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMzkxMzcsImV4cCI6MjA4ODkxNTEzN30.BLB9qSJcZMKsWhix46ASUbOW2lA0PSeyHN97jMQQGkQ';
 
-const SUGGESTION_CHIPS: Record<string, string[]> = {
-  questoes: ['Gere 5 questões sobre...', 'Explique a alternativa correta de...'],
-  legislacao: ['Explique o art. X da lei Y', 'Quais as alterações recentes em...'],
-  sumulas: ['Liste as súmulas sobre...', 'O que diz a súmula X?'],
-  informativos: ['Resuma os informativos sobre...', 'Quais os temas mais cobrados?'],
-  redacao: ['Corrija minha redação:', 'Dê um tema para treinar'],
-  portugues: ['Explique o uso de...', 'Gere questões sobre...'],
-  default: ['Como posso te usar?', 'Por onde começar?'],
-};
-
-const APOIO_CHIPS = [
-  'Como funciona o sistema de tokens?',
-  'Como cancelar minha assinatura?',
-  'Como usar o histórico de conversas?',
-];
-
-function getSuggestionsForAgent(slug: string): string[] {
-  for (const [key, chips] of Object.entries(SUGGESTION_CHIPS)) {
-    if (key !== 'default' && slug.includes(key)) return chips;
-  }
-  return SUGGESTION_CHIPS.default;
-}
+// Suggestions removed — using placeholder text instead
 
 function getAccessToken(): string | null {
   const raw = localStorage.getItem(STORAGE_KEY);
