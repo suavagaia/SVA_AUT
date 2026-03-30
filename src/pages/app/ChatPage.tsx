@@ -308,7 +308,7 @@ export default function ChatPage() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
-  const handleChipClick = (text: string) => { setInputText(text); textareaRef.current?.focus(); };
+  // handleChipClick removed — no more suggestion chips
   const handleNewChat = () => { setMessages([]); setConvId(null); };
 
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
