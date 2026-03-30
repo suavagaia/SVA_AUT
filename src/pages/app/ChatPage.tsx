@@ -578,9 +578,31 @@ export default function ChatPage() {
 ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.role === 'user' ? 'Você' : 'Agente'}</div><div class="content">${escHtml(m.content)}</div></div>`).join('')}
 </body></html>`;
 
+    return html;
+  };
+
+  const handlePrintChat = () => {
+    const html = buildChatHtml();
+    if (!html) return;
     const win = window.open('', '_blank');
     if (win) { win.document.write(html); win.document.close(); win.onload = () => win.print(); }
     else { toast.error('Pop-up bloqueado. Permita pop-ups para imprimir.'); }
+  };
+
+  const handleDownloadPDF = () => {
+    const html = buildChatHtml();
+    if (!html) return;
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const agentName = activeTab === 'apoio' ? 'Agente de Apoio' : selectedAgent.name;
+    a.href = url;
+    a.download = `${agentName.replace(/\s+/g, '_')}_conversa.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Arquivo baixado! Abra e use Ctrl+P para salvar como PDF.');
   };
 
   const showUpgradeOverlay = !canUseAgent();
