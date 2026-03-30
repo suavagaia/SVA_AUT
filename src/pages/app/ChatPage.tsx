@@ -600,7 +600,7 @@ export default function ChatPage() {
           )}
 
           {messages.length === 0 ? (
-            <EmptyState activeTab={activeTab} agent={selectedAgent} AgentIcon={AgentIcon} onChipClick={handleChipClick} />
+            <EmptyState activeTab={activeTab} agent={selectedAgent} AgentIcon={AgentIcon} />
           ) : (
             <div className="space-y-4">
               {messages.map((msg, i) => (
