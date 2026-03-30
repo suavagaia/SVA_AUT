@@ -600,6 +600,9 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-xs">Trocar agente</Button>
+            <Button variant="ghost" size="sm" onClick={handlePrintChat} disabled={messages.length === 0}>
+              <Printer size={16} className="mr-1" /> Imprimir
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => setHistoryOpen(true)}>
               <History size={16} className="mr-1" /> Histórico
             </Button>
