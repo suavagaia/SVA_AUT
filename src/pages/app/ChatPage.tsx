@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import {
-  Send, Square, History, Plus, ChevronRight, Headset, Lock, Printer,
+  Send, Square, History, Plus, ChevronRight, Headset, Lock, Printer, FileDown,
   Volume2, Pause, Play, Loader2, ThumbsUp, ThumbsDown, Mic, MicOff,
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
@@ -552,9 +552,9 @@ export default function ChatPage() {
 
   if (!selectedAgent) return null;
 
-  // ---- Print current conversation ----
-  const handlePrintChat = () => {
-    if (messages.length === 0) { toast.info('Nenhuma mensagem para imprimir.'); return; }
+  // ---- Build HTML for print/download ----
+  const buildChatHtml = (): string | null => {
+    if (messages.length === 0) { toast.info('Nenhuma mensagem para exportar.'); return null; }
     const agentName = activeTab === 'apoio' ? 'Agente de Apoio' : selectedAgent.name;
     const userName = user?.user_metadata?.full_name || user?.email || 'Usuário';
     const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -578,9 +578,31 @@ export default function ChatPage() {
 ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.role === 'user' ? 'Você' : 'Agente'}</div><div class="content">${escHtml(m.content)}</div></div>`).join('')}
 </body></html>`;
 
+    return html;
+  };
+
+  const handlePrintChat = () => {
+    const html = buildChatHtml();
+    if (!html) return;
     const win = window.open('', '_blank');
     if (win) { win.document.write(html); win.document.close(); win.onload = () => win.print(); }
     else { toast.error('Pop-up bloqueado. Permita pop-ups para imprimir.'); }
+  };
+
+  const handleDownloadPDF = () => {
+    const html = buildChatHtml();
+    if (!html) return;
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const agentName = activeTab === 'apoio' ? 'Agente de Apoio' : selectedAgent.name;
+    a.href = url;
+    a.download = `${agentName.replace(/\s+/g, '_')}_conversa.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('Arquivo baixado! Abra e use Ctrl+P para salvar como PDF.');
   };
 
   const showUpgradeOverlay = !canUseAgent();
@@ -602,6 +624,9 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
             <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-xs">Trocar agente</Button>
             <Button variant="ghost" size="sm" onClick={handlePrintChat} disabled={messages.length === 0}>
               <Printer size={16} className="mr-1" /> Imprimir
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleDownloadPDF} disabled={messages.length === 0}>
+              <FileDown size={16} className="mr-1" /> Baixar PDF
             </Button>
             <Button variant="ghost" size="sm" onClick={() => setHistoryOpen(true)}>
               <History size={16} className="mr-1" /> Histórico
