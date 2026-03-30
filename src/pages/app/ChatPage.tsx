@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import {
-  Send, Square, History, Plus, ChevronRight, Headset, Lock, Printer,
+  Send, Square, History, Plus, ChevronRight, Headset, Lock, Printer, FileDown,
   Volume2, Pause, Play, Loader2, ThumbsUp, ThumbsDown, Mic, MicOff,
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
