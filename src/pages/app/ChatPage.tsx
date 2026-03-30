@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import {
-  Send, Square, History, Plus, ChevronRight, Headset, Lock,
+  Send, Square, History, Plus, ChevronRight, Headset, Lock, Printer,
   Volume2, Pause, Play, Loader2, ThumbsUp, ThumbsDown, Mic, MicOff,
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
@@ -37,28 +37,7 @@ const STORAGE_KEY = 'sb-lxteajwzovoeclbytdrp-auth-token';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://lxteajwzovoeclbytdrp.supabase.co';
 const SUPABASE_ANON = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4dGVhand6b3ZvZWNsYnl0ZHJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMzkxMzcsImV4cCI6MjA4ODkxNTEzN30.BLB9qSJcZMKsWhix46ASUbOW2lA0PSeyHN97jMQQGkQ';
 
-const SUGGESTION_CHIPS: Record<string, string[]> = {
-  questoes: ['Gere 5 questões sobre...', 'Explique a alternativa correta de...'],
-  legislacao: ['Explique o art. X da lei Y', 'Quais as alterações recentes em...'],
-  sumulas: ['Liste as súmulas sobre...', 'O que diz a súmula X?'],
-  informativos: ['Resuma os informativos sobre...', 'Quais os temas mais cobrados?'],
-  redacao: ['Corrija minha redação:', 'Dê um tema para treinar'],
-  portugues: ['Explique o uso de...', 'Gere questões sobre...'],
-  default: ['Como posso te usar?', 'Por onde começar?'],
-};
-
-const APOIO_CHIPS = [
-  'Como funciona o sistema de tokens?',
-  'Como cancelar minha assinatura?',
-  'Como usar o histórico de conversas?',
-];
-
-function getSuggestionsForAgent(slug: string): string[] {
-  for (const [key, chips] of Object.entries(SUGGESTION_CHIPS)) {
-    if (key !== 'default' && slug.includes(key)) return chips;
-  }
-  return SUGGESTION_CHIPS.default;
-}
+// Suggestions removed — using placeholder text instead
 
 function getAccessToken(): string | null {
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -329,7 +308,7 @@ export default function ChatPage() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
-  const handleChipClick = (text: string) => { setInputText(text); textareaRef.current?.focus(); };
+  // handleChipClick removed — no more suggestion chips
   const handleNewChat = () => { setMessages([]); setConvId(null); };
 
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -573,6 +552,37 @@ export default function ChatPage() {
 
   if (!selectedAgent) return null;
 
+  // ---- Print current conversation ----
+  const handlePrintChat = () => {
+    if (messages.length === 0) { toast.info('Nenhuma mensagem para imprimir.'); return; }
+    const agentName = activeTab === 'apoio' ? 'Agente de Apoio' : selectedAgent.name;
+    const userName = user?.user_metadata?.full_name || user?.email || 'Usuário';
+    const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const now = new Date().toLocaleString('pt-BR');
+
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>${escHtml(agentName)} — Conversa</title>
+<style>
+  @page { margin: 20mm 15mm; }
+  body { font-family: 'DM Sans', sans-serif; color: #0F172A; font-size: 13px; line-height: 1.6; max-width: 700px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 18px; color: #10B981; margin-bottom: 4px; }
+  .meta { font-size: 11px; color: #64748B; margin-bottom: 24px; }
+  .message { margin-bottom: 16px; padding: 12px 16px; border-radius: 8px; }
+  .user { background: #F1F5F9; border-left: 3px solid #10B981; page-break-after: avoid; }
+  .assistant { background: #FFFFFF; border: 1px solid #E2E8F0; border-left: 3px solid #CBD5E1; }
+  .role-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; color: #64748B; }
+  .content { white-space: pre-wrap; }
+</style></head><body>
+<h1>${escHtml(agentName)}</h1>
+<div class="meta">Usuário: ${escHtml(userName)} | Data: ${now}</div>
+${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.role === 'user' ? 'Você' : 'Agente'}</div><div class="content">${escHtml(m.content)}</div></div>`).join('')}
+</body></html>`;
+
+    const win = window.open('', '_blank');
+    if (win) { win.document.write(html); win.document.close(); win.onload = () => win.print(); }
+    else { toast.error('Pop-up bloqueado. Permita pop-ups para imprimir.'); }
+  };
+
   const showUpgradeOverlay = !canUseAgent();
   const AgentIcon = getAgentIcon(selectedAgent.icon);
   const noTokens = tokensRemaining !== null && tokensRemaining <= 0 && profile?.subscription_status !== 'active';
@@ -590,6 +600,9 @@ export default function ChatPage() {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-xs">Trocar agente</Button>
+            <Button variant="ghost" size="sm" onClick={handlePrintChat} disabled={messages.length === 0}>
+              <Printer size={16} className="mr-1" /> Imprimir
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => setHistoryOpen(true)}>
               <History size={16} className="mr-1" /> Histórico
             </Button>
@@ -621,7 +634,7 @@ export default function ChatPage() {
           )}
 
           {messages.length === 0 ? (
-            <EmptyState activeTab={activeTab} agent={selectedAgent} AgentIcon={AgentIcon} onChipClick={handleChipClick} />
+            <EmptyState activeTab={activeTab} agent={selectedAgent} AgentIcon={AgentIcon} />
           ) : (
             <div className="space-y-4">
               {messages.map((msg, i) => (
@@ -674,7 +687,7 @@ export default function ChatPage() {
               value={inputText}
               onChange={e => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Digite sua mensagem..."
+              placeholder={activeTab === 'apoio' ? 'Escreva abaixo as dúvidas que você teve no agente principal' : 'Escreva abaixo o tema do edital que gostaria de estudar e a matéria que este tema faz parte. Ex: Prescrição no direito civil'}
               disabled={isStreaming || showUpgradeOverlay || isTranscribing}
               rows={1}
               className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
@@ -751,14 +764,13 @@ export default function ChatPage() {
 // --- Sub-components ---
 
 function EmptyState({
-  activeTab, agent, AgentIcon, onChipClick,
+  activeTab, agent, AgentIcon,
 }: {
-  activeTab: TabType; agent: SelectedAgent; AgentIcon: any; onChipClick: (text: string) => void;
+  activeTab: TabType; agent: SelectedAgent; AgentIcon: any;
 }) {
-  const chips = activeTab === 'apoio' ? APOIO_CHIPS : getSuggestionsForAgent(agent.slug);
   const title = activeTab === 'apoio' ? 'Agente de Apoio' : agent.name;
   const desc = activeTab === 'apoio'
-    ? 'Tire dúvidas sobre a plataforma, sua assinatura ou qualquer outra questão.'
+    ? 'Escreva abaixo as dúvidas que você teve no agente principal.'
     : agent.description || 'Como posso te ajudar?';
   const Icon = activeTab === 'apoio' ? Headset : AgentIcon;
 
@@ -769,17 +781,6 @@ function EmptyState({
       </div>
       <h2 className="font-display text-xl text-foreground mb-1">{title}</h2>
       <p className="text-sm text-muted-foreground mb-6 max-w-md">{desc}</p>
-      <div className="flex flex-wrap justify-center gap-2">
-        {chips.map((chip, i) => (
-          <button
-            key={i}
-            onClick={() => onChipClick(chip)}
-            className="rounded-full border border-border bg-card px-4 py-2 text-xs text-foreground hover:bg-secondary transition-colors"
-          >
-            {chip}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }
@@ -787,8 +788,8 @@ function EmptyState({
 const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5] as const;
 
 function getThinkingMessage(elapsedSeconds: number, useFileSearch?: boolean): string {
-  if (!useFileSearch) return 'Analisando...';
-  if (elapsedSeconds < 10) return 'Consultando base jurídica...';
+  if (!useFileSearch) return 'Consultando base de dados...';
+  if (elapsedSeconds < 10) return 'Consultando base de dados...';
   if (elapsedSeconds < 30) return 'Analisando conteúdo relevante...';
   if (elapsedSeconds < 60) return 'Elaborando resposta detalhada...';
   return 'Resposta complexa em preparação...';
@@ -867,7 +868,7 @@ function ChatBubble({
             <p className="whitespace-pre-wrap">{message.content}</p>
           ) : isThinking && !message.content ? (
             <div className="flex items-center gap-1">
-              <span className="text-sm text-muted-foreground">{useFileSearch ? 'Consultando base jurídica' : 'Analisando'}</span>
+              <span className="text-sm text-muted-foreground">Consultando base de dados</span>
               <span className="flex gap-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_infinite]" />
                 <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-[thinking-dot_1.4s_ease-in-out_0.2s_infinite]" />
