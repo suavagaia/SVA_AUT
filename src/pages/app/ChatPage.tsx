@@ -552,6 +552,37 @@ export default function ChatPage() {
 
   if (!selectedAgent) return null;
 
+  // ---- Print current conversation ----
+  const handlePrintChat = () => {
+    if (messages.length === 0) { toast.info('Nenhuma mensagem para imprimir.'); return; }
+    const agentName = activeTab === 'apoio' ? 'Agente de Apoio' : selectedAgent.name;
+    const userName = user?.user_metadata?.full_name || user?.email || 'Usuário';
+    const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const now = new Date().toLocaleString('pt-BR');
+
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>${escHtml(agentName)} — Conversa</title>
+<style>
+  @page { margin: 20mm 15mm; }
+  body { font-family: 'DM Sans', sans-serif; color: #0F172A; font-size: 13px; line-height: 1.6; max-width: 700px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 18px; color: #10B981; margin-bottom: 4px; }
+  .meta { font-size: 11px; color: #64748B; margin-bottom: 24px; }
+  .message { margin-bottom: 16px; padding: 12px 16px; border-radius: 8px; }
+  .user { background: #F1F5F9; border-left: 3px solid #10B981; page-break-after: avoid; }
+  .assistant { background: #FFFFFF; border: 1px solid #E2E8F0; border-left: 3px solid #CBD5E1; }
+  .role-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; color: #64748B; }
+  .content { white-space: pre-wrap; }
+</style></head><body>
+<h1>${escHtml(agentName)}</h1>
+<div class="meta">Usuário: ${escHtml(userName)} | Data: ${now}</div>
+${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.role === 'user' ? 'Você' : 'Agente'}</div><div class="content">${escHtml(m.content)}</div></div>`).join('')}
+</body></html>`;
+
+    const win = window.open('', '_blank');
+    if (win) { win.document.write(html); win.document.close(); win.onload = () => win.print(); }
+    else { toast.error('Pop-up bloqueado. Permita pop-ups para imprimir.'); }
+  };
+
   const showUpgradeOverlay = !canUseAgent();
   const AgentIcon = getAgentIcon(selectedAgent.icon);
   const noTokens = tokensRemaining !== null && tokensRemaining <= 0 && profile?.subscription_status !== 'active';
