@@ -730,14 +730,13 @@ export default function ChatPage() {
 // --- Sub-components ---
 
 function EmptyState({
-  activeTab, agent, AgentIcon, onChipClick,
+  activeTab, agent, AgentIcon,
 }: {
-  activeTab: TabType; agent: SelectedAgent; AgentIcon: any; onChipClick: (text: string) => void;
+  activeTab: TabType; agent: SelectedAgent; AgentIcon: any;
 }) {
-  const chips = activeTab === 'apoio' ? APOIO_CHIPS : getSuggestionsForAgent(agent.slug);
   const title = activeTab === 'apoio' ? 'Agente de Apoio' : agent.name;
   const desc = activeTab === 'apoio'
-    ? 'Tire dúvidas sobre a plataforma, sua assinatura ou qualquer outra questão.'
+    ? 'Escreva abaixo as dúvidas que você teve no agente principal.'
     : agent.description || 'Como posso te ajudar?';
   const Icon = activeTab === 'apoio' ? Headset : AgentIcon;
 
@@ -748,17 +747,6 @@ function EmptyState({
       </div>
       <h2 className="font-display text-xl text-foreground mb-1">{title}</h2>
       <p className="text-sm text-muted-foreground mb-6 max-w-md">{desc}</p>
-      <div className="flex flex-wrap justify-center gap-2">
-        {chips.map((chip, i) => (
-          <button
-            key={i}
-            onClick={() => onChipClick(chip)}
-            className="rounded-full border border-border bg-card px-4 py-2 text-xs text-foreground hover:bg-secondary transition-colors"
-          >
-            {chip}
-          </button>
-        ))}
-      </div>
     </div>
   );
 }
