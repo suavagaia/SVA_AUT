@@ -118,7 +118,7 @@ export function ChatHistoryModal({ open, onClose, userId, agentId, agentSlug, on
 </style></head><body>
 <h1>${escHtml(convTitle)}</h1>
 <div class="meta">Agente: ${escHtml(agentTitle)} | Data: ${formattedDate}</div>
-${(messages || []).map(m => `<div class="message ${m.role}"><div class="role-label">${m.role === 'user' ? 'Você' : 'Assistente'}</div><div class="content">${escHtml(m.content)}</div></div>`).join('')}
+${(messages || []).map(m => `<div class="message ${m.role}"><div class="role-label">${m.role === 'user' ? 'Você' : 'Agente'}</div><div class="content">${escHtml(m.content)}</div></div>`).join('')}
 </body></html>`;
 
     const win = window.open('', '_blank');
