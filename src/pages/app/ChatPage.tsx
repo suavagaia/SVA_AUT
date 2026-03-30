@@ -552,9 +552,9 @@ export default function ChatPage() {
 
   if (!selectedAgent) return null;
 
-  // ---- Print current conversation ----
-  const handlePrintChat = () => {
-    if (messages.length === 0) { toast.info('Nenhuma mensagem para imprimir.'); return; }
+  // ---- Build HTML for print/download ----
+  const buildChatHtml = (): string | null => {
+    if (messages.length === 0) { toast.info('Nenhuma mensagem para exportar.'); return null; }
     const agentName = activeTab === 'apoio' ? 'Agente de Apoio' : selectedAgent.name;
     const userName = user?.user_metadata?.full_name || user?.email || 'Usuário';
     const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
