@@ -754,8 +754,8 @@ function EmptyState({
 const SPEED_OPTIONS = [0.75, 1, 1.25, 1.5] as const;
 
 function getThinkingMessage(elapsedSeconds: number, useFileSearch?: boolean): string {
-  if (!useFileSearch) return 'Analisando...';
-  if (elapsedSeconds < 10) return 'Consultando base jurídica...';
+  if (!useFileSearch) return 'Consultando base de dados...';
+  if (elapsedSeconds < 10) return 'Consultando base de dados...';
   if (elapsedSeconds < 30) return 'Analisando conteúdo relevante...';
   if (elapsedSeconds < 60) return 'Elaborando resposta detalhada...';
   return 'Resposta complexa em preparação...';
