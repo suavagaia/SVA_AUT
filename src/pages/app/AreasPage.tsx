@@ -53,7 +53,12 @@ export default function AreasPage() {
   };
 
   const getIcon = (iconName: string) => {
-    const Icon = (LucideIcons as any)[iconName] || LucideIcons.BookOpen;
+    // Try exact match first, then PascalCase conversion for lowercase/kebab names
+    const pascalName = iconName
+      .split(/[-_\s]+/)
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join('');
+    const Icon = (LucideIcons as any)[iconName] || (LucideIcons as any)[pascalName] || LucideIcons.BookOpen;
     return Icon;
   };
 
