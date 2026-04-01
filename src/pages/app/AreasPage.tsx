@@ -28,19 +28,7 @@ export default function AreasPage() {
         .eq('is_active', true)
         .order('display_order');
 
-      if (data) {
-        // Fetch contest counts
-        const areasWithCounts = await Promise.all(
-          data.map(async (area) => {
-            const { count } = await supabase
-              .from('contests')
-              .select('*', { count: 'exact', head: true })
-              .eq('area_id', area.id)
-              .eq('is_active', true);
-            return { ...area, contest_count: count || 0 };
-          })
-        );
-        setAreas(areasWithCounts);
+        setAreas(data || []);
       }
       setLoading(false);
     };
