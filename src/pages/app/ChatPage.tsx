@@ -531,11 +531,8 @@ export default function ChatPage() {
       if (!res.ok) throw new Error(`Whisper error ${res.status}`);
       const data = await res.json();
       if (data.text) {
-        setInputText(data.text);
-        if (autoSend) {
-          // Small delay to let state update
-          setTimeout(() => handleSend(data.text), 100);
-        }
+        // Always auto-send after transcription
+        setTimeout(() => handleSend(data.text), 100);
       }
     } catch {
       toast.error('Erro ao transcrever áudio.');
