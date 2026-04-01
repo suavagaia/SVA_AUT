@@ -93,7 +93,7 @@ export default function AreasPage() {
                 </div>
                 <h3 className="font-display text-lg text-card-foreground">{area.name}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{area.description}</p>
-                <p className="mt-2 text-xs text-muted-foreground">{area.contest_count} concursos disponíveis</p>
+                
                 <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-emerald group-hover:underline">
                   Acessar <ArrowRight size={14} />
                 </span>
