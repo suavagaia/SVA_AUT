@@ -28,20 +28,7 @@ export default function AreasPage() {
         .eq('is_active', true)
         .order('display_order');
 
-      if (data) {
-        // Fetch contest counts
-        const areasWithCounts = await Promise.all(
-          data.map(async (area) => {
-            const { count } = await supabase
-              .from('contests')
-              .select('*', { count: 'exact', head: true })
-              .eq('area_id', area.id)
-              .eq('is_active', true);
-            return { ...area, contest_count: count || 0 };
-          })
-        );
-        setAreas(areasWithCounts);
-      }
+      if (data) setAreas(data);
       setLoading(false);
     };
     fetchAreas();
@@ -93,7 +80,7 @@ export default function AreasPage() {
                 </div>
                 <h3 className="font-display text-lg text-card-foreground">{area.name}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{area.description}</p>
-                <p className="mt-2 text-xs text-muted-foreground">{area.contest_count} concursos disponíveis</p>
+                
                 <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-emerald group-hover:underline">
                   Acessar <ArrowRight size={14} />
                 </span>

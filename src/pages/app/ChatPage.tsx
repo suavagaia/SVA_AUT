@@ -79,7 +79,6 @@ export default function ChatPage() {
   // STT state
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
-  const [autoSend, setAutoSend] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -531,11 +530,8 @@ export default function ChatPage() {
       if (!res.ok) throw new Error(`Whisper error ${res.status}`);
       const data = await res.json();
       if (data.text) {
-        setInputText(data.text);
-        if (autoSend) {
-          // Small delay to let state update
-          setTimeout(() => handleSend(data.text), 100);
-        }
+        // Always auto-send after transcription
+        setTimeout(() => handleSend(data.text), 100);
       }
     } catch {
       toast.error('Erro ao transcrever áudio.');
@@ -592,17 +588,16 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
   const handleDownloadPDF = () => {
     const html = buildChatHtml();
     if (!html) return;
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const agentName = activeTab === 'apoio' ? 'Agente de Apoio' : selectedAgent.name;
-    a.href = url;
-    a.download = `${agentName.replace(/\s+/g, '_')}_conversa.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success('Arquivo baixado! Abra e use Ctrl+P para salvar como PDF.');
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+      win.onload = () => {
+        win.print();
+      };
+    } else {
+      toast.error('Pop-up bloqueado. Permita pop-ups para baixar o PDF.');
+    }
   };
 
   const showUpgradeOverlay = !canUseAgent();
@@ -694,25 +689,13 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
 
         {/* Input Bar */}
         <div className="mt-2 rounded-lg border border-border bg-card p-3">
-          {/* Auto-send toggle */}
-          <div className="flex items-center gap-2 mb-2">
-            <label className="flex items-center gap-1.5 cursor-pointer text-xs text-muted-foreground select-none">
-              <input
-                type="checkbox"
-                checked={autoSend}
-                onChange={e => setAutoSend(e.target.checked)}
-                className="rounded border-border h-3.5 w-3.5 accent-emerald"
-              />
-              Enviar após transcrição
-            </label>
-          </div>
           <div className="flex items-end gap-2">
             <textarea
               ref={textareaRef}
               value={inputText}
               onChange={e => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={activeTab === 'apoio' ? 'Escreva abaixo as dúvidas que você teve no agente principal' : 'Escreva abaixo o tema do edital que gostaria de estudar e a matéria que este tema faz parte. Ex: Prescrição no direito civil'}
+              placeholder="Escreva aqui o tema do edital que você quer estudar"
               disabled={isStreaming || showUpgradeOverlay || isTranscribing}
               rows={1}
               className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
