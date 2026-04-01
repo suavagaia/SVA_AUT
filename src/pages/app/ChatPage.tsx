@@ -694,18 +694,6 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
 
         {/* Input Bar */}
         <div className="mt-2 rounded-lg border border-border bg-card p-3">
-          {/* Auto-send toggle */}
-          <div className="flex items-center gap-2 mb-2">
-            <label className="flex items-center gap-1.5 cursor-pointer text-xs text-muted-foreground select-none">
-              <input
-                type="checkbox"
-                checked={autoSend}
-                onChange={e => setAutoSend(e.target.checked)}
-                className="rounded border-border h-3.5 w-3.5 accent-emerald"
-              />
-              Enviar após transcrição
-            </label>
-          </div>
           <div className="flex items-end gap-2">
             <textarea
               ref={textareaRef}
