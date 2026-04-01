@@ -712,7 +712,7 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
               value={inputText}
               onChange={e => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={activeTab === 'apoio' ? 'Escreva abaixo as dúvidas que você teve no agente principal' : 'Escreva abaixo o tema do edital que gostaria de estudar e a matéria que este tema faz parte. Ex: Prescrição no direito civil'}
+              placeholder="Escreva aqui o tema do edital que você quer estudar"
               disabled={isStreaming || showUpgradeOverlay || isTranscribing}
               rows={1}
               className="flex-1 resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
