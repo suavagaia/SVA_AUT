@@ -28,8 +28,7 @@ export default function AreasPage() {
         .eq('is_active', true)
         .order('display_order');
 
-        setAreas(data || []);
-      }
+      if (data) setAreas(data);
       setLoading(false);
     };
     fetchAreas();
