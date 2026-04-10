@@ -567,7 +567,7 @@ export default function ChatPage() {
   .user { background: #F1F5F9; border-left: 3px solid #10B981; page-break-after: avoid; }
   .assistant { background: #FFFFFF; border: 1px solid #E2E8F0; border-left: 3px solid #CBD5E1; }
   .role-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; color: #64748B; }
-  .content { white-space: pre-wrap; }
+  .content { white-space: pre-wrap; text-align: justify; }
 </style></head><body>
 <h1>${escHtml(agentName)}</h1>
 <div class="meta">Usuário: ${escHtml(userName)} | Data: ${now}</div>
