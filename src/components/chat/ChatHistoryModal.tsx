@@ -99,27 +99,6 @@ export function ChatHistoryModal({ open, onClose, userId, agentId, agentSlug, on
 
     const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-    const html = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><title>${escHtml(convTitle)}</title>
-<style>
-  @page {
-    margin: 20mm 15mm;
-    @top-center { content: "Sua Vaga IA — ${escHtml(convTitle).replace(/"/g, '\\"')}"; font-family: 'DM Sans', sans-serif; font-size: 10px; color: #64748B; }
-    @bottom-center { content: "${escHtml(userName).replace(/"/g, '\\"')} • ${escHtml(userEmail).replace(/"/g, '\\"')} • ${escHtml(agentTitle).replace(/"/g, '\\"')} • ${formattedDate}"; font-family: 'DM Sans', sans-serif; font-size: 9px; color: #94A3B8; }
-  }
-  body { font-family: 'DM Sans', sans-serif; color: #0F172A; font-size: 13px; line-height: 1.6; max-width: 700px; margin: 0 auto; padding: 24px; }
-  h1 { font-size: 18px; color: #10B981; margin-bottom: 4px; }
-  .meta { font-size: 11px; color: #64748B; margin-bottom: 24px; }
-  .message { margin-bottom: 16px; padding: 12px 16px; border-radius: 8px; }
-  .user { background: #F1F5F9; border-left: 3px solid #10B981; page-break-after: avoid; }
-  .assistant { background: #FFFFFF; border: 1px solid #E2E8F0; border-left: 3px solid #CBD5E1; }
-  .role-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; color: #64748B; }
-  .content { white-space: pre-wrap; }
-</style></head><body>
-<h1>${escHtml(convTitle)}</h1>
-<div class="meta">Agente: ${escHtml(agentTitle)} | Data: ${formattedDate}</div>
-${(messages || []).map(m => `<div class="message ${m.role}"><div class="role-label">${m.role === 'user' ? 'Você' : 'Agente'}</div><div class="content">${escHtml(m.content)}</div></div>`).join('')}
-</body></html>`;
 
     try {
       toast.info('Gerando PDF...');
@@ -133,7 +112,24 @@ ${(messages || []).map(m => `<div class="message ${m.role}"><div class="role-lab
       container.style.lineHeight = '1.6';
       container.style.color = '#0F172A';
       container.style.padding = '24px';
-      container.innerHTML = html.replace(/<!DOCTYPE[\s\S]*?<body[^>]*>/i, '').replace(/<\/body[\s\S]*$/i, '');
+
+      const headerStyle = 'margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid #10B981;';
+      const msgBase = 'margin-bottom:16px;padding:12px 16px;border-radius:8px;';
+      const userStyle = msgBase + 'background:#F1F5F9;border-left:3px solid #10B981;';
+      const assistantStyle = msgBase + 'background:#FFFFFF;border:1px solid #E2E8F0;border-left:3px solid #CBD5E1;';
+      const roleStyle = 'font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;color:#64748B;';
+      const contentStyle = 'white-space:pre-wrap;';
+
+      container.innerHTML = `
+        <div style="${headerStyle}">
+          <strong style="font-size:18px;color:#10B981;">${escHtml(agentTitle)}</strong><br/>
+          <span style="font-size:11px;color:#64748B;">Usuário: ${escHtml(userEmail)} | Data: ${formattedDate}</span>
+        </div>
+        ${(messages || []).map(m => `<div style="${m.role === 'user' ? userStyle : assistantStyle}">
+          <div style="${roleStyle}">${m.role === 'user' ? 'VOCÊ' : 'AGENTE'}</div>
+          <div style="${contentStyle}">${escHtml(m.content)}</div>
+        </div>`).join('')}
+      `;
       document.body.appendChild(container);
 
       const { default: html2canvas } = await import('html2canvas');
