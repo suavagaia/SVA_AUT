@@ -99,16 +99,6 @@ export function ChatHistoryModal({ open, onClose, userId, agentId, agentSlug, on
 
     const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-    const bodyContent = `
-<div class="header">
-  <strong>${escHtml(agentTitle)}</strong><br/>
-  Usuário: ${escHtml(userEmail)} | Data: ${formattedDate}
-</div>
-${(messages || []).map(m => `<div class="message ${m.role}">
-  <span class="role-label">${m.role === 'user' ? 'VOCÊ' : 'AGENTE'}</span>
-  <div class="content">${escHtml(m.content)}</div>
-</div>`).join('')}
-`;
 
     try {
       toast.info('Gerando PDF...');
