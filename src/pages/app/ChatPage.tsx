@@ -585,56 +585,8 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
     else { toast.error('Pop-up bloqueado. Permita pop-ups para imprimir.'); }
   };
 
-  const handleDownloadPDF = async () => {
-    const html = buildChatHtml();
-    if (!html) return;
-    toast.info('Gerando PDF...');
-    try {
-      const container = document.createElement('div');
-      container.style.position = 'absolute';
-      container.style.left = '-9999px';
-      container.style.top = '0';
-      container.style.width = '700px';
-      container.style.fontFamily = 'sans-serif';
-      container.style.fontSize = '13px';
-      container.style.lineHeight = '1.6';
-      container.style.color = '#0F172A';
-      container.style.padding = '24px';
-      container.innerHTML = html.replace(/<!DOCTYPE[\s\S]*?<body[^>]*>/i, '').replace(/<\/body[\s\S]*$/i, '');
-      document.body.appendChild(container);
-
-      const { default: html2canvas } = await import('html2canvas');
-      const { jsPDF } = await import('jspdf');
-
-      const canvas = await html2canvas(container, { scale: 2, useCORS: true, logging: false });
-      document.body.removeChild(container);
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pdfWidth;
-      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      let position = 0;
-      let heightLeft = imgHeight;
-      const imgData = canvas.toDataURL('image/png');
-
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight;
-      }
-
-      const agentName = activeTab === 'apoio' ? 'agente-apoio' : (selectedAgent?.name || 'conversa');
-      pdf.save(`${agentName.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().slice(0,10)}.pdf`);
-    } catch (err) {
-      console.error('Erro ao gerar PDF:', err);
-      toast.error('Erro ao gerar o PDF. Tente novamente.');
-    }
+  const handleDownloadPDF = () => {
+    handlePrintChat();
   };
 
   const showUpgradeOverlay = !canUseAgent();
