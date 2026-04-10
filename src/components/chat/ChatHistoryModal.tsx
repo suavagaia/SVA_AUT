@@ -122,7 +122,24 @@ ${(messages || []).map(m => `<div class="message ${m.role}">
       container.style.lineHeight = '1.6';
       container.style.color = '#0F172A';
       container.style.padding = '24px';
-      container.innerHTML = html.replace(/<!DOCTYPE[\s\S]*?<body[^>]*>/i, '').replace(/<\/body[\s\S]*$/i, '');
+
+      const headerStyle = 'margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid #10B981;';
+      const msgBase = 'margin-bottom:16px;padding:12px 16px;border-radius:8px;';
+      const userStyle = msgBase + 'background:#F1F5F9;border-left:3px solid #10B981;';
+      const assistantStyle = msgBase + 'background:#FFFFFF;border:1px solid #E2E8F0;border-left:3px solid #CBD5E1;';
+      const roleStyle = 'font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;color:#64748B;';
+      const contentStyle = 'white-space:pre-wrap;';
+
+      container.innerHTML = `
+        <div style="${headerStyle}">
+          <strong style="font-size:18px;color:#10B981;">${escHtml(agentTitle)}</strong><br/>
+          <span style="font-size:11px;color:#64748B;">Usuário: ${escHtml(userEmail)} | Data: ${formattedDate}</span>
+        </div>
+        ${(messages || []).map(m => `<div style="${m.role === 'user' ? userStyle : assistantStyle}">
+          <div style="${roleStyle}">${m.role === 'user' ? 'VOCÊ' : 'AGENTE'}</div>
+          <div style="${contentStyle}">${escHtml(m.content)}</div>
+        </div>`).join('')}
+      `;
       document.body.appendChild(container);
 
       const { default: html2canvas } = await import('html2canvas');
