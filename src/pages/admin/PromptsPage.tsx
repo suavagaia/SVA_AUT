@@ -578,29 +578,6 @@ export default function AdminPromptsPage() {
                       </div>
                     )}
                   </div>
-                  <div>
-                    <Label className="text-muted-light">Resultados por busca</Label>
-                    <Input
-                      type="number"
-                      min={1}
-                      max={20}
-                      value={editing.file_search_max_results ?? 3}
-                      onChange={(e) => {
-                        const v = Math.min(20, Math.max(1, parseInt(e.target.value) || 3));
-                        updateField('file_search_max_results', v as any);
-                      }}
-                      className="mt-1 w-32 border-navy-border bg-navy-deep text-light"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Menos resultados = resposta mais rápida, porém menos abrangente. Mais resultados = resposta mais completa, porém mais lenta.
-                    </p>
-                  </div>
-                  <div className="rounded-md border border-blue-200 bg-blue-50 p-3">
-                    <p className="text-sm text-blue-800 font-medium">📚 Busca iterativa ativa</p>
-                    <p className="text-xs text-blue-700 mt-1">
-                      Quando este agente usar a base de conhecimento, ele automaticamente apresentará os resultados em grupos de <strong>{editing.file_search_max_results ?? 3}</strong> por vez e perguntará ao usuário se deseja ver mais. Essa lógica é gerenciada pela infraestrutura e não precisa ser descrita no prompt.
-                    </p>
-                  </div>
                 </div>
               )}
               <div>
