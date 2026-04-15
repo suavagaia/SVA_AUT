@@ -410,7 +410,7 @@ export default function AdminPromptsPage() {
                   <th className="pb-2 pr-4">Nome</th>
                   <th className="pb-2 pr-4">Slug</th>
                   <th className="pb-2 pr-4">Modelo</th>
-                  <th className="pb-2 pr-4">Effort</th>
+                  <th className="pb-2 pr-4">Max Tokens</th>
                   <th className="pb-2 pr-4">Ativo</th>
                   <th className="pb-2">Ações</th>
                 </tr>
@@ -421,7 +421,7 @@ export default function AdminPromptsPage() {
                     <td className="py-2 pr-4">{a.title}</td>
                     <td className="py-2 pr-4 text-muted-light">{a.slug}</td>
                     <td className="py-2 pr-4">{a.model}</td>
-                    <td className="py-2 pr-4">{a.effort}</td>
+                    <td className="py-2 pr-4">{a.max_completion_tokens ?? 8000}</td>
                     <td className="py-2 pr-4">
                       <Switch checked={a.is_active} onCheckedChange={() => toggleActive(a)} />
                     </td>
@@ -512,20 +512,7 @@ export default function AdminPromptsPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label className="text-muted-light">Effort</Label>
-                <Select value={editing.effort} onValueChange={(v) => updateField('effort', v)}>
-                  <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="minimal">minimal</SelectItem>
-                    <SelectItem value="low">low</SelectItem>
-                    <SelectItem value="medium">medium</SelectItem>
-                    <SelectItem value="high">high</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+
               <div className="flex items-center justify-between">
                 <Label className="text-muted-light">Ativo</Label>
                 <Switch checked={editing.is_active} onCheckedChange={(v) => updateField('is_active', v)} />
