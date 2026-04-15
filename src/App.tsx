@@ -105,14 +105,14 @@ const App = () => (
             <Route path="/thank-you/test" element={<ThankYouTest />} />
             <Route path="/thank-you/credits" element={<ThankYouCredits />} />
 
-            {/* Admin */}
-            <Route path="/admin" element={<AdminDashboardPage />} />
-            <Route path="/admin/users" element={<AdminUsersPage />} />
-            <Route path="/admin/prompts" element={<AdminPromptsPage />} />
-            <Route path="/admin/interactions" element={<AdminInteractionsPage />} />
-            <Route path="/admin/vector-stores" element={<AdminVectorStoresPage />} />
-            <Route path="/admin/areas" element={<AdminAreasPage />} />
-            <Route path="/admin/contests" element={<AdminContestsPage />} />
+            {/* Admin — protegido pelo AdminLayout internamente */}
+            <Route path="/admin" element={<ProtectedRoute><AdminDashboardPage /></ProtectedRoute>} />
+            <Route path="/admin/users" element={<ProtectedRoute><AdminUsersPage /></ProtectedRoute>} />
+            <Route path="/admin/prompts" element={<ProtectedRoute><AdminPromptsPage /></ProtectedRoute>} />
+            <Route path="/admin/interactions" element={<ProtectedRoute><AdminInteractionsPage /></ProtectedRoute>} />
+            <Route path="/admin/vector-stores" element={<ProtectedRoute><AdminVectorStoresPage /></ProtectedRoute>} />
+            <Route path="/admin/areas" element={<ProtectedRoute><AdminAreasPage /></ProtectedRoute>} />
+            <Route path="/admin/contests" element={<ProtectedRoute><AdminContestsPage /></ProtectedRoute>} />
 
             {/* Legal */}
             <Route path="/terms" element={<TermsPage />} />

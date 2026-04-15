@@ -39,9 +39,11 @@ const SUPABASE_ANON = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI
 
 // Suggestions removed — using placeholder text instead
 
-function getAccessToken(): string | null {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  return raw ? JSON.parse(raw)?.access_token : null;
+async function getValidAccessToken(): Promise<string | null> {
+  // Tenta pegar sessão válida via Supabase (renova automaticamente se expirada)
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.access_token) return session.access_token;
+  return null;
 }
 
 // ---- TTS audio cache (in-memory per session) ----
@@ -182,7 +184,7 @@ export default function ChatPage() {
     const text = overrideText || inputText;
     if (!text.trim() || isStreaming) return;
 
-    const accessToken = getAccessToken();
+    const accessToken = await getValidAccessToken();
     if (!accessToken) { toast.error('Sessão expirada. Faça login novamente.'); return; }
 
     const userMsg: Message = { role: 'user', content: text.trim() };
@@ -479,13 +481,24 @@ export default function ChatPage() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      // Detectar formato suportado pelo dispositivo (Android não suporta webm)
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm')
+        ? 'audio/webm'
+        : MediaRecorder.isTypeSupported('audio/mp4')
+          ? 'audio/mp4'
+          : MediaRecorder.isTypeSupported('audio/ogg')
+            ? 'audio/ogg'
+            : '';
+      const mediaRecorder = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
       mediaRecorder.ondataavailable = (e) => chunksRef.current.push(e.data);
       mediaRecorder.onstop = async () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const blobType = mimeType || 'audio/webm';
+        const blob = new Blob(chunksRef.current, { type: blobType });
         stream.getTracks().forEach(t => t.stop());
         streamRef.current = null;
         await transcribeAudio(blob);
@@ -586,6 +599,7 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
   };
 
   const handleDownloadPDF = () => {
+    // Usa o mesmo mecanismo do imprimir — window.print() gera PDF nativo
     handlePrintChat();
   };
 
@@ -627,7 +641,7 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
             </TabsList>
           </Tabs>
           <Button variant="ghost" size="sm" onClick={handleNewChat} className="text-xs">
-            <Plus size={14} className="mr-1" /> Novo Chat
+            Novo Chat
           </Button>
         </div>
 
