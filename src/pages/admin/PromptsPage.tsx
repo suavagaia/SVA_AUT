@@ -41,6 +41,7 @@ interface Agent {
   file_search_max_results: number;
   verbosity: string;
   response_format: string;
+  max_completion_tokens: number;
   subject_id: string | null;
 }
 
@@ -146,7 +147,7 @@ export default function AdminPromptsPage() {
   const fetchAgents = async () => {
     const { data } = await supabase
       .from('agents')
-      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, file_search_max_results, verbosity, response_format, subject_id')
+      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, file_search_max_results, verbosity, response_format, max_completion_tokens, subject_id')
       .order('display_order');
     setAgents((data as Agent[]) ?? []);
     setLoading(false);
@@ -215,9 +216,7 @@ export default function AdminPromptsPage() {
       tool_web_search: editing.tool_web_search,
       tool_file_search: editing.tool_file_search,
       tool_file_search_vector_store_ids: editing.tool_file_search_vector_store_ids,
-      file_search_max_results: editing.tool_file_search ? (editing.file_search_max_results ?? 3) : 3,
-      verbosity: editing.verbosity,
-      response_format: editing.response_format,
+      max_completion_tokens: editing.max_completion_tokens ?? 8000,
     }).eq('id', editing.id);
     if (error) { setSaving(false); toast.error(error.message); return; }
 
@@ -581,29 +580,19 @@ export default function AdminPromptsPage() {
                 </div>
               )}
               <div>
-                <Label className="text-muted-light">Verbosidade</Label>
-                <Select value={editing.verbosity ?? 'medium'} onValueChange={(v) => updateField('verbosity', v)}>
-                  <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Conciso (low)</SelectItem>
-                    <SelectItem value="medium">Padrão (medium)</SelectItem>
-                    <SelectItem value="high">Detalhado (high)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-muted-light">Formato de resposta</Label>
-                <Select value={editing.response_format ?? 'text'} onValueChange={(v) => updateField('response_format', v)}>
-                  <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="text">Texto (text)</SelectItem>
-                    <SelectItem value="json">JSON (json)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label className="text-muted-light">Max Completion Tokens</Label>
+                <p className="text-xs text-muted-foreground mt-1 mb-1">
+                  Limite de tokens de output (inclui raciocínio interno do modelo). Recomendado: 8000 para agentes sem busca, 12000 para agentes com busca.
+                </p>
+                <Input
+                  type="number"
+                  min={1000}
+                  max={32000}
+                  step={1000}
+                  value={editing.max_completion_tokens ?? 8000}
+                  onChange={(e) => updateField('max_completion_tokens', parseInt(e.target.value) || 8000)}
+                  className="mt-1 border-navy-border bg-navy-deep text-light w-40"
+                />
               </div>
             </div>
           )}
