@@ -42,6 +42,8 @@ interface Agent {
   verbosity: string;
   response_format: string;
   max_completion_tokens: number;
+  use_supabase_rag: boolean;
+  supabase_rag_table: string | null;
   subject_id: string | null;
 }
 
@@ -147,7 +149,7 @@ export default function AdminPromptsPage() {
   const fetchAgents = async () => {
     const { data } = await supabase
       .from('agents')
-      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, file_search_max_results, verbosity, response_format, max_completion_tokens, subject_id')
+      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, file_search_max_results, verbosity, response_format, max_completion_tokens, use_supabase_rag, supabase_rag_table, subject_id')
       .order('display_order');
     setAgents((data as Agent[]) ?? []);
     setLoading(false);
@@ -216,6 +218,8 @@ export default function AdminPromptsPage() {
       tool_web_search: editing.tool_web_search,
       tool_file_search: editing.tool_file_search,
       tool_file_search_vector_store_ids: editing.tool_file_search_vector_store_ids,
+      use_supabase_rag: editing.use_supabase_rag ?? false,
+      supabase_rag_table: editing.use_supabase_rag ? (editing.supabase_rag_table || null) : null,
       max_completion_tokens: editing.max_completion_tokens ?? 8000,
     }).eq('id', editing.id);
     if (error) { setSaving(false); toast.error(error.message); return; }
@@ -522,7 +526,7 @@ export default function AdminPromptsPage() {
                 <Switch checked={editing.tool_web_search} onCheckedChange={(v) => updateField('tool_web_search', v)} />
               </div>
               <div className="flex items-center justify-between">
-                <Label className="text-muted-light">File Search</Label>
+                <Label className="text-muted-light">File Search (Vector Store OpenAI)</Label>
                 <Switch checked={editing.tool_file_search} onCheckedChange={(v) => updateField('tool_file_search', v)} />
               </div>
               {editing.tool_file_search && (
@@ -564,6 +568,28 @@ export default function AdminPromptsPage() {
                       </div>
                     )}
                   </div>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-muted-light">Supabase RAG</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">Busca no banco de dados local antes de chamar o GPT</p>
+                </div>
+                <Switch checked={editing.use_supabase_rag ?? false} onCheckedChange={(v) => updateField('use_supabase_rag', v)} />
+              </div>
+              {editing.use_supabase_rag && (
+                <div>
+                  <Label className="text-muted-light">Tabela RAG</Label>
+                  <select
+                    value={editing.supabase_rag_table ?? ''}
+                    onChange={(e) => updateField('supabase_rag_table', e.target.value || null)}
+                    className="mt-1 w-full rounded-md border border-navy-border bg-navy-deep text-light px-3 py-2 text-sm"
+                  >
+                    <option value="">Selecione a tabela</option>
+                    <option value="informativos">informativos (STF/STJ)</option>
+                    <option value="sumulas">sumulas (STF/STJ/TST)</option>
+                    <option value="ojs_tst">ojs_tst (OJs TST)</option>
+                  </select>
                 </div>
               )}
               <div>
