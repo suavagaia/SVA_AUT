@@ -586,9 +586,11 @@ export default function AdminPromptsPage() {
                     className="mt-1 w-full rounded-md border border-navy-border bg-navy-deep text-light px-3 py-2 text-sm"
                   >
                     <option value="">Selecione a tabela</option>
-                    <option value="informativos">informativos (STF/STJ)</option>
-                    <option value="sumulas">sumulas (STF/STJ/TST)</option>
-                    <option value="ojs_tst">ojs_tst (OJs TST)</option>
+                    <option value="informativos">Informativos STF/STJ</option>
+                    <option value="sumulas">Súmulas STF/STJ/TST</option>
+                    <option value="sumulas_vinculantes">Súmulas Vinculantes STF</option>
+                    <option value="ojs_tst">OJs TST</option>
+                    <option value="jurisprudencia">Tudo (busca geral)</option>
                   </select>
                 </div>
               )}
