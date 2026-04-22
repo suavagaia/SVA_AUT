@@ -343,6 +343,11 @@ export default function LandingPage() {
         .lp-areas-grid{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid ${C.border}}
         .lp-area-cell{padding:28px;display:flex;align-items:center;gap:16px;transition:background .2s}
         .lp-area-cell:hover{background:rgba(16,185,129,0.04)}
+        .lp-plans{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid ${C.border}}
+        .lp-plan-col{padding:40px 32px 36px;display:flex;flex-direction:column;gap:24px;position:relative}
+        .lp-plan-badge{position:absolute;top:0;left:0;right:0;height:28px;font-family:${mono};font-size:10px;letter-spacing:0.2em;text-transform:uppercase;display:flex;align-items:center;justify-content:center}
+        .lp-plan-badge-on{background:${C.emerald};color:#fff}
+        .lp-plan-badge-off{background:transparent;color:${C.emerald};border-bottom:1px solid ${C.borderEm}}
         @media(max-width:900px){
           .lp-agent-head{grid-template-columns:1fr;gap:16px}
           .lp-agent-row{grid-template-columns:1fr;gap:24px;padding:36px 0}
@@ -353,6 +358,11 @@ export default function LandingPage() {
           .lp-areas-grid{grid-template-columns:repeat(2,1fr)}
           .lp-area-cell{border-right:none!important}
           .lp-area-cell:nth-child(odd){border-right:1px solid ${C.border}!important}
+        }
+        @media(max-width:900px){
+          .lp-plans{grid-template-columns:1fr}
+          .lp-plan-col{border-right:none!important;border-bottom:1px solid ${C.border}}
+          .lp-plan-col:last-child{border-bottom:none}
         }
         @media(max-width:540px){
           .lp-areas-grid{grid-template-columns:1fr}
@@ -738,158 +748,145 @@ export default function LandingPage() {
       </section>
 
       {/* ── PLANOS ── */}
-      <section className="lp-sec" style={{ background: C.navyCore }}>
-        <div className="lp-wrap" style={{ textAlign: 'center' }}>
-          <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
-            letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
-            Comece hoje mesmo
-          </span>
-          <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
-            fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px', marginBottom: '10px' }}>
-            Escolha seu plano
-          </h2>
-          <p style={{ color: C.slate, fontFamily: sans, fontSize: '15px', lineHeight: 1.7, marginBottom: '16px' }}>
-            Sem multa, sem fidelidade — cancele quando quiser.
-          </p>
+      <section id="planos" className="lp-sec lp-sec-border" style={{ background: C.navyDeep }}>
+        <div className="lp-wrap">
+          <div style={{ textAlign: 'center', marginBottom: 72 }}>
+            <div className="lp-eyebrow" style={{ marginBottom: 16 }}>§08 — Comece hoje mesmo</div>
+            <h2 style={{ fontFamily: serif, fontSize: 'clamp(40px,5.5vw,68px)', lineHeight: 1.05,
+              letterSpacing: '-0.025em', marginBottom: 16, color: C.offWhite, fontWeight: 400 }}>
+              Escolha <em style={{ fontStyle: 'italic', color: C.emeraldLight }}>seu plano</em>
+            </h2>
+            <p style={{ fontSize: 16, color: C.slateLight, fontFamily: sans }}>
+              Sem multa, sem fidelidade — cancele quando quiser.
+            </p>
+          </div>
 
-          {/* Cards de plano */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center',
-            alignItems: 'flex-start', marginBottom: '40px', padding: '16px 0' }}>
+          <div className="lp-plans">
             {/* Grátis */}
-            <div style={{ background: 'rgba(15,31,61,0.5)', border: `2px solid ${C.border}`, borderRadius: '20px',
-              padding: '32px 28px', flex: '1 1 240px', minWidth: '220px', maxWidth: '300px',
-              display: 'flex', flexDirection: 'column', gap: '0' }}>
-              <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px', fontWeight: 700,
-                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Grátis</p>
-              <div style={{ marginBottom: '4px' }}>
-                <span style={{ fontFamily: serif, color: C.offWhite, fontSize: '52px', fontWeight: 700, letterSpacing: '-1px' }}>R$ 0</span>
+            <div className="lp-plan-col" style={{ borderRight: `1px solid ${C.border}` }}>
+              <div style={{ marginBottom: 0 }}>
+                <div className="lp-eyebrow-muted" style={{ marginBottom: 20 }}>Grátis</div>
+                <div style={{ marginBottom: 4 }}>
+                  <div style={{ fontFamily: serif, fontSize: 56, letterSpacing: '-0.03em',
+                    lineHeight: 1, color: C.offWhite, whiteSpace: 'nowrap' }}>R$ 0</div>
+                  <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>
+                    para sempre
+                  </div>
+                </div>
               </div>
-              <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px', marginBottom: '0' }}>para sempre</p>
-              <div style={{ height: '1px', background: C.border, margin: '22px 0' }} />
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
-                {['Acesso limitado aos agentes', '5 gerações de cronograma de mentoria', 'Explorar a plataforma sem compromisso'].map((b, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '9px' }}>
-                    <div style={{ marginTop: '2px' }}><Tick size={13} color={C.slate} /></div>
-                    <span style={{ color: C.slate, fontFamily: sans, fontSize: '13.5px', lineHeight: 1.5 }}>{b}</span>
+              <div style={{ height: 1, background: C.border }} />
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex',
+                flexDirection: 'column', gap: 12, flex: 1 }}>
+                {['Acesso limitado aos agentes', '5 gerações de cronograma de mentoria',
+                  'Explorar a plataforma sem compromisso'].map((f, j) => (
+                  <li key={j} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                    <div style={{ marginTop: 2 }}><Tick size={13} color={C.slate} /></div>
+                    <span style={{ fontSize: 13.5, color: C.slateLight, lineHeight: 1.55, fontFamily: sans }}>
+                      {f}
+                    </span>
                   </li>
                 ))}
               </ul>
-              <Link to="/auth/signup"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',
-                  background: 'transparent', color: C.emerald, border: `2px solid ${C.emerald}`,
-                  borderRadius: '10px', fontFamily: sans, fontWeight: 600, fontSize: '14.5px',
-                  padding: '11px 24px', transition: 'all 0.18s' }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = C.emerald; (e.currentTarget as HTMLAnchorElement).style.color = '#fff'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; (e.currentTarget as HTMLAnchorElement).style.color = C.emerald; }}>
+              <Link to="/auth/signup" className="lp-cta-ghost" style={{ width: '100%', justifyContent: 'center' }}>
                 Começar Grátis
               </Link>
             </div>
 
-            {/* Mensal */}
-            <div style={{ background: C.navyMid, border: `2px solid ${C.emerald}`, borderRadius: '20px',
-              padding: '32px 28px', flex: '1 1 240px', minWidth: '220px', maxWidth: '340px',
-              display: 'flex', flexDirection: 'column', position: 'relative',
-              boxShadow: '0 0 60px rgba(16,185,129,0.12)' }}>
-              <span style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)',
-                background: C.emerald, color: '#fff', fontSize: '11px', fontWeight: 700, letterSpacing: '1px',
-                borderRadius: '100px', padding: '4px 14px', whiteSpace: 'nowrap', fontFamily: sans }}>
-                Mais Popular
-              </span>
-              <p style={{ color: C.emerald, fontFamily: sans, fontSize: '12px', fontWeight: 700,
-                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Mensal</p>
-              <div style={{ marginBottom: '4px' }}>
-                <span className="lp-gtext" style={{ fontFamily: serif, fontSize: '60px', fontWeight: 700, letterSpacing: '-1px' }}>R$ 129</span>
-                <span style={{ color: C.emeraldLight, fontFamily: sans, fontSize: '16px' }}>/mês</span>
+            {/* Mensal (featured) */}
+            <div className="lp-plan-col lp-plan-featured" style={{
+              borderRight: `1px solid ${C.border}`,
+              background: 'rgba(16,185,129,0.05)' }}>
+              <div className="lp-plan-badge lp-plan-badge-on">Mais Popular</div>
+              <div style={{ marginTop: 20 }}>
+                <div className="lp-eyebrow" style={{ marginBottom: 20 }}>Mensal</div>
+                <div style={{ marginBottom: 4 }}>
+                  <div style={{ fontFamily: serif, fontSize: 56, letterSpacing: '-0.03em',
+                    lineHeight: 1, color: C.emeraldLight, whiteSpace: 'nowrap' }}>R$ 129</div>
+                  <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>/mês</div>
+                </div>
               </div>
-              <div style={{ height: '1px', background: C.border, margin: '22px 0' }} />
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
+              <div style={{ height: 1, background: C.border }} />
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex',
+                flexDirection: 'column', gap: 12, flex: 1 }}>
                 {['600.000 tokens por mês', 'Todos os agentes especializados',
                   'Informativos STF/STJ atualizados', 'Súmulas vigentes com casos práticos',
                   'Mentoria e cronograma personalizados', 'Questões objetivas e certo/errado',
-                  'Cancele a qualquer momento'].map((b, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '9px' }}>
-                    <div style={{ marginTop: '2px' }}><Tick size={13} /></div>
-                    <span style={{ color: C.slateLight, fontFamily: sans, fontSize: '13.5px', lineHeight: 1.5 }}>{b}</span>
+                  'Cancele a qualquer momento'].map((f, j) => (
+                  <li key={j} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                    <div style={{ marginTop: 2 }}><Tick size={13} color={C.emeraldLight} /></div>
+                    <span style={{ fontSize: 13.5, color: C.slateLighter, lineHeight: 1.55, fontFamily: sans }}>
+                      {f}
+                    </span>
                   </li>
                 ))}
               </ul>
-              <button onClick={checkoutMonthly}
-                style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
-                  fontFamily: sans, fontWeight: 600, fontSize: '14.5px', padding: '11px 24px',
-                  cursor: 'pointer', transition: 'background 0.18s', width: '100%' }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
-                Assinar Agora
+              <button onClick={checkoutMonthly} className="lp-cta-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                Assinar Agora <span className="lp-arrow">→</span>
               </button>
             </div>
 
             {/* Anual */}
-            <div style={{ background: 'rgba(15,31,61,0.5)', border: `2px solid ${C.border}`, borderRadius: '20px',
-              padding: '32px 28px', flex: '1 1 240px', minWidth: '220px', maxWidth: '300px',
-              display: 'flex', flexDirection: 'column', position: 'relative' }}>
-              <span style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)',
-                background: 'rgba(16,185,129,0.15)', color: C.emeraldLight, border: `1px solid rgba(16,185,129,0.3)`,
-                fontSize: '11px', fontWeight: 700, letterSpacing: '1px',
-                borderRadius: '100px', padding: '4px 14px', whiteSpace: 'nowrap', fontFamily: sans }}>
-                Melhor Custo-Benefício
-              </span>
-              <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px', fontWeight: 700,
-                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Anual</p>
-              <div style={{ marginBottom: '4px' }}>
-                <span style={{ fontFamily: serif, color: C.offWhite, fontSize: '52px', fontWeight: 700, letterSpacing: '-1px' }}>R$ 1.290</span>
+            <div className="lp-plan-col">
+              <div className="lp-plan-badge lp-plan-badge-off">Melhor Custo-Benefício</div>
+              <div style={{ marginTop: 20 }}>
+                <div className="lp-eyebrow-muted" style={{ marginBottom: 20 }}>Anual</div>
+                <div style={{ marginBottom: 4 }}>
+                  <div style={{ fontFamily: serif, fontSize: 56, letterSpacing: '-0.03em',
+                    lineHeight: 1, color: C.offWhite, whiteSpace: 'nowrap' }}>R$ 1.290</div>
+                  <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>
+                    ≈ R$ 107,50/mês
+                  </div>
+                </div>
               </div>
-              <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px', marginBottom: '0' }}>≈ R$ 107,50/mês</p>
-              <div style={{ height: '1px', background: C.border, margin: '22px 0' }} />
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
+              <div style={{ height: 1, background: C.border }} />
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex',
+                flexDirection: 'column', gap: 12, flex: 1 }}>
                 {['600.000 tokens por ciclo', 'Todos os benefícios do plano Mensal',
-                  'Economia de R$ 258,00 vs mensal', 'Acesso por 12 meses garantido'].map((b, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '9px' }}>
-                    <div style={{ marginTop: '2px' }}><Tick size={13} color={C.slate} /></div>
-                    <span style={{ color: C.slate, fontFamily: sans, fontSize: '13.5px', lineHeight: 1.5 }}>{b}</span>
+                  'Economia de R$ 258,00 vs mensal', 'Acesso por 12 meses garantido'].map((f, j) => (
+                  <li key={j} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                    <div style={{ marginTop: 2 }}><Tick size={13} color={C.slate} /></div>
+                    <span style={{ fontSize: 13.5, color: C.slateLight, lineHeight: 1.55, fontFamily: sans }}>
+                      {f}
+                    </span>
                   </li>
                 ))}
               </ul>
-              <button onClick={checkoutAnnual}
-                style={{ background: 'transparent', color: C.emerald, border: `2px solid ${C.emerald}`,
-                  borderRadius: '10px', fontFamily: sans, fontWeight: 600, fontSize: '14.5px',
-                  padding: '11px 24px', cursor: 'pointer', transition: 'all 0.18s', width: '100%' }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.emerald; (e.currentTarget as HTMLButtonElement).style.color = '#fff'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = C.emerald; }}>
+              <button onClick={checkoutAnnual} className="lp-cta-ghost" style={{ width: '100%', justifyContent: 'center' }}>
                 Assinar Anual
               </button>
             </div>
           </div>
 
           {/* Créditos avulsos */}
-          <div style={{ background: C.navyMid, border: `1px solid ${C.border}`, borderRadius: '16px',
-            padding: '24px 28px', maxWidth: '560px', margin: '0 auto', textAlign: 'left' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ marginTop: 40, border: `1px solid ${C.border}`, padding: '28px 36px',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            gap: 24, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 32, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div className="lp-eyebrow">Add-on / Créditos</div>
               <div>
-                <p style={{ color: C.slateLight, fontFamily: sans, fontSize: '15px', fontWeight: 600, marginBottom: '4px' }}>
+                <div style={{ fontSize: 15, color: C.offWhite, fontWeight: 500,
+                  marginBottom: 2, fontFamily: sans }}>
                   Pacote de Créditos Avulsos
-                </p>
-                <p style={{ color: C.slate, fontFamily: sans, fontSize: '13.5px' }}>
+                </div>
+                <div style={{ fontSize: 13, color: C.slate, fontFamily: sans }}>
                   600.000 tokens adicionais por R$ 49,90
-                </p>
+                </div>
               </div>
-              <button onClick={checkoutCredits}
-                style={{ background: 'transparent', color: C.slateLight, border: `1px solid ${C.border}`,
-                  borderRadius: '8px', fontFamily: sans, fontWeight: 600, fontSize: '13px',
-                  padding: '9px 18px', cursor: 'pointer', transition: 'all 0.18s', flexShrink: 0 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.2)'; (e.currentTarget as HTMLButtonElement).style.color = C.offWhite; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.border; (e.currentTarget as HTMLButtonElement).style.color = C.slateLight; }}>
-                Comprar Créditos
-              </button>
             </div>
+            <button onClick={checkoutCredits} className="lp-cta-ghost" style={{ padding: '10px 20px', fontSize: 13 }}>
+              Comprar Créditos
+            </button>
           </div>
 
           {/* Pagamento */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
-            gap: '24px', marginTop: '28px', flexWrap: 'wrap' }}>
+          <div style={{ marginTop: 32, display: 'flex', justifyContent: 'center',
+            gap: 32, flexWrap: 'wrap' }}>
             {['Cartão de crédito', 'Apple Pay', 'Link (Stripe)'].map((p, i) => (
-              <span key={i} style={{ color: C.slate, fontFamily: sans, fontSize: '13px',
-                display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Tick size={12} color={C.slate} />{p}
+              <span key={i} style={{ fontFamily: mono, fontSize: 11, color: C.slate,
+                letterSpacing: '0.15em', textTransform: 'uppercase',
+                display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Tick size={11} color={C.slate} />
+                {p}
               </span>
             ))}
           </div>
@@ -897,52 +894,48 @@ export default function LandingPage() {
       </section>
 
       {/* ── NÃO PERCA TEMPO ── */}
-      <section className="lp-sec" style={{ background: `linear-gradient(160deg,${C.navyCore} 0%,${C.navyDeep} 100%)`,
-        textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
-          width: '700px', height: '350px',
-          background: 'radial-gradient(ellipse at top,rgba(16,185,129,0.07) 0%,transparent 60%)',
+      <section className="lp-sec lp-sec-border" style={{ background: C.navyCore, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '-20%', left: '50%', transform: 'translateX(-50%)',
+          width: 900, height: 600,
+          background: 'radial-gradient(ellipse at center,rgba(16,185,129,0.06) 0%,transparent 60%)',
           pointerEvents: 'none' }} />
-        <div className="lp-wrap-md" style={{ position: 'relative', zIndex: 1 }}>
-          <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(34px,6vw,58px)',
-            fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px', marginBottom: '22px' }}>
-            Não perca tempo
+        <div className="lp-wrap-sm" style={{ position: 'relative', textAlign: 'center' }}>
+          <div className="lp-eyebrow" style={{ marginBottom: 24 }}>§09</div>
+          <h2 style={{ fontFamily: serif, fontSize: 'clamp(52px,7vw,96px)', lineHeight: 1,
+            letterSpacing: '-0.03em', marginBottom: 32, color: C.offWhite, fontWeight: 400 }}>
+            Não perca <em style={{ fontStyle: 'italic', color: C.emeraldLight }}>tempo</em>
           </h2>
-          <p style={{ color: C.slateLight, fontFamily: sans, fontSize: '18px', lineHeight: 1.75,
-            maxWidth: '580px', margin: '0 auto 18px' }}>
+          <p style={{ fontSize: 19, lineHeight: 1.6, color: C.slateLighter, maxWidth: 620,
+            margin: '0 auto 32px', fontFamily: sans }}>
             Enquanto você está lendo isso, centenas de candidatos já estão usando a
             inteligência artificial para estudar de forma mais eficiente.
           </p>
-          <p style={{ color: C.offWhite, fontFamily: sans, fontSize: '17px', fontWeight: 500, marginBottom: '10px' }}>
-            A pergunta não é <em>se</em> você vai precisar dominar IA nos estudos.
+          <p style={{ fontSize: 17, color: C.offWhite, marginBottom: 12, fontFamily: sans }}>
+            A pergunta não é <em style={{ fontStyle: 'italic' }}>se</em> você vai precisar dominar IA nos estudos.
           </p>
-          <p style={{ color: C.emeraldLight, fontFamily: serif, fontSize: '22px', fontWeight: 700, marginBottom: '40px' }}>
-            A pergunta é: você vai estar na frente ou atrás dos outros candidatos?
+          <p style={{ fontFamily: serif, fontSize: 28, color: C.emeraldLight,
+            letterSpacing: '-0.015em', fontStyle: 'italic', marginBottom: 56, lineHeight: 1.3 }}>
+            A pergunta é: você vai estar na frente<br />ou atrás dos outros candidatos?
           </p>
-          <div style={{ background: 'rgba(15,31,61,0.7)', border: `1px solid ${C.borderEm}`,
-            borderRadius: '16px', padding: '22px 28px', maxWidth: '480px', margin: '0 auto 28px' }}>
-            <p style={{ color: C.slate, fontFamily: sans, fontSize: '11px', fontWeight: 700,
-              letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px' }}>Ação imediata</p>
-            <p style={{ color: C.slateLight, fontFamily: sans, fontSize: '14px', lineHeight: 1.65, marginBottom: '6px' }}>
+
+          <div style={{ display: 'inline-block', border: `1px solid ${C.borderEm}`,
+            padding: '32px 48px', marginBottom: 40,
+            background: 'rgba(6,14,31,0.5)', backdropFilter: 'blur(8px)' }}>
+            <div className="lp-eyebrow-muted" style={{ marginBottom: 8 }}>Ação imediata</div>
+            <p style={{ color: C.slateLighter, fontFamily: sans, fontSize: 14,
+              lineHeight: 1.65, marginBottom: 6 }}>
               Garanta sua vaga entre os primeiros 1000 usuários com desconto.
             </p>
-            <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px' }}>Cancele quando quiser. Sem multa, sem fidelidade.</p>
+            <p style={{ color: C.slate, fontFamily: sans, fontSize: 12 }}>
+              Cancele quando quiser. Sem multa, sem fidelidade.
+            </p>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px' }}>
-            <button onClick={checkoutMonthly}
-              style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
-                fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
-                cursor: 'pointer', transition: 'background 0.18s' }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
-              Assinar Agora — R$ 129/mês
+
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button onClick={checkoutMonthly} className="lp-cta-primary">
+              Assinar Agora — R$ 129/mês <span className="lp-arrow">→</span>
             </button>
-            <button onClick={checkoutAnnual}
-              style={{ background: 'transparent', color: C.emerald, border: `2px solid ${C.emerald}`,
-                borderRadius: '10px', fontFamily: sans, fontWeight: 600, fontSize: '16px',
-                padding: '13px 36px', cursor: 'pointer', transition: 'all 0.18s' }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.emerald; (e.currentTarget as HTMLButtonElement).style.color = '#fff'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = C.emerald; }}>
+            <button onClick={checkoutAnnual} className="lp-cta-ghost">
               Plano Anual — R$ 1.290
             </button>
           </div>
