@@ -1,500 +1,985 @@
-import { Link } from 'react-router-dom';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '@/lib/supabase';
 import { LogoIcon } from '@/components/LogoIcon';
+import { toast } from 'sonner';
 
-/* ───── Scroll animation hook ───── */
-function useScrollReveal() {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { el.classList.add('visible'); obs.unobserve(el); } },
-      { threshold: 0.15 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-  return ref;
+// ─── Price IDs Stripe ────────────────────────────────────────────────────────
+const PRICE_MONTHLY = 'price_1SUXQFGmx6vYOM03NfHHL89v';
+const PRICE_ANNUAL  = 'price_1SUXRUGmx6vYOM03MTVtneoX';
+const PRICE_CREDITS = 'price_1SAwTuGmx6vYOM03G4nuqdbQ';
+
+// ─── Dados dos agentes ───────────────────────────────────────────────────────
+const AGENTES = [
+  {
+    n: 1, titulo: 'Análise Doutrinária Completa',
+    sub: 'Sua biblioteca jurídica pessoal — IA alimentada com as melhores doutrinas',
+    itens: [
+      'Conceitos Doutrinários — Definições dos principais doutrinadores brasileiros',
+      'Histórico Completo — Evolução do instituto no direito brasileiro',
+      'Objetivo e Finalidade — Por que existe no ordenamento jurídico',
+      'Características Principais — Todas as características fundamentais explicadas',
+      'Classificações — Todas as classificações doutrinárias relevantes',
+      'Tipos/Espécies — Enumera e detalha todos os tipos existentes',
+      'Pessoas Envolvidas — Sujeitos jurídicos e seus direitos/deveres',
+      'Efeitos Jurídicos — Consequências práticas do instituto',
+      'Aspectos de Direito Material — Normas substantivas aplicáveis',
+      'Aspectos de Direito Processual — Procedimentos e competências',
+    ],
+    pq: 'Substitui 10+ livros doutrinários (economia de R$2.000+). Linguagem técnica para concursos. Exemplos práticos para fixação.',
+  },
+  {
+    n: 2, titulo: 'Legislação Sempre Atualizada',
+    sub: 'Verificação de vigência em tempo real',
+    itens: [
+      'Menciona apenas os artigos relacionados ao tema solicitado',
+      'Identifica artigos revogados total ou parcialmente',
+      'Fornece apenas legislação, provimentos e resoluções vigentes',
+    ],
+    pq: 'Seleciona apenas os artigos importantes sobre o assunto estudado. Segurança jurídica nas suas respostas.',
+  },
+  {
+    n: 3, titulo: 'Informativos STF/STJ Atualizados',
+    sub: 'Jurisprudência dos últimos anos na palma da sua mão',
+    itens: [
+      'Informativos dos Tribunais Superiores por tema solicitado',
+      'Sempre atualizados — prioriza entendimentos mais recentes',
+      'Casos práticos após cada informativo',
+      'Formato estruturado para concursos',
+      'Tese/Entendimento do tribunal',
+      'Ementa resumida da decisão',
+      'Caso prático para fixação e entendimento',
+    ],
+    pq: 'Jurisprudência é 30% da prova em muitos concursos. Informativos esquematizados custam caro em outros sites.',
+  },
+  {
+    n: 4, titulo: 'Súmulas STF/STJ',
+    sub: 'Todas as súmulas vigentes organizadas por tema',
+    itens: [
+      'Todas as súmulas não canceladas sobre qualquer tema',
+      'Verificação automática de cancelamento',
+      'Explicação didática do entendimento de cada súmula',
+      'Caso prático para cada súmula',
+      'Não informará súmulas canceladas',
+      'Organização por tema que está sendo objeto de estudo',
+    ],
+    pq: 'Súmulas caem muito em provas. Organização temática economiza horas de pesquisa.',
+  },
+  {
+    n: 5, titulo: 'Súmulas Vinculantes do STF',
+    sub: 'Todas as súmulas vinculantes por tema',
+    itens: [
+      'Base na Lei 11.417/06',
+      'Verificação de cancelamento',
+      'Casos práticos demonstrando aplicação',
+      'Explica o efeito vinculante na prática',
+      'Demonstra aplicação em órgãos públicos',
+      'Fundamentação legal completa',
+    ],
+    pq: 'Súmulas vinculantes caem muito em concursos. Aplicação prática para melhor entendimento. Não informará súmulas canceladas.',
+  },
+  {
+    n: 6, titulo: 'Questões Objetivas de 5 Alternativas',
+    sub: 'Questões de alta qualidade como as bancas fazem',
+    itens: [
+      'Questões de 5 alternativas por tema',
+      'Nível concurso público real',
+      'Fundamentação completa de todas as alternativas',
+      'Base em doutrina, súmulas, informativos e legislação vigente',
+      'Justificativa detalhada do erro de cada alternativa',
+      'Justificativa detalhada do acerto da alternativa correta',
+    ],
+    pq: 'Simulados custam caro em outros sites. Qualidade de banca organizadora. Fundamentação que ensina mais que aulas.',
+  },
+  {
+    n: 7, titulo: 'Questões Certo/Errado',
+    sub: 'Formato CESPE/CEBRASPE dominado',
+    itens: [
+      'Questões certo/errado por tema',
+      'Estilo CESPE/CEBRASPE',
+      'Justificativa da correta e da incorreta',
+      'Base em fontes oficiais exclusivamente',
+      'Nível técnico elevado, como nas bancas',
+      'Estilo pegadinha típico das bancas',
+    ],
+    pq: 'Especialização em bancas CESPE/CEBRASPE. Fundamentação que ensina a lógica da banca.',
+  },
+  {
+    n: 8, titulo: 'Mentoria e Cronograma Personalizado',
+    sub: 'Sua vida organizada para a aprovação',
+    itens: [
+      'Horário de acordar em cada dia da semana',
+      'Trabalho, deslocamento e compromissos fixos',
+      'Academia, banho e alimentação no cronograma',
+      'Tempo de estudo proporcional ao peso de cada matéria',
+      'Distribuição inteligente ao longo da semana',
+      'Máximo 2h seguidas com intervalos de 30 minutos',
+      'Aproveitamento de 100% do tempo livre',
+    ],
+    pq: 'Coaching/mentoria custa caro (R$ 2.000,00+). Cronograma personalizado de acordo com a sua rotina.',
+  },
+];
+
+const AREAS = [
+  'Direito Constitucional', 'Direito Administrativo', 'Direito Civil',
+  'Direito Penal', 'Direito Processual Civil', 'Direito Processual Penal',
+  'Direito Tributário', 'Direito Trabalhista', 'Direito Previdenciário',
+  'Direito Empresarial', 'Português', 'Raciocínio Lógico',
+  'Informática', 'Estatística', 'Arquivologia',
+];
+
+const FAQ = [
+  {
+    q: 'A inteligência artificial realmente funciona para concursos públicos?',
+    a: 'Sim. Nossa IA foi enriquecida especificamente para concursos públicos, com as melhores doutrinas, questões no nível das bancas, legislação atualizada em tempo real e informativos de jurisprudência recentes dos Tribunais Superiores.',
+  },
+  {
+    q: 'Posso cancelar a qualquer momento?',
+    a: 'Sim. Você pode cancelar sua assinatura a qualquer momento, sem multa ou burocracia. O acesso continua até o fim do período pago.',
+  },
+  {
+    q: 'A plataforma funciona no celular ou tablet?',
+    a: 'Sim. Nossa plataforma é totalmente responsiva e funciona perfeitamente em celulares, tablets e computadores. Você pode estudar onde estiver, quando quiser.',
+  },
+  {
+    q: 'Por que devo contratar o Sua Vaga IA, e não utilizar outras IAs?',
+    a: 'O Sua Vaga IA é constantemente alimentado e enriquecido com as melhores doutrinas e busca apenas fontes seguras de legislação e informativos dos Tribunais Superiores. Outras IAs buscam informações de qualquer fonte da internet, o que prejudica a credibilidade e a qualidade das informações.',
+  },
+  {
+    q: 'Quantas perguntas posso fazer com 600.000 tokens?',
+    a: 'Cada pergunta aos agentes consome em média 1.500 tokens. Com 600.000 tokens mensais, você pode fazer aproximadamente 400 interações com os agentes por ciclo. Precisa de mais? Adquira pacotes avulsos de 600.000 tokens por R$49,90.',
+  },
+];
+
+// ─── Tokens de cor SVA ───────────────────────────────────────────────────────
+const C = {
+  navyDeep:     '#060E1F',
+  navyCore:     '#0A1628',
+  navyMid:      '#0F1F3D',
+  emerald:      '#10B981',
+  emeraldLight: '#34D399',
+  emeraldDark:  '#059669',
+  slate:        '#64748B',
+  slateLight:   '#94A3B8',
+  offWhite:     '#F8FAFC',
+  border:       'rgba(255,255,255,0.07)',
+  borderEm:     'rgba(16,185,129,0.2)',
+  red:          '#F87171',
+  redBorder:    'rgba(239,68,68,0.15)',
+};
+
+const serif = "'DM Serif Display', Georgia, serif";
+const sans  = "'DM Sans', system-ui, sans-serif";
+
+// ─── Checkout helper ─────────────────────────────────────────────────────────
+async function invokeCheckout(
+  priceId: string,
+  plan: 'monthly' | 'annual' | 'credits',
+  navigate: ReturnType<typeof useNavigate>
+) {
+  const storageKey = 'sb-lxteajwzovoeclbytdrp-auth-token';
+  const raw = localStorage.getItem(storageKey);
+  const accessToken = raw ? JSON.parse(raw)?.access_token : null;
+
+  if (!accessToken) {
+    navigate('/auth/signup');
+    return;
+  }
+
+  try {
+    const successPath = plan === 'credits' ? '/thank-you/credits' : `/thank-you/${plan}`;
+    const { data, error } = await supabase.functions.invoke('create-checkout', {
+      body: {
+        price_id: priceId,
+        success_url: `${window.location.origin}${successPath}`,
+        cancel_url: `${window.location.origin}/`,
+      },
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (error) throw error;
+    if (data?.url) window.location.href = data.url;
+  } catch {
+    toast.error('Erro ao iniciar checkout. Tente novamente.');
+  }
 }
 
-function Section({ children, className = '', id, style }: { children: React.ReactNode; className?: string; id?: string; style?: React.CSSProperties }) {
-  const ref = useScrollReveal();
-  return <section id={id} ref={ref} style={style} className={`animate-on-scroll ${className}`}>{children}</section>;
+// ─── Primitivos ───────────────────────────────────────────────────────────────
+function Tick({ size = 15, color = C.emerald }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none"
+      stroke={color} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"
+      style={{ flexShrink: 0 }}>
+      <path d="M4 10l4.5 4.5L16 6" />
+    </svg>
+  );
 }
 
-/* ───── Data ───── */
-const agents = [
-  { title: 'Análise Doutrinária', subtitle: 'Sua biblioteca jurídica pessoal com IA', highlights: ['Definições dos principais doutrinadores', 'Evolução histórica do instituto', 'Classificações e tipos detalhados', 'Exemplos práticos para fixação'], value: 'Substitui 10+ livros (R$2.000+)' },
-  { title: 'Legislação Atualizada', subtitle: 'Verificação de vigência em tempo real', highlights: ['Apenas artigos relacionados ao tema', 'Identifica artigos revogados', 'Legislação, provimentos e resoluções vigentes', 'Segurança jurídica nas respostas'], value: 'Economia de horas de pesquisa' },
-  { title: 'Informativos STF/STJ', subtitle: 'Jurisprudência atualizada na palma da mão', highlights: ['Informativos por tema solicitado', 'Prioriza entendimentos recentes', 'Casos práticos após cada informativo', 'Formato estruturado para concursos'], value: '30% da prova em muitos concursos' },
-  { title: 'Súmulas STF/STJ', subtitle: 'Vigentes e organizadas por tema', highlights: ['Verificação automática de cancelamento', 'Explicação didática de cada súmula', 'Caso prático para cada súmula', 'Organização temática completa'], value: 'Economiza horas de pesquisa' },
-  { title: 'Súmulas Vinculantes', subtitle: 'Todas por tema com casos práticos', highlights: ['Base na Lei 11.417/06', 'Casos práticos de aplicação', 'Efeito vinculante explicado', 'Aplicação em órgãos públicos'], value: 'Caem muito em concursos' },
-  { title: 'Questões Objetivas', subtitle: '5 alternativas como as bancas fazem', highlights: ['Nível concurso público real', 'Fundamentação de todas as alternativas', 'Base em doutrina e legislação vigente', 'Selecione questões por tema'], value: 'Qualidade de banca organizadora' },
-  { title: 'Questões C/E', subtitle: 'Formato CESPE/CEBRASPE dominado', highlights: ['Estilo pegadinha típico das bancas', 'Precisão técnica exigida', 'Fundamentação que ensina a lógica', 'Base em fontes oficiais'], value: 'Especialização CESPE/CEBRASPE' },
-  { title: 'Mentoria & Cronograma', subtitle: 'Sua vida organizada para aprovação', highlights: ['Cronograma baseado na sua rotina', 'Tempo proporcional ao peso de cada matéria', 'Máximo 2h seguidas + intervalos', '100% do tempo livre aproveitado'], value: 'Coaching custa R$2.000+' },
-];
+interface AgentData {
+  n: number;
+  titulo: string;
+  sub: string;
+  itens: string[];
+  pq: string;
+}
 
-const areas = [
-  { name: 'Magistratura', count: 3 }, { name: 'Ministério Público', count: 3 }, { name: 'Delegado de Polícia', count: 2 },
-  { name: 'Cartórios', count: 1 }, { name: 'Procuradorias', count: 4 }, { name: 'Tribunais', count: 1 },
-  { name: 'Carreiras Policiais', count: 7 }, { name: 'OAB', count: 1 }, { name: 'Carreiras Administrativas', count: 1 },
-];
-const areasFuture = ['Defensoria Pública', 'Carreiras Fiscais'];
-
-const faqs = [
-  { q: 'Isso realmente funciona para concursos?', a: 'Sim. Nossos agentes não são um ChatGPT genérico. São alimentados com doutrina dos principais autores brasileiros, legislação vigente e jurisprudência atualizada dos Tribunais Superiores. Cada resposta é estruturada no formato que bancas cobram.' },
-  { q: 'Posso cancelar a qualquer momento?', a: 'Sim. Sem multa, sem fidelidade, sem pegadinha. Cancele pelo painel quando quiser e não será cobrado no próximo ciclo.' },
-  { q: 'Substitui meu cursinho?', a: 'A Sua Vaga IA é complementar. Ela substitui livros de doutrina, banco de questões, informativos e mentoria — economizando mais de R$4.900/mês. Muitos alunos usam junto com videoaulas e relatam que o estudo ficou muito mais organizado.' },
-  { q: 'Quais formas de pagamento?', a: 'Cartão de crédito e PIX. No plano anual (R$1.290 à vista), você economiza o equivalente a 2 meses.' },
-  { q: 'Os conteúdos ficam desatualizados?', a: 'Não. A legislação e jurisprudência são verificadas em tempo real. Informativos dos Tribunais Superiores são incorporados assim que publicados. Se uma lei muda hoje, amanhã o agente já responde com a versão atualizada.' },
-];
-
-/* ───── Component ───── */
-export default function LandingPage() {
-  const [scrolled, setScrolled] = useState(false);
-  const [expandedAgent, setExpandedAgent] = useState<number | null>(null);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const scrollTo = useCallback((id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
+function AgentCard({ ag }: { ag: AgentData }) {
+  const [exp, setExp] = useState(false);
+  const show = exp ? ag.itens : ag.itens.slice(0, 4);
+  const more = ag.itens.length - 4;
 
   return (
-    <div className="min-h-screen font-sans" style={{ background: '#080C10', color: '#F2F4F7' }}>
-      {/* Grain */}
-      <div className="grain-overlay" />
+    <div style={{ background: C.navyMid, border: `1px solid ${C.borderEm}`, borderRadius: '16px',
+      display: 'flex', flexDirection: 'column', transition: 'border-color 0.2s' }}
+      onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(16,185,129,0.45)')}
+      onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = C.borderEm)}>
 
-      {/* ═══ 1. NAVBAR ═══ */}
-      <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-        style={{ background: 'rgba(8,12,16,0.85)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-        <div className="mx-auto flex max-w-[1100px] items-center justify-between px-4 py-3 md:px-6">
-          <div className="flex items-center gap-2">
-            <LogoIcon size={32} />
-            <span className="text-lg font-semibold text-lp-text">Sua Vaga <span className="text-lp-green">IA</span></span>
+      <div style={{ padding: '22px 22px 18px', borderBottom: `1px solid ${C.border}` }}>
+        <span style={{ background: 'rgba(16,185,129,0.1)', color: C.emeraldLight,
+          border: `1px solid rgba(16,185,129,0.18)`, fontSize: '10px', fontWeight: 700,
+          letterSpacing: '2px', textTransform: 'uppercase' as const, borderRadius: '100px',
+          padding: '3px 11px', display: 'inline-block', marginBottom: '10px', fontFamily: sans }}>
+          Agente {ag.n}
+        </span>
+        <h3 style={{ fontFamily: serif, color: C.offWhite, fontSize: '18px', fontWeight: 700,
+          margin: '0 0 7px', lineHeight: 1.25 }}>{ag.titulo}</h3>
+        <p style={{ fontFamily: sans, color: C.slate, fontSize: '13.5px', lineHeight: 1.6, margin: 0 }}>
+          {ag.sub}
+        </p>
+      </div>
+
+      <div style={{ padding: '18px 22px', flex: 1, display: 'flex', flexDirection: 'column', gap: '9px' }}>
+        {show.map((item, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '9px' }}>
+            <div style={{ marginTop: '2px' }}><Tick size={13} /></div>
+            <span style={{ fontFamily: sans, color: C.slateLight, fontSize: '13px', lineHeight: 1.55 }}>{item}</span>
           </div>
-          <div className="flex items-center gap-3">
-            <Link to="/auth/login" className="text-sm text-lp-text-secondary hover:text-lp-text transition-colors">Entrar</Link>
-            <Link to="/auth/signup">
-              <button className="rounded-full px-5 py-2 text-sm font-semibold transition-all hover:-translate-y-0.5"
-                style={{ background: '#2ECC71', color: '#080C10', boxShadow: '0 4px 15px rgba(46,204,113,0.3)' }}>
-                Criar Conta Gratuita
-              </button>
+        ))}
+        {more > 0 && (
+          <button onClick={() => setExp(!exp)}
+            style={{ color: C.emeraldLight, fontFamily: sans, fontSize: '12.5px', fontWeight: 600,
+              background: 'none', border: 'none', cursor: 'pointer', padding: '3px 0 0', textAlign: 'left' as const }}>
+            {exp ? 'Mostrar menos' : `Ver mais ${more} ${more === 1 ? 'item' : 'itens'}`}
+          </button>
+        )}
+      </div>
+
+      <div style={{ padding: '0 22px 22px' }}>
+        <div style={{ background: 'rgba(16,185,129,0.06)', border: `1px solid rgba(16,185,129,0.15)`,
+          borderRadius: '10px', padding: '13px 15px' }}>
+          <p style={{ color: C.emeraldLight, fontFamily: sans, fontSize: '10px', fontWeight: 700,
+            letterSpacing: '1.5px', textTransform: 'uppercase' as const, marginBottom: '5px' }}>
+            Por que vale R$129/mês:
+          </p>
+          <p style={{ color: C.slate, fontFamily: sans, fontSize: '12.5px', lineHeight: 1.6, margin: 0 }}>
+            {ag.pq}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface FaqItemData {
+  q: string;
+  a: string;
+}
+
+function FaqItem({ item }: { item: FaqItemData }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ border: `1px solid ${open ? C.borderEm : C.border}`, borderRadius: '12px',
+      overflow: 'hidden', transition: 'border-color 0.2s', background: open ? 'rgba(16,185,129,0.03)' : 'transparent' }}>
+      <button onClick={() => setOpen(!open)} style={{ width: '100%', display: 'flex',
+        alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px',
+        padding: '20px 24px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' as const }}>
+        <span style={{ fontFamily: sans, color: C.offWhite, fontSize: '15px', fontWeight: 500, lineHeight: 1.5 }}>
+          {item.q}
+        </span>
+        <span style={{ color: C.emerald, fontSize: '22px', fontWeight: 300, flexShrink: 0, marginTop: '1px' }}>
+          {open ? '−' : '+'}
+        </span>
+      </button>
+      {open && (
+        <p style={{ fontFamily: sans, color: C.slateLight, fontSize: '14px',
+          lineHeight: 1.75, padding: '0 24px 20px', borderTop: `1px solid ${C.border}`,
+          paddingTop: '16px', margin: 0 }}>{item.a}</p>
+      )}
+    </div>
+  );
+}
+
+// ─── Landing Page Principal ───────────────────────────────────────────────────
+export default function LandingPage() {
+  const navigate = useNavigate();
+
+  const goSignup = () => navigate('/auth/signup');
+
+  const checkoutMonthly = () => invokeCheckout(PRICE_MONTHLY, 'monthly', navigate);
+  const checkoutAnnual  = () => invokeCheckout(PRICE_ANNUAL, 'annual', navigate);
+  const checkoutCredits = () => invokeCheckout(PRICE_CREDITS, 'credits', navigate);
+
+  return (
+    <div style={{ background: C.navyDeep, minHeight: '100vh', fontFamily: sans }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        a{text-decoration:none}
+        .lp-wrap{max-width:1200px;margin:0 auto}
+        .lp-wrap-sm{max-width:720px;margin:0 auto}
+        .lp-wrap-md{max-width:920px;margin:0 auto}
+        .lp-agents{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+        .lp-col2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+        .lp-areas{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+        .lp-gtext{background:linear-gradient(90deg,#10B981,#34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .lp-sec{padding:96px 20px}
+        .lp-card-hover{transition:border-color 0.2s,background 0.2s}
+        @media(max-width:768px){
+          .lp-agents{grid-template-columns:1fr}
+          .lp-col2{grid-template-columns:1fr}
+          .lp-areas{grid-template-columns:repeat(2,1fr)}
+          .lp-hide{display:none!important}
+          .lp-sec{padding:68px 16px!important}
+        }
+      `}</style>
+
+      {/* ── HEADER ── */}
+      <header style={{ position: 'sticky', top: 0, zIndex: 50,
+        background: 'rgba(6,14,31,0.93)', backdropFilter: 'blur(12px)',
+        borderBottom: `1px solid ${C.border}` }}>
+        <div className="lp-wrap" style={{ padding: '13px 20px', display: 'flex',
+          alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <LogoIcon size={32} />
+            <span style={{ fontFamily: serif, color: C.offWhite, fontSize: '20px', fontWeight: 700, letterSpacing: '-0.3px' }}>
+              Sua Vaga <span style={{ color: C.emerald }}>IA</span>
+            </span>
+          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Link to="/auth/signup" className="lp-hide"
+              style={{ color: C.slateLight, fontFamily: sans, fontSize: '14px', fontWeight: 500,
+                padding: '8px 16px', border: `1px solid ${C.border}`, borderRadius: '8px' }}>
+              Começar Grátis
+            </Link>
+            <button onClick={checkoutMonthly}
+              style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
+                fontFamily: sans, fontWeight: 600, fontSize: '13px', padding: '9px 18px',
+                cursor: 'pointer', transition: 'background 0.18s' }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
+              Assinar
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ── HERO ── */}
+      <section className="lp-sec" style={{ background: `linear-gradient(160deg,${C.navyDeep} 0%,${C.navyCore} 55%,${C.navyDeep} 100%)`,
+        textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '550px', height: '550px',
+          borderRadius: '50%', background: 'radial-gradient(circle,rgba(16,185,129,0.09) 0%,transparent 70%)',
+          pointerEvents: 'none' }} />
+        <div className="lp-wrap-md" style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px',
+            background: 'rgba(16,185,129,0.09)', border: `1px solid rgba(16,185,129,0.18)`,
+            borderRadius: '100px', padding: '5px 14px', marginBottom: '28px' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%',
+              background: C.emerald, display: 'inline-block' }} />
+            <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700, letterSpacing: '2px' }}>
+              CONCURSOS PÚBLICOS
+            </span>
+          </div>
+
+          <h1 style={{ fontFamily: serif, color: C.offWhite,
+            fontSize: 'clamp(40px,7vw,68px)', fontWeight: 700,
+            lineHeight: 1.05, letterSpacing: '-1.5px', marginBottom: '24px' }}>
+            Transforme sua preparação{' '}
+            <span className="lp-gtext">para concursos</span>
+          </h1>
+
+          <p style={{ color: C.slateLight, fontFamily: sans, fontSize: '18px',
+            lineHeight: 1.75, maxWidth: '620px', margin: '0 auto 10px' }}>
+            Inteligência Artificial enriquecida com as melhores doutrinas e jurisprudências atualizadas.
+          </p>
+
+          <p style={{ color: C.slate, fontFamily: sans, fontSize: '15px',
+            lineHeight: 1.7, maxWidth: '540px', margin: '0 auto 36px' }}>
+            Enquanto outros candidatos estudam de forma desorganizada e superficial, você terá acesso
+            à primeira plataforma brasileira de preparação completa, estruturada e personalizada para
+            concursos públicos de alto nível.
+          </p>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px', marginBottom: '36px' }}>
+            {['Acesso por celular, tablet ou computador', 'Cancele a qualquer momento', 'Sem multa, sem fidelidade'].map((b, i) => (
+              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '7px',
+                background: C.navyMid, border: `1px solid ${C.border}`, borderRadius: '100px',
+                padding: '7px 16px', color: C.slateLight, fontFamily: sans, fontSize: '13px' }}>
+                <Tick size={13} />
+                {b}
+              </span>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+            <button onClick={checkoutMonthly}
+              style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
+                fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
+                cursor: 'pointer', transition: 'background 0.18s' }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
+              Assinar Agora — R$ 129/mês
+            </button>
+            <Link to="/auth/signup"
+              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                background: 'transparent', color: C.emerald, border: `2px solid ${C.emerald}`,
+                borderRadius: '10px', fontFamily: sans, fontWeight: 600, fontSize: '16px',
+                padding: '13px 36px', transition: 'all 0.18s' }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = C.emerald; (e.currentTarget as HTMLAnchorElement).style.color = '#fff'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; (e.currentTarget as HTMLAnchorElement).style.color = C.emerald; }}>
+              Começar Grátis
             </Link>
           </div>
         </div>
-      </nav>
+      </section>
 
-      {/* ═══ 2. HERO ═══ */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center px-4 pt-20 text-center overflow-hidden">
-        {/* Glow */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 40%, rgba(46,204,113,0.08) 0%, transparent 70%)' }} />
+      {/* ── AGENTES ── */}
+      <section className="lp-sec" style={{ background: C.navyCore }}>
+        <div className="lp-wrap">
+          <div style={{ textAlign: 'center', marginBottom: '52px' }}>
+            <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
+              letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
+              O que você recebe por R$129/mês
+            </span>
+            <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
+              fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px', maxWidth: '560px', margin: '0 auto 12px' }}>
+              Agentes especializados em concursos públicos
+            </h2>
+            <p style={{ color: C.slate, fontFamily: sans, fontSize: '15px', lineHeight: 1.7 }}>
+              Cada um desenvolvido especificamente para uma área dos seus estudos.
+            </p>
+          </div>
+          <div className="lp-agents">
+            {AGENTES.map((ag) => <AgentCard key={ag.n} ag={ag} />)}
+          </div>
+        </div>
+      </section>
 
-        <div className="relative z-10 flex flex-col items-center" style={{ animationDelay: '0s' }}>
-          {/* Badge */}
-          <span className="mb-8 inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm"
-            style={{ border: '1px solid rgba(46,204,113,0.15)', background: 'rgba(46,204,113,0.08)', color: '#98A2B3' }}>
-            <span className="animate-pulse-badge text-lp-green">✦</span> Primeira plataforma de IA para concursos
-          </span>
-
-          {/* H1 */}
-          <h1 className="font-serif font-normal max-w-3xl" style={{ fontSize: 'clamp(48px, 7vw, 80px)', lineHeight: 1.05, color: '#F2F4F7' }}>
-            Passe no seu concurso<br />
-            com <em className="text-lp-green">inteligência artificial.</em>
-          </h1>
-
-          {/* Subtitle */}
-          <p className="mt-6 max-w-[580px] text-lg leading-relaxed" style={{ color: '#98A2B3' }}>
-            Doutrina, jurisprudência, questões e cronograma personalizado — 8 agentes de IA especializados trabalhando por você por{' '}
-            <strong className="text-lp-text">R$129/mês</strong>.
-          </p>
-
-          {/* CTAs */}
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-            <button onClick={() => scrollTo('pricing')}
-              className="rounded-full px-8 py-3.5 text-base font-semibold transition-all hover:-translate-y-0.5"
-              style={{ background: '#2ECC71', color: '#080C10', boxShadow: '0 8px 30px rgba(46,204,113,0.3)' }}>
-              Começar agora →
-            </button>
-            <button onClick={() => scrollTo('demo')}
-              className="rounded-full px-8 py-3.5 text-base font-medium transition-all hover:-translate-y-0.5"
-              style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: '#F2F4F7' }}>
-              Ver como funciona
+      {/* ── CUSTO-BENEFÍCIO ── */}
+      <section className="lp-sec" style={{ background: C.navyDeep }}>
+        <div className="lp-wrap-md">
+          <div style={{ textAlign: 'center', marginBottom: '44px' }}>
+            <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
+              letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
+              Análise de Custo-Benefício
+            </span>
+            <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
+              fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px' }}>
+              Quanto você economiza todo mês
+            </h2>
+          </div>
+          <div className="lp-col2">
+            <div style={{ background: C.navyMid, border: `1px solid ${C.redBorder}`, borderRadius: '16px', padding: '30px' }}>
+              <p style={{ color: C.red, fontFamily: sans, fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '22px' }}>
+                Sem o Sua Vaga IA
+              </p>
+              {[['Livros de doutrina', 'R$ 2.000+'], ['Coaching / mentoria', 'R$ 2.000+'],
+                ['Simulados', 'R$ 500+'], ['Informativos', 'R$ 400+']].map(([item, val], k) => (
+                <div key={k} style={{ display: 'flex', justifyContent: 'space-between',
+                  paddingBottom: '13px', marginBottom: '13px', borderBottom: `1px solid ${C.border}` }}>
+                  <span style={{ color: C.slate, fontFamily: sans, fontSize: '14px' }}>{item}</span>
+                  <span style={{ color: C.red, fontFamily: sans, fontSize: '14px', fontWeight: 700 }}>{val}</span>
+                </div>
+              ))}
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '4px' }}>
+                <span style={{ color: C.slateLight, fontFamily: sans, fontWeight: 600 }}>Total mensal</span>
+                <span style={{ color: C.red, fontFamily: serif, fontSize: '26px', fontWeight: 700 }}>R$ 4.900+</span>
+              </div>
+            </div>
+            <div style={{ background: C.navyMid, border: `2px solid ${C.emerald}`, borderRadius: '16px',
+              padding: '30px', boxShadow: '0 0 60px rgba(16,185,129,0.1)', display: 'flex',
+              flexDirection: 'column', justifyContent: 'space-between' }}>
+              <p style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
+                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '22px' }}>Com o Sua Vaga IA</p>
+              <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <span className="lp-gtext" style={{ fontFamily: serif, fontSize: '72px', fontWeight: 700 }}>R$ 129</span>
+                <span style={{ color: C.emeraldLight, fontFamily: sans, fontSize: '20px', fontWeight: 500 }}>/mês</span>
+                <p style={{ color: C.slate, fontFamily: sans, fontSize: '13px', marginTop: '4px' }}>
+                  ou R$ 1.290/ano (≈ R$ 107,50/mês)
+                </p>
+              </div>
+              <div style={{ background: 'rgba(16,185,129,0.08)', border: `1px solid rgba(16,185,129,0.2)`,
+                borderRadius: '12px', padding: '14px 16px', textAlign: 'center' }}>
+                <p style={{ color: C.emeraldLight, fontFamily: serif, fontSize: '18px', fontWeight: 700 }}>
+                  Economia de R$ 4.700,00+ por mês
+                </p>
+              </div>
+            </div>
+          </div>
+          <div style={{ textAlign: 'center', marginTop: '32px' }}>
+            <button onClick={checkoutMonthly}
+              style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
+                fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
+                cursor: 'pointer', transition: 'background 0.18s' }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
+              Assinar Agora
             </button>
           </div>
+        </div>
+      </section>
 
-          {/* Trust */}
-          <div className="mt-10 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm" style={{ color: '#667085' }}>
-            {['Celular, tablet ou PC', 'Cancele a qualquer momento', 'Sem multa, sem fidelidade'].map(t => (
-              <span key={t} className="flex items-center gap-1.5">
-                <span className="text-lp-green text-xs">●</span> {t}
+      {/* ── DIFERENCIAL ── */}
+      <section className="lp-sec" style={{ background: C.navyCore }}>
+        <div className="lp-wrap-md" style={{ textAlign: 'center' }}>
+          <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
+            letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
+            Nosso Diferencial
+          </span>
+          <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
+            fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px', marginBottom: '10px' }}>
+            Por que o Sua Vaga IA é diferente de tudo
+          </h2>
+          <p style={{ color: C.slate, fontFamily: sans, fontSize: '15px', lineHeight: 1.7, marginBottom: '44px' }}>
+            Primeira plataforma de IA especializada em concursos públicos
+          </p>
+          <div className="lp-col2" style={{ textAlign: 'left' }}>
+            {[
+              'Inteligência artificial enriquecida com as melhores doutrinas',
+              'IA que prioriza e seleciona os últimos entendimentos jurisprudenciais',
+              'Casos práticos que facilitam o entendimento de cada tema',
+              'Estudo organizado, completo e personalizado para o seu edital',
+            ].map((item, i) => (
+              <div key={i} className="lp-card-hover" style={{ background: C.navyMid, border: `1px solid ${C.border}`,
+                borderRadius: '14px', padding: '20px', display: 'flex', alignItems: 'flex-start', gap: '13px' }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = C.borderEm)}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = C.border)}>
+                <div style={{ width: '30px', height: '30px', borderRadius: '8px',
+                  background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', flexShrink: 0, marginTop: '1px' }}>
+                  <Tick size={14} />
+                </div>
+                <p style={{ color: C.slateLight, fontFamily: sans, fontSize: '14px', lineHeight: 1.6 }}>{item}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── ÁREAS ATENDIDAS ── */}
+      <section className="lp-sec" style={{ background: C.navyDeep }}>
+        <div className="lp-wrap" style={{ textAlign: 'center' }}>
+          <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
+            letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
+            Expansão Constante
+          </span>
+          <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
+            fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px', marginBottom: '8px' }}>
+            Áreas atendidas
+          </h2>
+          <p style={{ color: C.slate, fontFamily: sans, fontSize: '15px', marginBottom: '36px' }}>
+            Disponíveis agora
+          </p>
+          <div className="lp-areas" style={{ marginBottom: '36px' }}>
+            {AREAS.map((area, i) => (
+              <div key={i} className="lp-card-hover" style={{ background: C.navyMid, border: `1px solid ${C.border}`,
+                borderRadius: '12px', padding: '16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = C.borderEm)}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = C.border)}>
+                <span style={{ color: C.slateLight, fontFamily: sans, fontSize: '13px', fontWeight: 500, lineHeight: 1.3 }}>{area}</span>
+              </div>
+            ))}
+          </div>
+          <button onClick={checkoutMonthly}
+            style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
+              fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
+              cursor: 'pointer', transition: 'background 0.18s' }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
+            Assinar Agora
+          </button>
+        </div>
+      </section>
+
+      {/* ── O QUE VOCÊ GANHA ── */}
+      <section className="lp-sec" style={{ background: C.navyCore }}>
+        <div className="lp-wrap-sm">
+          <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+            <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
+              letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
+              Acesso imediato
+            </span>
+            <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
+              fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px' }}>
+              O que você ganha hoje
+            </h2>
+          </div>
+          <div style={{ background: C.navyMid, border: `1px solid ${C.borderEm}`, borderRadius: '20px', padding: '30px' }}>
+            {[
+              'Agentes de IA especializados em concursos públicos',
+              'Análise doutrinária completa de qualquer tema do edital',
+              'Legislação sempre atualizada',
+              'Informativos dos últimos anos (STF e STJ)',
+              'Todas as súmulas vigentes com casos práticos',
+              'Súmulas vinculantes explicadas e com casos práticos',
+              'Questões objetivas com explicação de cada alternativa',
+              'Questões certo/errado com explicação e fundamentação',
+              'Mentoria e gestão personalizada do tempo',
+              '600.000 tokens por ciclo (≈ 400 interações)',
+              'Atualizações constantes',
+            ].map((item, i, arr) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '11px',
+                paddingBottom: i < arr.length - 1 ? '13px' : 0,
+                marginBottom: i < arr.length - 1 ? '13px' : 0,
+                borderBottom: i < arr.length - 1 ? `1px solid ${C.border}` : 'none' }}>
+                <Tick size={14} />
+                <span style={{ color: C.slateLight, fontFamily: sans, fontSize: '14.5px' }}>{item}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ textAlign: 'center', marginTop: '28px' }}>
+            <button onClick={checkoutMonthly}
+              style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
+                fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
+                cursor: 'pointer', transition: 'background 0.18s' }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
+              Assinar Agora
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── ECONOMIA DE TEMPO ── */}
+      <section className="lp-sec" style={{ background: C.navyDeep }}>
+        <div className="lp-wrap-md">
+          <div style={{ textAlign: 'center', marginBottom: '44px' }}>
+            <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
+              letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
+              Eficiência
+            </span>
+            <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
+              fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px' }}>
+              Quanto tempo você vai economizar
+            </h2>
+          </div>
+          <div className="lp-col2">
+            <div style={{ background: C.navyMid, border: `1px solid ${C.redBorder}`, borderRadius: '16px', padding: '26px' }}>
+              <p style={{ color: C.red, fontFamily: sans, fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '18px' }}>
+                Sem o Sua Vaga IA
+              </p>
+              {['Pesquisar legislação manualmente', 'Encontrar súmulas por conta própria',
+                'Buscar informativos dispersos', 'Pesquisar questões em vários sites',
+                'Organizar cronograma ou pagar mentoria'].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '11px' }}>
+                  <span style={{ color: '#EF4444', fontFamily: 'monospace', marginTop: '1px', flexShrink: 0 }}>—</span>
+                  <span style={{ color: C.slate, fontFamily: sans, fontSize: '14px' }}>{item}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ background: C.navyMid, border: `1px solid ${C.borderEm}`, borderRadius: '16px', padding: '26px' }}>
+              <p style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '18px' }}>
+                Com o Sua Vaga IA
+              </p>
+              {['Todo o conteúdo pronto e organizado', 'Economia de tempo e dinheiro',
+                'Legislação sempre atualizada', 'Melhores doutrinas sobre o tema',
+                'Informativos de jurisprudência atualizados', 'Questões de concursos para fixação',
+                'Casos práticos para entendimento', 'Mentoria e gestão do tempo'].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '9px', marginBottom: '11px' }}>
+                  <div style={{ marginTop: '2px' }}><Tick size={13} /></div>
+                  <span style={{ color: C.slateLight, fontFamily: sans, fontSize: '14px' }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── PLANOS ── */}
+      <section className="lp-sec" style={{ background: C.navyCore }}>
+        <div className="lp-wrap" style={{ textAlign: 'center' }}>
+          <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
+            letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
+            Comece hoje mesmo
+          </span>
+          <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
+            fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px', marginBottom: '10px' }}>
+            Escolha seu plano
+          </h2>
+          <p style={{ color: C.slate, fontFamily: sans, fontSize: '15px', lineHeight: 1.7, marginBottom: '16px' }}>
+            Sem multa, sem fidelidade — cancele quando quiser.
+          </p>
+
+          {/* Cards de plano */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center',
+            alignItems: 'flex-start', marginBottom: '40px', padding: '16px 0' }}>
+            {/* Grátis */}
+            <div style={{ background: 'rgba(15,31,61,0.5)', border: `2px solid ${C.border}`, borderRadius: '20px',
+              padding: '32px 28px', flex: '1 1 240px', minWidth: '220px', maxWidth: '300px',
+              display: 'flex', flexDirection: 'column', gap: '0' }}>
+              <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px', fontWeight: 700,
+                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Grátis</p>
+              <div style={{ marginBottom: '4px' }}>
+                <span style={{ fontFamily: serif, color: C.offWhite, fontSize: '52px', fontWeight: 700, letterSpacing: '-1px' }}>R$ 0</span>
+              </div>
+              <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px', marginBottom: '0' }}>para sempre</p>
+              <div style={{ height: '1px', background: C.border, margin: '22px 0' }} />
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
+                {['Acesso limitado aos agentes', '5 gerações de cronograma de mentoria', 'Explorar a plataforma sem compromisso'].map((b, i) => (
+                  <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '9px' }}>
+                    <div style={{ marginTop: '2px' }}><Tick size={13} color={C.slate} /></div>
+                    <span style={{ color: C.slate, fontFamily: sans, fontSize: '13.5px', lineHeight: 1.5 }}>{b}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link to="/auth/signup"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%',
+                  background: 'transparent', color: C.emerald, border: `2px solid ${C.emerald}`,
+                  borderRadius: '10px', fontFamily: sans, fontWeight: 600, fontSize: '14.5px',
+                  padding: '11px 24px', transition: 'all 0.18s' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = C.emerald; (e.currentTarget as HTMLAnchorElement).style.color = '#fff'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; (e.currentTarget as HTMLAnchorElement).style.color = C.emerald; }}>
+                Começar Grátis
+              </Link>
+            </div>
+
+            {/* Mensal */}
+            <div style={{ background: C.navyMid, border: `2px solid ${C.emerald}`, borderRadius: '20px',
+              padding: '32px 28px', flex: '1 1 240px', minWidth: '220px', maxWidth: '340px',
+              display: 'flex', flexDirection: 'column', position: 'relative',
+              boxShadow: '0 0 60px rgba(16,185,129,0.12)' }}>
+              <span style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)',
+                background: C.emerald, color: '#fff', fontSize: '11px', fontWeight: 700, letterSpacing: '1px',
+                borderRadius: '100px', padding: '4px 14px', whiteSpace: 'nowrap', fontFamily: sans }}>
+                Mais Popular
+              </span>
+              <p style={{ color: C.emerald, fontFamily: sans, fontSize: '12px', fontWeight: 700,
+                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Mensal</p>
+              <div style={{ marginBottom: '4px' }}>
+                <span className="lp-gtext" style={{ fontFamily: serif, fontSize: '60px', fontWeight: 700, letterSpacing: '-1px' }}>R$ 129</span>
+                <span style={{ color: C.emeraldLight, fontFamily: sans, fontSize: '16px' }}>/mês</span>
+              </div>
+              <div style={{ height: '1px', background: C.border, margin: '22px 0' }} />
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
+                {['600.000 tokens por mês', 'Todos os agentes especializados',
+                  'Informativos STF/STJ atualizados', 'Súmulas vigentes com casos práticos',
+                  'Mentoria e cronograma personalizados', 'Questões objetivas e certo/errado',
+                  'Cancele a qualquer momento'].map((b, i) => (
+                  <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '9px' }}>
+                    <div style={{ marginTop: '2px' }}><Tick size={13} /></div>
+                    <span style={{ color: C.slateLight, fontFamily: sans, fontSize: '13.5px', lineHeight: 1.5 }}>{b}</span>
+                  </li>
+                ))}
+              </ul>
+              <button onClick={checkoutMonthly}
+                style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
+                  fontFamily: sans, fontWeight: 600, fontSize: '14.5px', padding: '11px 24px',
+                  cursor: 'pointer', transition: 'background 0.18s', width: '100%' }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
+                Assinar Agora
+              </button>
+            </div>
+
+            {/* Anual */}
+            <div style={{ background: 'rgba(15,31,61,0.5)', border: `2px solid ${C.border}`, borderRadius: '20px',
+              padding: '32px 28px', flex: '1 1 240px', minWidth: '220px', maxWidth: '300px',
+              display: 'flex', flexDirection: 'column', position: 'relative' }}>
+              <span style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)',
+                background: 'rgba(16,185,129,0.15)', color: C.emeraldLight, border: `1px solid rgba(16,185,129,0.3)`,
+                fontSize: '11px', fontWeight: 700, letterSpacing: '1px',
+                borderRadius: '100px', padding: '4px 14px', whiteSpace: 'nowrap', fontFamily: sans }}>
+                Melhor Custo-Benefício
+              </span>
+              <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px', fontWeight: 700,
+                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Anual</p>
+              <div style={{ marginBottom: '4px' }}>
+                <span style={{ fontFamily: serif, color: C.offWhite, fontSize: '52px', fontWeight: 700, letterSpacing: '-1px' }}>R$ 1.290</span>
+              </div>
+              <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px', marginBottom: '0' }}>≈ R$ 107,50/mês</p>
+              <div style={{ height: '1px', background: C.border, margin: '22px 0' }} />
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
+                {['600.000 tokens por ciclo', 'Todos os benefícios do plano Mensal',
+                  'Economia de R$ 258,00 vs mensal', 'Acesso por 12 meses garantido'].map((b, i) => (
+                  <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '9px' }}>
+                    <div style={{ marginTop: '2px' }}><Tick size={13} color={C.slate} /></div>
+                    <span style={{ color: C.slate, fontFamily: sans, fontSize: '13.5px', lineHeight: 1.5 }}>{b}</span>
+                  </li>
+                ))}
+              </ul>
+              <button onClick={checkoutAnnual}
+                style={{ background: 'transparent', color: C.emerald, border: `2px solid ${C.emerald}`,
+                  borderRadius: '10px', fontFamily: sans, fontWeight: 600, fontSize: '14.5px',
+                  padding: '11px 24px', cursor: 'pointer', transition: 'all 0.18s', width: '100%' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.emerald; (e.currentTarget as HTMLButtonElement).style.color = '#fff'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = C.emerald; }}>
+                Assinar Anual
+              </button>
+            </div>
+          </div>
+
+          {/* Créditos avulsos */}
+          <div style={{ background: C.navyMid, border: `1px solid ${C.border}`, borderRadius: '16px',
+            padding: '24px 28px', maxWidth: '560px', margin: '0 auto', textAlign: 'left' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <p style={{ color: C.slateLight, fontFamily: sans, fontSize: '15px', fontWeight: 600, marginBottom: '4px' }}>
+                  Pacote de Créditos Avulsos
+                </p>
+                <p style={{ color: C.slate, fontFamily: sans, fontSize: '13.5px' }}>
+                  600.000 tokens adicionais por R$ 49,90
+                </p>
+              </div>
+              <button onClick={checkoutCredits}
+                style={{ background: 'transparent', color: C.slateLight, border: `1px solid ${C.border}`,
+                  borderRadius: '8px', fontFamily: sans, fontWeight: 600, fontSize: '13px',
+                  padding: '9px 18px', cursor: 'pointer', transition: 'all 0.18s', flexShrink: 0 }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.2)'; (e.currentTarget as HTMLButtonElement).style.color = C.offWhite; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = C.border; (e.currentTarget as HTMLButtonElement).style.color = C.slateLight; }}>
+                Comprar Créditos
+              </button>
+            </div>
+          </div>
+
+          {/* Pagamento */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: '24px', marginTop: '28px', flexWrap: 'wrap' }}>
+            {['Cartão de crédito', 'Apple Pay', 'Link (Stripe)'].map((p, i) => (
+              <span key={i} style={{ color: C.slate, fontFamily: sans, fontSize: '13px',
+                display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Tick size={12} color={C.slate} />{p}
               </span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══ 3. AUTHORITY BAR ═══ */}
-      <Section>
-        <div className="py-10 px-4" style={{ background: '#0F1419', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <div className="mx-auto grid max-w-[1100px] grid-cols-2 gap-8 md:grid-cols-4">
-            {[{ n: '8', l: 'Agentes especializados' }, { n: '23+', l: 'Concursos cobertos' }, { n: '11', l: 'Áreas do Direito' }, { n: '24/7', l: 'Sempre disponível' }].map(m => (
-              <div key={m.n} className="text-center">
-                <div className="font-serif text-4xl text-lp-green">{m.n}</div>
-                <div className="mt-1 text-sm text-lp-text-muted">{m.l}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* ═══ 4. PROBLEM ═══ */}
-      <Section className="px-4 py-24 md:py-32">
-        <div className="mx-auto max-w-[1100px]">
-          <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4">O Problema</p>
-          <h2 className="font-serif font-normal" style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: 1.1, color: '#F2F4F7' }}>
-            Estudar para concurso não deveria<br />custar uma fortuna.
+      {/* ── NÃO PERCA TEMPO ── */}
+      <section className="lp-sec" style={{ background: `linear-gradient(160deg,${C.navyCore} 0%,${C.navyDeep} 100%)`,
+        textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
+          width: '700px', height: '350px',
+          background: 'radial-gradient(ellipse at top,rgba(16,185,129,0.07) 0%,transparent 60%)',
+          pointerEvents: 'none' }} />
+        <div className="lp-wrap-md" style={{ position: 'relative', zIndex: 1 }}>
+          <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(34px,6vw,58px)',
+            fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px', marginBottom: '22px' }}>
+            Não perca tempo
           </h2>
-          <div className="mt-14 grid gap-5 md:grid-cols-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
-            {[
-              { title: 'Material caro e disperso', text: 'Livros de doutrina, banco de questões, informativos, mentoria — tudo separado, tudo caro. Facilmente R$4.900/mês se quiser ter uma preparação completa.' },
-              { title: 'A sensação de estar ficando para trás', text: 'Você estuda, mas não sabe se está estudando certo. O edital é enorme, o tempo é curto, e parece que todo mundo está mais preparado que você.' },
-              { title: 'Preparação completa não pode ser privilégio', text: 'Não é justo que só quem pode investir milhares por mês tenha acesso a doutrina de qualidade, jurisprudência organizada e questões bem fundamentadas.' },
-            ].map(c => (
-              <div key={c.title} className="rounded-[20px] p-8 transition-all duration-300 hover:-translate-y-1"
-                style={{ background: '#0F1419', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <h3 className="font-serif text-xl text-lp-text mb-3">{c.title}</h3>
-                <p className="text-sm leading-relaxed text-lp-text-secondary">{c.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* ═══ 5. GUIDE + PLAN ═══ */}
-      <Section className="px-4 py-24 md:py-32">
-        <div className="mx-auto max-w-[1100px]">
-          <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4">A Solução</p>
-          <h2 className="font-serif font-normal" style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: 1.1, color: '#F2F4F7' }}>
-            Sua Vaga IA organiza tudo para você.
-          </h2>
-          <p className="mt-5 max-w-2xl text-lp-text-secondary leading-relaxed">
-            A primeira plataforma de IA feita exclusivamente para concursos públicos. Não é um ChatGPT genérico — são 8 agentes treinados com doutrina real, legislação vigente e jurisprudência dos Tribunais Superiores.
+          <p style={{ color: C.slateLight, fontFamily: sans, fontSize: '18px', lineHeight: 1.75,
+            maxWidth: '580px', margin: '0 auto 18px' }}>
+            Enquanto você está lendo isso, centenas de candidatos já estão usando a
+            inteligência artificial para estudar de forma mais eficiente.
           </p>
-
-          {/* 3 Steps */}
-          <div className="mt-16 grid gap-5 md:grid-cols-3 relative">
-            {/* Connector line */}
-            <div className="hidden md:block absolute top-12 left-[17%] right-[17%] border-t border-dashed" style={{ borderColor: 'rgba(46,204,113,0.2)' }} />
-            {[
-              { n: '1', t: 'Crie sua conta', d: 'Leva menos de 1 minuto. Sem cartão para começar.' },
-              { n: '2', t: 'Escolha seu concurso', d: 'Magistratura, MP, Delegado, Cartórios, OAB e mais 6 áreas.' },
-              { n: '3', t: 'Estude com IA', d: '8 agentes especializados entregam doutrina, legislação, questões e cronograma sob demanda.' },
-            ].map(s => (
-              <div key={s.n} className="relative rounded-2xl p-7 text-center"
-                style={{ background: '#0F1419', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <div className="font-serif text-5xl text-lp-green mb-3">{s.n}</div>
-                <h3 className="font-serif text-xl text-lp-text mb-2">{s.t}</h3>
-                <p className="text-sm text-lp-text-secondary">{s.d}</p>
-              </div>
-            ))}
+          <p style={{ color: C.offWhite, fontFamily: sans, fontSize: '17px', fontWeight: 500, marginBottom: '10px' }}>
+            A pergunta não é <em>se</em> você vai precisar dominar IA nos estudos.
+          </p>
+          <p style={{ color: C.emeraldLight, fontFamily: serif, fontSize: '22px', fontWeight: 700, marginBottom: '40px' }}>
+            A pergunta é: você vai estar na frente ou atrás dos outros candidatos?
+          </p>
+          <div style={{ background: 'rgba(15,31,61,0.7)', border: `1px solid ${C.borderEm}`,
+            borderRadius: '16px', padding: '22px 28px', maxWidth: '480px', margin: '0 auto 28px' }}>
+            <p style={{ color: C.slate, fontFamily: sans, fontSize: '11px', fontWeight: 700,
+              letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px' }}>Ação imediata</p>
+            <p style={{ color: C.slateLight, fontFamily: sans, fontSize: '14px', lineHeight: 1.65, marginBottom: '6px' }}>
+              Garanta sua vaga entre os primeiros 1000 usuários com desconto.
+            </p>
+            <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px' }}>Cancele quando quiser. Sem multa, sem fidelidade.</p>
           </div>
-        </div>
-      </Section>
-
-      {/* ═══ 6. DEMO ═══ */}
-      <Section id="demo" className="px-4 py-24 md:py-32 scroll-mt-20">
-        <div className="mx-auto max-w-[1100px]">
-          <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4">Veja na prática</p>
-          <h2 className="font-serif font-normal mb-12" style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: 1.1, color: '#F2F4F7' }}>
-            Pergunte qualquer tema do edital.
-          </h2>
-
-          <div className="rounded-3xl overflow-hidden" style={{ background: '#0F1419', border: '1px solid rgba(255,255,255,0.06)' }}>
-            {/* macOS bar */}
-            <div className="flex items-center gap-2 px-5 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <div className="flex gap-1.5">
-                <span className="h-3 w-3 rounded-full" style={{ background: '#FF5F57' }} />
-                <span className="h-3 w-3 rounded-full" style={{ background: '#FEBC2E' }} />
-                <span className="h-3 w-3 rounded-full" style={{ background: '#28C840' }} />
-              </div>
-              <span className="ml-3 text-xs text-lp-text-muted">Sua Vaga IA — Agente de Análise Doutrinária</span>
-            </div>
-
-            <div className="p-6 md:p-8 space-y-6">
-              {/* User message */}
-              <div className="flex justify-end">
-                <div className="max-w-md rounded-[20px_20px_4px_20px] px-5 py-3 text-sm font-medium"
-                  style={{ background: '#2ECC71', color: '#080C10' }}>
-                  Explique os requisitos da prisão preventiva segundo a doutrina majoritária
-                </div>
-              </div>
-
-              {/* AI response */}
-              <div className="flex gap-3">
-                <div className="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-sm"
-                  style={{ background: 'rgba(46,204,113,0.15)', color: '#2ECC71' }}>✦</div>
-                <div className="rounded-2xl px-5 py-4 max-w-2xl space-y-4" style={{ background: '#1A222B' }}>
-                  <p className="font-semibold text-lp-text">Análise Doutrinária — Prisão Preventiva</p>
-                  <div>
-                    <p className="text-sm font-semibold text-lp-green mb-1">Conceito:</p>
-                    <p className="text-sm text-lp-text-secondary leading-relaxed">
-                      A prisão preventiva é medida cautelar de natureza pessoal, prevista nos arts. 311 a 316 do CPP, que consiste na privação da liberdade do acusado antes do trânsito em julgado da sentença condenatória.
-                    </p>
-                  </div>
-                  <div className="pl-4" style={{ borderLeft: '2px solid rgba(46,204,113,0.3)' }}>
-                    <p className="text-sm font-semibold text-lp-text mb-1">Requisitos (Norberto Avena, Renato Brasileiro):</p>
-                    <p className="text-sm text-lp-text-secondary leading-relaxed">
-                      Prova da existência do crime (materialidade) e indício suficiente de autoria, cumulados com pelo menos uma das hipóteses do art. 312 do CPP...
-                    </p>
-                  </div>
-                  <div className="rounded-xl px-4 py-3 text-sm" style={{ background: 'rgba(46,204,113,0.08)', border: '1px solid rgba(46,204,113,0.15)' }}>
-                    <span className="text-lp-green">✦</span> <span className="text-lp-text-secondary">Resposta completa com 12 tópicos, classificações, e caso prático…</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* ═══ 7. AGENTS ═══ */}
-      <Section className="px-4 py-24 md:py-32">
-        <div className="mx-auto max-w-[1100px]">
-          <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4">Seu arsenal completo</p>
-          <h2 className="font-serif font-normal" style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: 1.1, color: '#F2F4F7' }}>
-            8 agentes trabalhando por você.
-          </h2>
-          <p className="mt-4 text-lp-text-secondary">Cada um especializado em uma área dos seus estudos — tudo por R$129/mês.</p>
-
-          <div className="mt-14 grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
-            {agents.map((a, i) => {
-              const isOpen = expandedAgent === i;
-              return (
-                <div key={i} onClick={() => setExpandedAgent(isOpen ? null : i)}
-                  className="cursor-pointer rounded-[20px] p-6 transition-all duration-300"
-                  style={{
-                    background: '#0F1419',
-                    border: isOpen ? '1px solid rgba(46,204,113,0.3)' : '1px solid rgba(255,255,255,0.06)',
-                    boxShadow: isOpen ? '0 -4px 20px rgba(46,204,113,0.1)' : 'none',
-                    transform: isOpen ? 'translateY(-4px)' : 'none',
-                  }}>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-lp-green">Agente {i + 1}</p>
-                      <h3 className="font-serif text-lg text-lp-text mt-0.5">{a.title}</h3>
-                      <p className="text-sm italic text-lp-text-muted mt-1">{a.subtitle}</p>
-                    </div>
-                    <span className="text-lp-text-muted text-xl transition-transform duration-300" style={{ transform: isOpen ? 'rotate(45deg)' : 'none' }}>+</span>
-                  </div>
-                  {isOpen && (
-                    <div className="mt-4 space-y-2 border-t pt-4" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-                      {a.highlights.map(h => (
-                        <p key={h} className="flex items-start gap-2 text-sm text-lp-text-secondary">
-                          <span className="text-lp-green mt-0.5">✓</span> {h}
-                        </p>
-                      ))}
-                      <p className="text-sm font-semibold text-lp-green mt-3">{a.value}</p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </Section>
-
-      {/* ═══ 8. FAILURE vs SUCCESS ═══ */}
-      <Section className="px-4 py-24 md:py-32">
-        <div className="mx-auto max-w-[1100px]">
-          <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4 text-center">A escolha é sua</p>
-          <h2 className="font-serif font-normal text-center" style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: 1.1, color: '#F2F4F7' }}>
-            Dois caminhos. Um resultado.
-          </h2>
-
-          <div className="mt-14 mx-auto grid max-w-[800px] gap-5 md:grid-cols-2">
-            {/* Failure */}
-            <div className="rounded-[20px] p-8" style={{ background: '#0F1419', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <p className="text-xs font-bold uppercase tracking-widest text-lp-coral mb-6">● Continuar como está</p>
-              <div className="space-y-3">
-                {['Gastar R$4.900+/mês em materiais separados', 'Estudar de forma desorganizada e insegura', 'Não saber se a legislação está atualizada', 'Perder tempo procurando jurisprudência', 'Ver outros candidatos passando na sua frente'].map(t => (
-                  <p key={t} className="flex items-start gap-2 text-sm text-lp-text-secondary">
-                    <span className="text-lp-coral mt-0.5">✗</span> {t}
-                  </p>
-                ))}
-              </div>
-              <p className="mt-6 text-lg text-lp-coral line-through">R$ 4.900+/mês</p>
-            </div>
-
-            {/* Success */}
-            <div className="relative rounded-[20px] p-8"
-              style={{ background: 'linear-gradient(135deg, rgba(46,204,113,0.05) 0%, rgba(46,204,113,0.02) 100%)', border: '1px solid rgba(46,204,113,0.3)' }}>
-              <span className="absolute top-4 right-4 rounded-full px-3 py-1 text-xs font-bold"
-                style={{ background: '#2ECC71', color: '#080C10' }}>97% OFF</span>
-              <p className="text-xs font-bold uppercase tracking-widest text-lp-green mb-6">● Estudar com Sua Vaga IA</p>
-              <div className="space-y-3">
-                {['Tudo em um só lugar por R$129/mês', 'Doutrina dos melhores autores brasileiros', 'Legislação verificada em tempo real', 'Cronograma personalizado para sua rotina', 'Nível de preparação dos melhores candidatos'].map(t => (
-                  <p key={t} className="flex items-start gap-2 text-sm text-lp-text-secondary">
-                    <span className="text-lp-green mt-0.5">✓</span> {t}
-                  </p>
-                ))}
-              </div>
-              <div className="mt-6">
-                <span className="font-serif text-7xl text-lp-text">R$129</span>
-                <span className="text-2xl text-lp-text-muted">/mês</span>
-              </div>
-              <p className="text-sm text-lp-text-muted mt-1">ou R$1.290 à vista (1 ano)</p>
-            </div>
-          </div>
-
-          <div className="mt-10 text-center">
-            <button onClick={() => scrollTo('pricing')}
-              className="rounded-full px-10 py-4 text-base font-semibold transition-all hover:-translate-y-0.5"
-              style={{ background: '#2ECC71', color: '#080C10', boxShadow: '0 8px 30px rgba(46,204,113,0.3)' }}>
-              Começar agora →
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px' }}>
+            <button onClick={checkoutMonthly}
+              style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
+                fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
+                cursor: 'pointer', transition: 'background 0.18s' }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
+              Assinar Agora — R$ 129/mês
+            </button>
+            <button onClick={checkoutAnnual}
+              style={{ background: 'transparent', color: C.emerald, border: `2px solid ${C.emerald}`,
+                borderRadius: '10px', fontFamily: sans, fontWeight: 600, fontSize: '16px',
+                padding: '13px 36px', cursor: 'pointer', transition: 'all 0.18s' }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.emerald; (e.currentTarget as HTMLButtonElement).style.color = '#fff'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = C.emerald; }}>
+              Plano Anual — R$ 1.290
             </button>
           </div>
         </div>
-      </Section>
+      </section>
 
-      {/* ═══ 9. AREAS ═══ */}
-      <Section className="px-4 py-24 md:py-32">
-        <div className="mx-auto max-w-[1100px]">
-          <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4">Expansão constante</p>
-          <h2 className="font-serif font-normal" style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: 1.1, color: '#F2F4F7' }}>
-            23+ concursos. 11 áreas. E crescendo.
-          </h2>
-          <div className="mt-12 flex flex-wrap gap-3">
-            {areas.map(a => (
-              <span key={a.name} className="rounded-full px-5 py-2.5 text-sm flex items-center gap-2"
-                style={{ background: '#0F1419', border: '1px solid rgba(255,255,255,0.06)', color: '#F2F4F7' }}>
-                {a.name} <span className="text-lp-green font-semibold">({a.count})</span>
-              </span>
-            ))}
-            {areasFuture.map(a => (
-              <span key={a} className="rounded-full px-5 py-2.5 text-sm flex items-center gap-2 opacity-40"
-                style={{ background: '#0F1419', border: '1px solid rgba(255,255,255,0.06)', color: '#F2F4F7' }}>
-                {a} <span className="text-xs">Em breve</span>
-              </span>
-            ))}
+      {/* ── FAQ ── */}
+      <section className="lp-sec" style={{ background: C.navyCore }}>
+        <div className="lp-wrap-sm">
+          <div style={{ textAlign: 'center', marginBottom: '44px' }}>
+            <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
+              letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
+              Dúvidas frequentes
+            </span>
+            <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
+              fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px' }}>
+              Perguntas frequentes
+            </h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {FAQ.map((item, i) => <FaqItem key={i} item={item} />)}
           </div>
         </div>
-      </Section>
+      </section>
 
-      {/* ═══ 10. PRICING ═══ */}
-      <Section id="pricing" className="relative px-4 py-24 md:py-32 scroll-mt-20 overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 50% 50% at 50% 50%, rgba(46,204,113,0.06) 0%, transparent 70%)' }} />
-        <div className="relative z-10 mx-auto max-w-[1100px] text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4">Primeiros 1000 usuários</p>
-          <h2 className="font-serif font-normal" style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: 1.1, color: '#F2F4F7' }}>
-            Sua aprovação começa <em className="text-lp-green">hoje</em>.
-          </h2>
-
-          <div className="mx-auto mt-14 max-w-[600px] rounded-3xl p-12" style={{ background: '#0F1419', border: '1px solid rgba(46,204,113,0.3)' }}>
+      {/* ── FOOTER ── */}
+      <footer style={{ background: C.navyDeep, borderTop: `1px solid ${C.border}`, padding: '52px 20px 32px' }}>
+        <div className="lp-wrap">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))',
+            gap: '36px', marginBottom: '36px' }}>
             <div>
-              <span className="font-serif" style={{ fontSize: '64px', color: '#F2F4F7' }}>R$129</span>
-              <span className="text-[22px] text-lp-text-muted">/mês</span>
+              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <LogoIcon size={32} />
+                <span style={{ fontFamily: serif, color: C.offWhite, fontSize: '20px', fontWeight: 700 }}>
+                  Sua Vaga <span style={{ color: C.emerald }}>IA</span>
+                </span>
+              </Link>
+              <p style={{ color: C.slate, fontFamily: sans, fontSize: '13px', lineHeight: 1.65, marginTop: '12px' }}>
+                A inteligência artificial que concretiza aprovações.
+              </p>
             </div>
-            <p className="text-sm text-lp-text-muted mt-2">ou R$1.290,00 à vista (1 ano)</p>
-            <div className="mt-6 flex justify-center gap-4 text-sm text-lp-text-secondary">
-              <span>Cartão de crédito</span>
-              <span>PIX</span>
+            <div>
+              <p style={{ color: C.slate, fontFamily: sans, fontSize: '10px', fontWeight: 700,
+                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '10px' }}>Empresa</p>
+              <p style={{ color: C.slateLight, fontFamily: sans, fontSize: '13px', marginBottom: '4px' }}>
+                Sua Vaga Concursos — 2026
+              </p>
+              <p style={{ color: C.slate, fontFamily: sans, fontSize: '13px' }}>CNPJ 39.177.511/0001-19</p>
             </div>
-            <Link to="/auth/signup" className="block mt-8">
-              <button className="w-full rounded-full py-4 text-lg font-semibold transition-all hover:-translate-y-0.5"
-                style={{ background: '#2ECC71', color: '#080C10', boxShadow: '0 8px 30px rgba(46,204,113,0.3)' }}>
-                Começar agora →
-              </button>
-            </Link>
-            <div className="mt-5 flex justify-center gap-6 text-sm text-lp-text-muted">
-              <span>✓ Cancele quando quiser</span>
-              <span>✓ Sem taxas escondidas</span>
+            <div>
+              <p style={{ color: C.slate, fontFamily: sans, fontSize: '10px', fontWeight: 700,
+                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '10px' }}>Endereço</p>
+              <p style={{ color: C.slateLight, fontFamily: sans, fontSize: '13px', marginBottom: '14px' }}>
+                Alameda Angelim, 316 — Londrina, PR
+              </p>
+              <p style={{ color: C.slate, fontFamily: sans, fontSize: '10px', fontWeight: 700,
+                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '7px' }}>Contato</p>
+              <a href="mailto:contato@suavagaia.com.br"
+                style={{ color: C.emerald, fontFamily: sans, fontSize: '13px' }}>
+                contato@suavagaia.com.br
+              </a>
             </div>
           </div>
-        </div>
-      </Section>
-
-      {/* ═══ 11. URGENCY ═══ */}
-      <Section className="px-4 py-24 md:py-32" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="mx-auto max-w-[700px] text-center">
-          <h2 className="font-serif font-normal" style={{ fontSize: 'clamp(28px, 4vw, 42px)', lineHeight: 1.15, color: '#F2F4F7' }}>
-            Cada dia sem estudar direito<br />é um dia mais longe da aprovação.
-          </h2>
-          <p className="mt-6 text-lp-text-secondary leading-relaxed">
-            Enquanto você decide, outros candidatos já estão usando IA para estudar mais rápido, com mais qualidade e por menos dinheiro.
-          </p>
-          <p className="mt-4 text-lp-text font-semibold">
-            A pergunta não é se IA vai mudar os concursos. É se você vai estar na frente ou atrás.
-          </p>
-          <button onClick={() => scrollTo('pricing')}
-            className="mt-10 rounded-full px-10 py-4 text-base font-semibold transition-all hover:-translate-y-0.5"
-            style={{ background: '#2ECC71', color: '#080C10', boxShadow: '0 8px 30px rgba(46,204,113,0.3)' }}>
-            Começar agora — oferta limitada
-          </button>
-        </div>
-      </Section>
-
-      {/* ═══ 12. FAQ ═══ */}
-      <Section className="px-4 py-24 md:py-32">
-        <div className="mx-auto max-w-[700px]">
-          <p className="text-xs font-semibold uppercase tracking-widest text-lp-green mb-4 text-center">Dúvidas</p>
-          <h2 className="font-serif font-normal text-center mb-12" style={{ fontSize: 'clamp(32px, 4vw, 48px)', lineHeight: 1.1, color: '#F2F4F7' }}>
-            Perguntas frequentes
-          </h2>
-          <div className="space-y-3">
-            {faqs.map((f, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden transition-colors"
-                style={{ background: '#0F1419', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between px-6 py-5 text-left text-lp-text font-medium hover:text-lp-green transition-colors">
-                  {f.q}
-                  <span className="text-lp-text-muted transition-transform duration-300 ml-4 flex-shrink-0"
-                    style={{ transform: openFaq === i ? 'rotate(45deg)' : 'none' }}>+</span>
-                </button>
-                {openFaq === i && (
-                  <div className="px-6 pb-5 text-sm text-lp-text-secondary leading-relaxed">{f.a}</div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      {/* ═══ 13. FOOTER ═══ */}
-      <footer className="px-4 py-16 pb-10" style={{ background: '#0F1419', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <div className="mx-auto max-w-[1100px] grid gap-10 md:grid-cols-4">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <LogoIcon size={32} />
-              <span className="text-lg font-semibold text-lp-text">Sua Vaga <span className="text-lp-green">IA</span></span>
+          <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: '22px',
+            display: 'flex', flexWrap: 'wrap', alignItems: 'center',
+            justifyContent: 'space-between', gap: '12px' }}>
+            <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px' }}>
+              © {new Date().getFullYear()} Sua Vaga IA. Todos os direitos reservados.
+            </p>
+            <div style={{ display: 'flex', gap: '22px' }}>
+              <Link to="/privacy" style={{ color: C.slate, fontFamily: sans, fontSize: '12px' }}>
+                Política de Privacidade
+              </Link>
+              <Link to="/terms" style={{ color: C.slate, fontFamily: sans, fontSize: '12px' }}>
+                Termos de Uso
+              </Link>
+              <a href="mailto:contato@suavagaia.com.br" style={{ color: C.slate, fontFamily: sans, fontSize: '12px' }}>
+                Suporte
+              </a>
             </div>
-            <p className="font-serif italic text-sm text-lp-text-muted">Inteligência que aprova.</p>
           </div>
-          <div>
-            <p className="text-sm text-lp-text font-medium mb-2">Empresa</p>
-            <p className="text-sm text-lp-text-muted leading-relaxed">Sua Vaga Concursos — 2026<br />CNPJ 39.177.511/0001-19</p>
-          </div>
-          <div>
-            <p className="text-sm text-lp-text font-medium mb-2">Endereço</p>
-            <p className="text-sm text-lp-text-muted leading-relaxed">Alameda Angelim, 316<br />Vivendas do Arvoredo, Alphaville 2<br />Londrina — PR, CEP 86055-778</p>
-          </div>
-          <div>
-            <p className="text-sm text-lp-text font-medium mb-2">Contato</p>
-            <p className="text-sm text-lp-text-muted">contato@suavagaia.com.br</p>
-          </div>
-        </div>
-        <div className="mx-auto max-w-[1100px] mt-10 pt-6 flex flex-wrap items-center justify-center gap-4 text-[13px] text-lp-text-muted" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <Link to="/privacy" className="hover:text-lp-text transition-colors">Política de Privacidade</Link>
-          <span>·</span>
-          <Link to="/terms" className="hover:text-lp-text transition-colors">Termos de Uso</Link>
-          <span>·</span>
-          <a href="mailto:contato@suavagaia.com.br" className="hover:text-lp-text transition-colors">Suporte</a>
         </div>
       </footer>
     </div>
