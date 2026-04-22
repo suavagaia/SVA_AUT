@@ -284,26 +284,33 @@ interface FaqItemData {
   a: string;
 }
 
-function FaqItem({ item }: { item: FaqItemData }) {
-  const [open, setOpen] = useState(false);
+function FaqItem({ item, idx }: { item: FaqItemData; idx: number }) {
+  const [open, setOpen] = useState(idx === 0);
   return (
-    <div style={{ border: `1px solid ${open ? C.borderEm : C.border}`, borderRadius: '12px',
-      overflow: 'hidden', transition: 'border-color 0.2s', background: open ? 'rgba(16,185,129,0.03)' : 'transparent' }}>
-      <button onClick={() => setOpen(!open)} style={{ width: '100%', display: 'flex',
-        alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px',
-        padding: '20px 24px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' as const }}>
-        <span style={{ fontFamily: sans, color: C.offWhite, fontSize: '15px', fontWeight: 500, lineHeight: 1.5 }}>
+    <div style={{ borderBottom: `1px solid ${C.border}` }}>
+      <button onClick={() => setOpen(!open)} style={{ width: '100%',
+        display: 'grid', gridTemplateColumns: '48px 1fr 32px', gap: 20, alignItems: 'center',
+        padding: '28px 0', background: 'none', border: 'none', cursor: 'pointer',
+        textAlign: 'left' as const, color: 'inherit' }}>
+        <span style={{ fontFamily: mono, fontSize: 11, color: C.emerald, letterSpacing: '0.15em' }}>
+          {String(idx + 1).padStart(2, '0')}
+        </span>
+        <span style={{ fontFamily: serif, fontSize: 22, letterSpacing: '-0.01em',
+          lineHeight: 1.3, color: C.offWhite, fontWeight: 400 }}>
           {item.q}
         </span>
-        <span style={{ color: C.emerald, fontSize: '22px', fontWeight: 300, flexShrink: 0, marginTop: '1px' }}>
-          {open ? '−' : '+'}
-        </span>
+        <span style={{ width: 28, height: 28, borderRadius: '50%',
+          border: `1px solid ${C.borderStrong}`, display: 'inline-flex',
+          alignItems: 'center', justifyContent: 'center', color: C.emerald,
+          fontSize: 18, lineHeight: 1, transition: 'transform .2s',
+          transform: open ? 'rotate(45deg)' : 'none', justifySelf: 'end' }}>+</span>
       </button>
-      {open && (
-        <p style={{ fontFamily: sans, color: C.slateLight, fontSize: '14px',
-          lineHeight: 1.75, padding: '0 24px 20px', borderTop: `1px solid ${C.border}`,
-          paddingTop: '16px', margin: 0 }}>{item.a}</p>
-      )}
+      <div style={{ overflow: 'hidden', transition: 'max-height .3s, padding .3s',
+        maxHeight: open ? 400 : 0, paddingBottom: open ? 28 : 0 }}>
+        <div style={{ paddingLeft: 68, paddingRight: 60, maxWidth: 820 }}>
+          <p style={{ fontSize: 16, color: C.slateLight, lineHeight: 1.7, fontFamily: sans }}>{item.a}</p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -348,6 +355,7 @@ export default function LandingPage() {
         .lp-plan-badge{position:absolute;top:0;left:0;right:0;height:28px;font-family:${mono};font-size:10px;letter-spacing:0.2em;text-transform:uppercase;display:flex;align-items:center;justify-content:center}
         .lp-plan-badge-on{background:${C.emerald};color:#fff}
         .lp-plan-badge-off{background:transparent;color:${C.emerald};border-bottom:1px solid ${C.borderEm}}
+        .lp-faq-grid{display:grid;grid-template-columns:1fr 2fr;gap:64px;margin-bottom:48px}
         @media(max-width:900px){
           .lp-agent-head{grid-template-columns:1fr;gap:16px}
           .lp-agent-row{grid-template-columns:1fr;gap:24px;padding:36px 0}
@@ -363,6 +371,7 @@ export default function LandingPage() {
           .lp-plans{grid-template-columns:1fr}
           .lp-plan-col{border-right:none!important;border-bottom:1px solid ${C.border}}
           .lp-plan-col:last-child{border-bottom:none}
+          .lp-faq-grid{grid-template-columns:1fr;gap:32px}
         }
         @media(max-width:540px){
           .lp-areas-grid{grid-template-columns:1fr}
@@ -943,20 +952,20 @@ export default function LandingPage() {
       </section>
 
       {/* ── FAQ ── */}
-      <section className="lp-sec" style={{ background: C.navyCore }}>
-        <div className="lp-wrap-sm">
-          <div style={{ textAlign: 'center', marginBottom: '44px' }}>
-            <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
-              letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
-              Dúvidas frequentes
-            </span>
-            <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
-              fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px' }}>
-              Perguntas frequentes
-            </h2>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {FAQ.map((item, i) => <FaqItem key={i} item={item} />)}
+      <section id="faq" className="lp-sec lp-sec-border" style={{ background: C.navyDeep }}>
+        <div className="lp-wrap">
+          <div className="lp-faq-grid">
+            <div>
+              <div className="lp-eyebrow" style={{ marginBottom: 16 }}>§10</div>
+              <h2 style={{ fontFamily: serif, fontSize: 'clamp(36px,4.5vw,56px)', lineHeight: 1.05,
+                letterSpacing: '-0.025em', color: C.offWhite, fontWeight: 400 }}>
+                Perguntas<br />
+                <em style={{ fontStyle: 'italic', color: C.emeraldLight }}>frequentes</em>
+              </h2>
+            </div>
+            <div style={{ borderTop: `1px solid ${C.border}` }}>
+              {FAQ.map((item, i) => <FaqItem key={i} item={item} idx={i} />)}
+            </div>
           </div>
         </div>
       </section>
