@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { LogoIcon } from '@/components/LogoIcon';
@@ -156,20 +156,24 @@ const C = {
   navyDeep:     '#060E1F',
   navyCore:     '#0A1628',
   navyMid:      '#0F1F3D',
+  navySoft:     '#132748',
   emerald:      '#10B981',
   emeraldLight: '#34D399',
   emeraldDark:  '#059669',
   slate:        '#64748B',
   slateLight:   '#94A3B8',
+  slateLighter: '#CBD5E1',
   offWhite:     '#F8FAFC',
-  border:       'rgba(255,255,255,0.07)',
-  borderEm:     'rgba(16,185,129,0.2)',
+  border:       'rgba(255,255,255,0.08)',
+  borderStrong: 'rgba(255,255,255,0.14)',
+  borderEm:     'rgba(16,185,129,0.22)',
   red:          '#F87171',
   redBorder:    'rgba(239,68,68,0.15)',
 };
 
 const serif = "'DM Serif Display', Georgia, serif";
 const sans  = "'DM Sans', system-ui, sans-serif";
+const mono  = "'JetBrains Mono', ui-monospace, monospace";
 
 // ─── Checkout helper ─────────────────────────────────────────────────────────
 async function invokeCheckout(
@@ -321,24 +325,43 @@ export default function LandingPage() {
   return (
     <div style={{ background: C.navyDeep, minHeight: '100vh', fontFamily: sans }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap');
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
         a{text-decoration:none}
-        .lp-wrap{max-width:1200px;margin:0 auto}
-        .lp-wrap-sm{max-width:720px;margin:0 auto}
-        .lp-wrap-md{max-width:920px;margin:0 auto}
+        .lp-wrap{max-width:1240px;margin:0 auto;padding:0 32px}
+        .lp-wrap-sm{max-width:880px;margin:0 auto;padding:0 32px}
+        .lp-wrap-md{max-width:920px;margin:0 auto;padding:0 32px}
         .lp-agents{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
         .lp-col2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
         .lp-areas{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
         .lp-gtext{background:linear-gradient(90deg,#10B981,#34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .lp-sec{padding:96px 20px}
+        .lp-sec{padding:96px 0}
         .lp-card-hover{transition:border-color 0.2s,background 0.2s}
+        .lp-hero-grid{display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:start}
+        .lp-hero-numeral{font-family:${serif};font-size:clamp(60px,9vw,140px);line-height:.95;letter-spacing:-.04em;color:${C.slate};opacity:.22}
+        .lp-hero-h1{font-family:${serif};font-size:clamp(48px,7vw,96px);line-height:1.02;letter-spacing:-.03em;color:${C.offWhite};margin-bottom:32px}
+        .lp-hero-h1 em{font-style:italic;color:${C.emeraldLight}}
+        .lp-hero-trust{margin-top:80px;padding-top:32px;border-top:1px solid ${C.border};display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+        .lp-eyebrow{font-family:${mono};font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:${C.emerald}}
+        .lp-eyebrow-muted{font-family:${mono};font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:${C.slate}}
+        .lp-cta-primary{display:inline-flex;align-items:center;gap:10px;background:${C.emerald};color:#fff;border:none;border-radius:4px;font-family:${sans};font-weight:600;font-size:14px;letter-spacing:.01em;padding:14px 24px;cursor:pointer;transition:background .18s}
+        .lp-cta-primary:hover{background:${C.emeraldDark}}
+        .lp-cta-primary .lp-arrow{transition:transform .18s;display:inline-block}
+        .lp-cta-primary:hover .lp-arrow{transform:translateX(3px)}
+        .lp-cta-ghost{display:inline-flex;align-items:center;gap:10px;background:transparent;color:${C.offWhite};border:1px solid ${C.borderStrong};border-radius:4px;font-family:${sans};font-weight:500;font-size:14px;padding:14px 24px;cursor:pointer;transition:all .18s;text-decoration:none}
+        .lp-cta-ghost:hover{border-color:${C.emerald};color:${C.emerald}}
+        @media(max-width:900px){
+          .lp-wrap,.lp-wrap-sm,.lp-wrap-md{padding:0 20px}
+          .lp-sec{padding:72px 0}
+          .lp-hero-grid{grid-template-columns:1fr;gap:20px}
+          .lp-hero-numeral{font-size:80px}
+          .lp-hero-trust{grid-template-columns:1fr;gap:20px}
+        }
         @media(max-width:768px){
           .lp-agents{grid-template-columns:1fr}
           .lp-col2{grid-template-columns:1fr}
           .lp-areas{grid-template-columns:repeat(2,1fr)}
           .lp-hide{display:none!important}
-          .lp-sec{padding:68px 16px!important}
         }
       `}</style>
 
@@ -373,70 +396,64 @@ export default function LandingPage() {
       </header>
 
       {/* ── HERO ── */}
-      <section className="lp-sec" style={{ background: `linear-gradient(160deg,${C.navyDeep} 0%,${C.navyCore} 55%,${C.navyDeep} 100%)`,
-        textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '550px', height: '550px',
-          borderRadius: '50%', background: 'radial-gradient(circle,rgba(16,185,129,0.09) 0%,transparent 70%)',
-          pointerEvents: 'none' }} />
-        <div className="lp-wrap-md" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px',
-            background: 'rgba(16,185,129,0.09)', border: `1px solid rgba(16,185,129,0.18)`,
-            borderRadius: '100px', padding: '5px 14px', marginBottom: '28px' }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%',
-              background: C.emerald, display: 'inline-block' }} />
-            <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700, letterSpacing: '2px' }}>
-              CONCURSOS PÚBLICOS
-            </span>
+      <section style={{ position: 'relative', padding: '80px 0 120px', overflow: 'hidden' }}>
+        {/* backdrop glows */}
+        <div style={{ position: 'absolute', top: '-15%', right: '-10%', width: 700, height: 700, borderRadius: '50%',
+          background: 'radial-gradient(circle,rgba(16,185,129,0.07) 0%,transparent 60%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-30%', left: '-15%', width: 600, height: 600, borderRadius: '50%',
+          background: 'radial-gradient(circle,rgba(59,130,246,0.04) 0%,transparent 60%)', pointerEvents: 'none' }} />
+
+        <div className="lp-wrap" style={{ position: 'relative' }}>
+          {/* meta row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 80, flexWrap: 'wrap', gap: 16 }}>
+            <div className="lp-eyebrow-muted">
+              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%',
+                background: C.emerald, marginRight: 10, verticalAlign: 'middle' }} />
+              Edição 2026 / Vol.01
+            </div>
+            <div className="lp-eyebrow-muted">Concursos Públicos — Jurídicos</div>
           </div>
 
-          <h1 style={{ fontFamily: serif, color: C.offWhite,
-            fontSize: 'clamp(40px,7vw,68px)', fontWeight: 700,
-            lineHeight: 1.05, letterSpacing: '-1.5px', marginBottom: '24px' }}>
-            Transforme sua preparação{' '}
-            <span className="lp-gtext">para concursos</span>
-          </h1>
+          {/* headline grid */}
+          <div className="lp-hero-grid">
+            <div className="lp-hero-numeral">01</div>
+            <div>
+              <h1 className="lp-hero-h1">
+                Transforme sua preparação<br />
+                <em>para concursos</em>
+              </h1>
+              <div style={{ maxWidth: 620 }}>
+                <p style={{ fontSize: 20, lineHeight: 1.55, color: C.slateLighter, marginBottom: 16, fontFamily: sans }}>
+                  Inteligência Artificial enriquecida com as melhores doutrinas e jurisprudências atualizadas.
+                </p>
+                <p style={{ fontSize: 16, lineHeight: 1.7, color: C.slate, marginBottom: 40, fontFamily: sans }}>
+                  Enquanto outros candidatos estudam de forma desorganizada e superficial, você terá acesso
+                  à primeira plataforma brasileira de preparação completa, estruturada e personalizada para
+                  concursos públicos de alto nível.
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 40 }}>
+                  <button onClick={checkoutMonthly} className="lp-cta-primary">
+                    Assinar Agora — R$ 129/mês
+                    <span className="lp-arrow">→</span>
+                  </button>
+                  <Link to="/auth/signup" className="lp-cta-ghost">Começar Grátis</Link>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          <p style={{ color: C.slateLight, fontFamily: sans, fontSize: '18px',
-            lineHeight: 1.75, maxWidth: '620px', margin: '0 auto 10px' }}>
-            Inteligência Artificial enriquecida com as melhores doutrinas e jurisprudências atualizadas.
-          </p>
-
-          <p style={{ color: C.slate, fontFamily: sans, fontSize: '15px',
-            lineHeight: 1.7, maxWidth: '540px', margin: '0 auto 36px' }}>
-            Enquanto outros candidatos estudam de forma desorganizada e superficial, você terá acesso
-            à primeira plataforma brasileira de preparação completa, estruturada e personalizada para
-            concursos públicos de alto nível.
-          </p>
-
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px', marginBottom: '36px' }}>
-            {['Acesso por celular, tablet ou computador', 'Cancele a qualquer momento', 'Sem multa, sem fidelidade'].map((b, i) => (
-              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '7px',
-                background: C.navyMid, border: `1px solid ${C.border}`, borderRadius: '100px',
-                padding: '7px 16px', color: C.slateLight, fontFamily: sans, fontSize: '13px' }}>
-                <Tick size={13} />
-                {b}
-              </span>
+          {/* trust strip */}
+          <div className="lp-hero-trust">
+            {[
+              ['Dispositivo', 'Acesso por celular, tablet ou computador'],
+              ['Flexibilidade', 'Cancele a qualquer momento'],
+              ['Compromisso', 'Sem multa, sem fidelidade'],
+            ].map(([k, v], i) => (
+              <div key={i}>
+                <div className="lp-eyebrow" style={{ fontSize: 10, letterSpacing: '0.2em', marginBottom: 8 }}>{k}</div>
+                <div style={{ fontSize: 14, color: C.slateLighter, lineHeight: 1.5, fontFamily: sans }}>{v}</div>
+              </div>
             ))}
-          </div>
-
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-            <button onClick={checkoutMonthly}
-              style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
-                fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
-                cursor: 'pointer', transition: 'background 0.18s' }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
-              Assinar Agora — R$ 129/mês
-            </button>
-            <Link to="/auth/signup"
-              style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                background: 'transparent', color: C.emerald, border: `2px solid ${C.emerald}`,
-                borderRadius: '10px', fontFamily: sans, fontWeight: 600, fontSize: '16px',
-                padding: '13px 36px', transition: 'all 0.18s' }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = C.emerald; (e.currentTarget as HTMLAnchorElement).style.color = '#fff'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'; (e.currentTarget as HTMLAnchorElement).style.color = C.emerald; }}>
-              Começar Grátis
-            </Link>
           </div>
         </div>
       </section>
