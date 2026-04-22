@@ -20,12 +20,6 @@ function getAccessToken() {
   return raw ? JSON.parse(raw)?.access_token : null;
 }
 
-interface VectorStoreOption {
-  id: string;
-  name: string;
-  file_counts: { total: number };
-}
-
 interface Agent {
   id: string;
   title: string;
@@ -143,8 +137,7 @@ export default function AdminPromptsPage() {
   };
 
   // Vector stores for agent editing
-  const [vectorStores, setVectorStores] = useState<VectorStoreOption[]>([]);
-  const [vectorStoresLoading, setVectorStoresLoading] = useState(false);
+
 
   const fetchAgents = async () => {
     const { data } = await supabase
@@ -154,20 +147,6 @@ export default function AdminPromptsPage() {
     setAgents((data as Agent[]) ?? []);
     setLoading(false);
   };
-
-  // Fetch vector stores when editing agent
-  useEffect(() => {
-    if (!editing) return;
-    setVectorStoresLoading(true);
-    const token = getAccessToken();
-    fetch(`${SUPABASE_URL}/functions/v1/openai-vector-stores`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(r => r.json())
-      .then(d => setVectorStores(d.vector_stores ?? []))
-      .catch(() => setVectorStores([]))
-      .finally(() => setVectorStoresLoading(false));
-  }, [editing?.id]);
 
   // Fetch areas, contests, subjects for the subject selector
   useEffect(() => {
@@ -525,51 +504,7 @@ export default function AdminPromptsPage() {
                 <Label className="text-muted-light">Web Search</Label>
                 <Switch checked={editing.tool_web_search} onCheckedChange={(v) => updateField('tool_web_search', v)} />
               </div>
-              <div className="flex items-center justify-between">
-                <Label className="text-muted-light">File Search (Vector Store OpenAI)</Label>
-                <Switch checked={editing.tool_file_search} onCheckedChange={(v) => updateField('tool_file_search', v)} />
-              </div>
-              {editing.tool_file_search && (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-muted-light">Vector Stores</label>
-                    <p className="text-xs text-muted-foreground">
-                      Bases de conhecimento que este agente vai consultar ao responder.
-                    </p>
-                    {vectorStoresLoading ? (
-                      <div className="flex justify-center py-3">
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-emerald border-t-transparent" />
-                      </div>
-                    ) : vectorStores.length === 0 ? (
-                      <p className="text-xs text-muted-foreground italic">
-                        Nenhum vector store encontrado. Crie um em{' '}
-                        <a href="/admin/vector-stores" className="text-emerald underline">Vector Stores</a>.
-                      </p>
-                    ) : (
-                      <div className="space-y-2 max-h-48 overflow-y-auto">
-                        {vectorStores.map(vs => (
-                          <label key={vs.id} className="flex items-center gap-2 cursor-pointer">
-                            <Checkbox
-                              checked={editing.tool_file_search_vector_store_ids?.includes(vs.id) ?? false}
-                              onCheckedChange={(checked) => {
-                                const current = editing.tool_file_search_vector_store_ids ?? [];
-                                const newIds = checked
-                                  ? [...new Set([...current, vs.id])]
-                                  : current.filter(id => id !== vs.id);
-                                updateField('tool_file_search_vector_store_ids', newIds as any);
-                              }}
-                            />
-                            <span className="text-sm text-light">{vs.name}</span>
-                            <span className="text-xs text-muted-foreground">
-                              ({vs.file_counts?.total ?? 0} arquivos)
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+
               <div className="flex items-center justify-between">
                 <div>
                   <Label className="text-muted-light">Supabase RAG</Label>
