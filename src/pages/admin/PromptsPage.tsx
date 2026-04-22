@@ -591,9 +591,6 @@ export default function AdminPromptsPage() {
 
               <div>
                 <Label className="text-muted-light">Max Completion Tokens</Label>
-                <p className="text-xs text-muted-foreground mt-1 mb-1">
-                  Limite de tokens de output (inclui raciocínio interno do modelo). Recomendado: 8000 para agentes sem busca, 12000 para agentes com busca.
-                </p>
                 <Input
                   type="number"
                   min={1000}
