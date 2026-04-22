@@ -318,8 +318,13 @@ function FaqItem({ item, idx }: { item: FaqItemData; idx: number }) {
 // ─── Landing Page Principal ───────────────────────────────────────────────────
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
 
-  const goSignup = () => navigate('/auth/signup');
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const checkoutMonthly = () => invokeCheckout(PRICE_MONTHLY, 'monthly', navigate);
   const checkoutAnnual  = () => invokeCheckout(PRICE_ANNUAL, 'annual', navigate);
@@ -356,6 +361,12 @@ export default function LandingPage() {
         .lp-plan-badge-on{background:${C.emerald};color:#fff}
         .lp-plan-badge-off{background:transparent;color:${C.emerald};border-bottom:1px solid ${C.borderEm}}
         .lp-faq-grid{display:grid;grid-template-columns:1fr 2fr;gap:64px;margin-bottom:48px}
+        .lp-nav{display:flex;align-items:center;gap:28px}
+        .lp-nav-link{font-family:${mono};font-size:12px;color:${C.slateLight};letter-spacing:0.08em;text-transform:uppercase;transition:color .18s}
+        .lp-nav-link:hover{color:${C.emerald}}
+        .lp-nav-login{color:${C.slateLight};font-size:14px;font-family:${sans};transition:color .18s}
+        .lp-nav-login:hover{color:${C.offWhite}}
+        .lp-footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px}
         @media(max-width:900px){
           .lp-agent-head{grid-template-columns:1fr;gap:16px}
           .lp-agent-row{grid-template-columns:1fr;gap:24px;padding:36px 0}
@@ -372,6 +383,13 @@ export default function LandingPage() {
           .lp-plan-col{border-right:none!important;border-bottom:1px solid ${C.border}}
           .lp-plan-col:last-child{border-bottom:none}
           .lp-faq-grid{grid-template-columns:1fr;gap:32px}
+          .lp-nav{gap:16px;flex-wrap:wrap;justify-content:flex-end}
+          .lp-footer-grid{grid-template-columns:1fr 1fr;gap:32px}
+        }
+        @media(max-width:720px){
+          .lp-nav-link{display:none}
+          .lp-nav-login{display:none}
+          .lp-footer-grid{grid-template-columns:1fr;gap:28px}
         }
         @media(max-width:540px){
           .lp-areas-grid{grid-template-columns:1fr}
@@ -406,32 +424,32 @@ export default function LandingPage() {
       `}</style>
 
       {/* ── HEADER ── */}
-      <header style={{ position: 'sticky', top: 0, zIndex: 50,
-        background: 'rgba(6,14,31,0.93)', backdropFilter: 'blur(12px)',
-        borderBottom: `1px solid ${C.border}` }}>
-        <div className="lp-wrap" style={{ padding: '13px 20px', display: 'flex',
-          alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <LogoIcon size={32} />
-            <span style={{ fontFamily: serif, color: C.offWhite, fontSize: '20px', fontWeight: 700, letterSpacing: '-0.3px' }}>
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        background: scrolled ? 'rgba(6,14,31,0.88)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        borderBottom: scrolled ? `1px solid ${C.border}` : '1px solid transparent',
+        transition: 'all .25s',
+      }}>
+        <div className="lp-wrap" style={{ display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', padding: '18px 32px', gap: 16 }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <LogoIcon size={30} />
+            <span style={{ fontFamily: serif, fontSize: 20, letterSpacing: '-0.01em',
+              whiteSpace: 'nowrap', color: C.offWhite }}>
               Sua Vaga <span style={{ color: C.emerald }}>IA</span>
             </span>
           </Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Link to="/auth/login" className="lp-hide"
-              style={{ color: C.slateLight, fontFamily: sans, fontSize: '14px', fontWeight: 500,
-                padding: '8px 12px' }}>
-              Entrar
-            </Link>
-            <button onClick={checkoutMonthly}
-              style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
-                fontFamily: sans, fontWeight: 600, fontSize: '13px', padding: '9px 18px',
-                cursor: 'pointer', transition: 'background 0.18s' }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
+          <nav className="lp-nav">
+            <a href="#agentes" className="lp-nav-link">Agentes</a>
+            <a href="#areas" className="lp-nav-link">Áreas</a>
+            <a href="#planos" className="lp-nav-link">Planos</a>
+            <a href="#faq" className="lp-nav-link">FAQ</a>
+            <Link to="/auth/login" className="lp-nav-login">Entrar</Link>
+            <button onClick={checkoutMonthly} className="lp-cta-primary" style={{ padding: '10px 18px', fontSize: 13 }}>
               Assinar
             </button>
-          </div>
+          </nav>
         </div>
       </header>
 
@@ -971,57 +989,66 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{ background: C.navyDeep, borderTop: `1px solid ${C.border}`, padding: '52px 20px 32px' }}>
+      <footer style={{ background: C.navyDeep, borderTop: `1px solid ${C.border}`, padding: '60px 0 40px' }}>
         <div className="lp-wrap">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))',
-            gap: '36px', marginBottom: '36px' }}>
+          <div className="lp-footer-grid" style={{ marginBottom: 48 }}>
             <div>
-              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                 <LogoIcon size={32} />
-                <span style={{ fontFamily: serif, color: C.offWhite, fontSize: '20px', fontWeight: 700 }}>
+                <span style={{ fontFamily: serif, fontSize: 22, letterSpacing: '-0.01em',
+                  whiteSpace: 'nowrap', color: C.offWhite }}>
                   Sua Vaga <span style={{ color: C.emerald }}>IA</span>
                 </span>
               </Link>
-              <p style={{ color: C.slate, fontFamily: sans, fontSize: '13px', lineHeight: 1.65, marginTop: '12px' }}>
+              <p style={{ fontSize: 14, color: C.slate, lineHeight: 1.6, maxWidth: 320, fontFamily: sans }}>
                 A inteligência artificial que concretiza aprovações.
               </p>
             </div>
+
             <div>
-              <p style={{ color: C.slate, fontFamily: sans, fontSize: '10px', fontWeight: 700,
-                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '10px' }}>Empresa</p>
-              <p style={{ color: C.slateLight, fontFamily: sans, fontSize: '13px', marginBottom: '4px' }}>
+              <div className="lp-eyebrow" style={{ marginBottom: 16 }}>Empresa</div>
+              <p style={{ fontSize: 14, color: C.slateLight, fontFamily: sans, marginBottom: 4 }}>
                 Sua Vaga Concursos — 2026
               </p>
-              <p style={{ color: C.slate, fontFamily: sans, fontSize: '13px' }}>CNPJ 39.177.511/0001-19</p>
+              <p style={{ fontSize: 13, color: C.slate, fontFamily: sans }}>
+                CNPJ 39.177.511/0001-19
+              </p>
             </div>
+
             <div>
-              <p style={{ color: C.slate, fontFamily: sans, fontSize: '10px', fontWeight: 700,
-                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '10px' }}>Endereço</p>
-              <p style={{ color: C.slateLight, fontFamily: sans, fontSize: '13px', marginBottom: '14px' }}>
+              <div className="lp-eyebrow" style={{ marginBottom: 16 }}>Endereço</div>
+              <p style={{ fontSize: 14, color: C.slateLight, fontFamily: sans }}>
                 Alameda Angelim, 316 — Londrina, PR
               </p>
-              <p style={{ color: C.slate, fontFamily: sans, fontSize: '10px', fontWeight: 700,
-                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '7px' }}>Contato</p>
+            </div>
+
+            <div>
+              <div className="lp-eyebrow" style={{ marginBottom: 16 }}>Contato</div>
               <a href="mailto:contato@suavagaia.com.br"
-                style={{ color: C.emerald, fontFamily: sans, fontSize: '13px' }}>
+                style={{ fontSize: 14, color: C.emerald, fontFamily: sans }}>
                 contato@suavagaia.com.br
               </a>
             </div>
           </div>
-          <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: '22px',
-            display: 'flex', flexWrap: 'wrap', alignItems: 'center',
-            justifyContent: 'space-between', gap: '12px' }}>
-            <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px' }}>
-              © {new Date().getFullYear()} Sua Vaga IA. Todos os direitos reservados.
-            </p>
-            <div style={{ display: 'flex', gap: '22px' }}>
-              <Link to="/privacy" style={{ color: C.slate, fontFamily: sans, fontSize: '12px' }}>
-                Política de Privacidade
+
+          <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 24,
+            display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
+            alignItems: 'center' }}>
+            <div style={{ fontFamily: mono, fontSize: 11, color: C.slate,
+              letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+              © {new Date().getFullYear()} Sua Vaga IA · Todos os direitos reservados
+            </div>
+            <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+              <Link to="/privacy" style={{ fontFamily: mono, fontSize: 11, color: C.slate,
+                letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+                Privacidade
               </Link>
-              <Link to="/terms" style={{ color: C.slate, fontFamily: sans, fontSize: '12px' }}>
-                Termos de Uso
+              <Link to="/terms" style={{ fontFamily: mono, fontSize: 11, color: C.slate,
+                letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+                Termos
               </Link>
-              <a href="mailto:contato@suavagaia.com.br" style={{ color: C.slate, fontFamily: sans, fontSize: '12px' }}>
+              <a href="mailto:contato@suavagaia.com.br" style={{ fontFamily: mono, fontSize: 11,
+                color: C.slate, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
                 Suporte
               </a>
             </div>
