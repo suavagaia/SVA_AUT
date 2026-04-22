@@ -5,9 +5,11 @@ import { LogoIcon } from '@/components/LogoIcon';
 import { toast } from 'sonner';
 
 // ─── Price IDs Stripe ────────────────────────────────────────────────────────
-const PRICE_MONTHLY = 'price_1SUXQFGmx6vYOM03NfHHL89v';
-const PRICE_ANNUAL  = 'price_1SUXRUGmx6vYOM03MTVtneoX';
-const PRICE_CREDITS = 'price_1SAwTuGmx6vYOM03G4nuqdbQ';
+const PRICE_MONTHLY_600K = 'price_1TP8QLGmx6vYOM03CLWb2x9H'; // R$99/mês — 600k tokens
+const PRICE_ANNUAL_600K  = 'price_1TP8QVGmx6vYOM03Fgvf6Urk'; // R$999/ano — 600k tokens
+const PRICE_MONTHLY_1M   = 'price_1TP8QgGmx6vYOM03RiFKAp9B'; // R$129/mês — 1M tokens
+const PRICE_ANNUAL_1M    = 'price_1TP8QqGmx6vYOM03ZwLhA6Ne'; // R$1.290/ano — 1M tokens
+const PRICE_CREDITS      = 'price_1SAwTuGmx6vYOM03G4nuqdbQ'; // R$49,90 — créditos avulsos
 
 // ─── Dados dos agentes ───────────────────────────────────────────────────────
 const AGENTES = [
@@ -147,7 +149,7 @@ const FAQ = [
   },
   {
     q: 'Quantas perguntas posso fazer com 600.000 tokens?',
-    a: 'Cada pergunta aos agentes consome em média 1.500 tokens. Com 600.000 tokens mensais, você pode fazer aproximadamente 400 interações com os agentes por ciclo. Precisa de mais? Adquira pacotes avulsos de 600.000 tokens por R$49,90.',
+    a: 'Cada pergunta aos agentes consome em média 1.500 tokens. Com 600.000 tokens mensais (plano 600k) você pode fazer ~400 interações, e com 1.000.000 tokens (plano 1M) ~650 interações com os agentes por ciclo. Precisa de mais? Adquira pacotes avulsos de 600.000 tokens por R$49,90.',
   },
 ];
 
@@ -268,7 +270,7 @@ function AgentCard({ ag }: { ag: AgentData }) {
           borderRadius: '10px', padding: '13px 15px' }}>
           <p style={{ color: C.emeraldLight, fontFamily: sans, fontSize: '10px', fontWeight: 700,
             letterSpacing: '1.5px', textTransform: 'uppercase' as const, marginBottom: '5px' }}>
-            Por que vale R$129/mês:
+            Por que vale R$129/mês (1M tokens):
           </p>
           <p style={{ color: C.slate, fontFamily: sans, fontSize: '12.5px', lineHeight: 1.6, margin: 0 }}>
             {ag.pq}
@@ -314,8 +316,10 @@ export default function LandingPage() {
 
   const goSignup = () => navigate('/auth/signup');
 
-  const checkoutMonthly = () => invokeCheckout(PRICE_MONTHLY, 'monthly', navigate);
-  const checkoutAnnual  = () => invokeCheckout(PRICE_ANNUAL, 'annual', navigate);
+  const checkoutMonthly600k = () => invokeCheckout(PRICE_MONTHLY_600K, 'monthly_600k', navigate);
+  const checkoutAnnual600k  = () => invokeCheckout(PRICE_ANNUAL_600K, 'annual_600k', navigate);
+  const checkoutMonthly1m   = () => invokeCheckout(PRICE_MONTHLY_1M, 'monthly_1m', navigate);
+  const checkoutAnnual1m    = () => invokeCheckout(PRICE_ANNUAL_1M, 'annual_1m', navigate);
   const checkoutCredits = () => invokeCheckout(PRICE_CREDITS, 'credits', navigate);
 
   return (
@@ -360,7 +364,7 @@ export default function LandingPage() {
                 padding: '8px 12px' }}>
               Entrar
             </Link>
-            <button onClick={checkoutMonthly}
+            <button onClick={checkoutMonthly1m}
               style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
                 fontFamily: sans, fontWeight: 600, fontSize: '13px', padding: '9px 18px',
                 cursor: 'pointer', transition: 'background 0.18s' }}
@@ -420,13 +424,13 @@ export default function LandingPage() {
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-            <button onClick={checkoutMonthly}
+            <button onClick={checkoutMonthly1m}
               style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
                 fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
                 cursor: 'pointer', transition: 'background 0.18s' }}
               onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
               onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
-              Assinar Agora — R$ 129/mês
+              Assinar Agora — R$ 129/mês (1M)
             </button>
             <Link to="/auth/signup"
               style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -447,7 +451,7 @@ export default function LandingPage() {
           <div style={{ textAlign: 'center', marginBottom: '52px' }}>
             <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
               letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
-              O que você recebe por R$129/mês
+              O que você recebe por R$129/mês (1M tokens)
             </span>
             <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
               fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px', maxWidth: '560px', margin: '0 auto 12px' }}>
@@ -515,7 +519,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div style={{ textAlign: 'center', marginTop: '32px' }}>
-            <button onClick={checkoutMonthly}
+            <button onClick={checkoutMonthly1m}
               style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
                 fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
                 cursor: 'pointer', transition: 'background 0.18s' }}
@@ -588,7 +592,7 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-          <button onClick={checkoutMonthly}
+          <button onClick={checkoutMonthly1m}
             style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
               fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
               cursor: 'pointer', transition: 'background 0.18s' }}
@@ -623,7 +627,7 @@ export default function LandingPage() {
               'Questões objetivas com explicação de cada alternativa',
               'Questões certo/errado com explicação e fundamentação',
               'Mentoria e gestão personalizada do tempo',
-              '600.000 tokens por ciclo (≈ 400 interações)',
+              '1.000.000 tokens por ciclo (plano 1M) ou 600.000 tokens (plano 600k)',
               'Atualizações constantes',
             ].map((item, i, arr) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '11px',
@@ -636,7 +640,7 @@ export default function LandingPage() {
             ))}
           </div>
           <div style={{ textAlign: 'center', marginTop: '28px' }}>
-            <button onClick={checkoutMonthly}
+            <button onClick={checkoutMonthly1m}
               style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
                 fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
                 cursor: 'pointer', transition: 'background 0.18s' }}
@@ -713,7 +717,7 @@ export default function LandingPage() {
             alignItems: 'flex-start', marginBottom: '40px', padding: '16px 0' }}>
             {/* Grátis */}
             <div style={{ background: 'rgba(15,31,61,0.5)', border: `2px solid ${C.border}`, borderRadius: '20px',
-              padding: '32px 28px', flex: '1 1 240px', minWidth: '220px', maxWidth: '300px',
+              padding: '32px 28px', flex: '1 1 220px', minWidth: '200px', maxWidth: '280px',
               display: 'flex', flexDirection: 'column', gap: '0' }}>
               <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px', fontWeight: 700,
                 letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Grátis</p>
@@ -741,9 +745,41 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Mensal */}
+            {/* 600k Mensal */}
+            <div style={{ background: 'rgba(15,31,61,0.5)', border: `2px solid ${C.border}`, borderRadius: '20px',
+              padding: '32px 28px', flex: '1 1 220px', minWidth: '200px', maxWidth: '280px',
+              display: 'flex', flexDirection: 'column', gap: '0' }}>
+              <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px', fontWeight: 700,
+                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>600k · Mensal</p>
+              <div style={{ marginBottom: '4px' }}>
+                <span style={{ fontFamily: serif, color: C.offWhite, fontSize: '52px', fontWeight: 700, letterSpacing: '-1px' }}>R$ 99</span>
+                <span style={{ color: C.slate, fontFamily: sans, fontSize: '15px' }}>/mês</span>
+              </div>
+              <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px', marginBottom: '0' }}>ou R$ 999/ano</p>
+              <div style={{ height: '1px', background: C.border, margin: '22px 0' }} />
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
+                {['600.000 tokens por mês', 'Todos os agentes especializados',
+                  'Informativos STF/STJ atualizados', 'Súmulas vigentes com casos práticos',
+                  'Questões objetivas e CEBRASPE', 'Cancele a qualquer momento'].map((b, i) => (
+                  <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '9px' }}>
+                    <div style={{ marginTop: '2px' }}><Tick size={13} color={C.slate} /></div>
+                    <span style={{ color: C.slate, fontFamily: sans, fontSize: '13.5px', lineHeight: 1.5 }}>{b}</span>
+                  </li>
+                ))}
+              </ul>
+              <button onClick={checkoutMonthly600k}
+                style={{ background: 'transparent', color: C.emerald, border: `2px solid ${C.emerald}`,
+                  borderRadius: '10px', fontFamily: sans, fontWeight: 600, fontSize: '14.5px',
+                  padding: '11px 24px', cursor: 'pointer', transition: 'all 0.18s', width: '100%' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.emerald; (e.currentTarget as HTMLButtonElement).style.color = '#fff'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = C.emerald; }}>
+                Assinar 600k
+              </button>
+            </div>
+
+            {/* 1M Mensal — Mais Popular */}
             <div style={{ background: C.navyMid, border: `2px solid ${C.emerald}`, borderRadius: '20px',
-              padding: '32px 28px', flex: '1 1 240px', minWidth: '220px', maxWidth: '340px',
+              padding: '32px 28px', flex: '1 1 220px', minWidth: '200px', maxWidth: '300px',
               display: 'flex', flexDirection: 'column', position: 'relative',
               boxShadow: '0 0 60px rgba(16,185,129,0.12)' }}>
               <span style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)',
@@ -752,16 +788,17 @@ export default function LandingPage() {
                 Mais Popular
               </span>
               <p style={{ color: C.emerald, fontFamily: sans, fontSize: '12px', fontWeight: 700,
-                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Mensal</p>
+                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>1M · Mensal</p>
               <div style={{ marginBottom: '4px' }}>
-                <span className="lp-gtext" style={{ fontFamily: serif, fontSize: '60px', fontWeight: 700, letterSpacing: '-1px' }}>R$ 129</span>
-                <span style={{ color: C.emeraldLight, fontFamily: sans, fontSize: '16px' }}>/mês</span>
+                <span className="lp-gtext" style={{ fontFamily: serif, fontSize: '52px', fontWeight: 700, letterSpacing: '-1px' }}>R$ 129</span>
+                <span style={{ color: C.emeraldLight, fontFamily: sans, fontSize: '15px' }}>/mês</span>
               </div>
+              <p style={{ color: C.emeraldLight, fontFamily: sans, fontSize: '12px', marginBottom: '0' }}>ou R$ 1.290/ano</p>
               <div style={{ height: '1px', background: C.border, margin: '22px 0' }} />
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
-                {['600.000 tokens por mês', 'Todos os agentes especializados',
+                {['1.000.000 tokens por mês', 'Todos os agentes especializados',
                   'Informativos STF/STJ atualizados', 'Súmulas vigentes com casos práticos',
-                  'Mentoria e cronograma personalizados', 'Questões objetivas e certo/errado',
+                  'Questões objetivas e CEBRASPE', 'Melhor custo por pergunta',
                   'Cancele a qualquer momento'].map((b, i) => (
                   <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '9px' }}>
                     <div style={{ marginTop: '2px' }}><Tick size={13} /></div>
@@ -769,19 +806,19 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <button onClick={checkoutMonthly}
+              <button onClick={checkoutMonthly1m}
                 style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
                   fontFamily: sans, fontWeight: 600, fontSize: '14.5px', padding: '11px 24px',
                   cursor: 'pointer', transition: 'background 0.18s', width: '100%' }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
                 onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
-                Assinar Agora
+                Assinar 1M
               </button>
             </div>
 
-            {/* Anual */}
+            {/* Anual — Melhor Custo-Benefício (1M) */}
             <div style={{ background: 'rgba(15,31,61,0.5)', border: `2px solid ${C.border}`, borderRadius: '20px',
-              padding: '32px 28px', flex: '1 1 240px', minWidth: '220px', maxWidth: '300px',
+              padding: '32px 28px', flex: '1 1 220px', minWidth: '200px', maxWidth: '280px',
               display: 'flex', flexDirection: 'column', position: 'relative' }}>
               <span style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%)',
                 background: 'rgba(16,185,129,0.15)', color: C.emeraldLight, border: `1px solid rgba(16,185,129,0.3)`,
@@ -790,28 +827,28 @@ export default function LandingPage() {
                 Melhor Custo-Benefício
               </span>
               <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px', fontWeight: 700,
-                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>Anual</p>
+                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '16px' }}>1M · Anual</p>
               <div style={{ marginBottom: '4px' }}>
                 <span style={{ fontFamily: serif, color: C.offWhite, fontSize: '52px', fontWeight: 700, letterSpacing: '-1px' }}>R$ 1.290</span>
               </div>
-              <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px', marginBottom: '0' }}>≈ R$ 107,50/mês</p>
+              <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px', marginBottom: '0' }}>≈ R$ 107,50/mês · economia de R$ 258</p>
               <div style={{ height: '1px', background: C.border, margin: '22px 0' }} />
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
-                {['600.000 tokens por ciclo', 'Todos os benefícios do plano Mensal',
-                  'Economia de R$ 258,00 vs mensal', 'Acesso por 12 meses garantido'].map((b, i) => (
+                {['1.000.000 tokens por ciclo', 'Todos os benefícios do plano 1M Mensal',
+                  'Economia de R$ 258 vs mensal', 'Acesso por 12 meses garantido'].map((b, i) => (
                   <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '9px' }}>
                     <div style={{ marginTop: '2px' }}><Tick size={13} color={C.slate} /></div>
                     <span style={{ color: C.slate, fontFamily: sans, fontSize: '13.5px', lineHeight: 1.5 }}>{b}</span>
                   </li>
                 ))}
               </ul>
-              <button onClick={checkoutAnnual}
+              <button onClick={checkoutAnnual1m}
                 style={{ background: 'transparent', color: C.emerald, border: `2px solid ${C.emerald}`,
                   borderRadius: '10px', fontFamily: sans, fontWeight: 600, fontSize: '14.5px',
                   padding: '11px 24px', cursor: 'pointer', transition: 'all 0.18s', width: '100%' }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.emerald; (e.currentTarget as HTMLButtonElement).style.color = '#fff'; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = C.emerald; }}>
-                Assinar Anual
+                Assinar Anual 1M
               </button>
             </div>
           </div>
@@ -885,15 +922,15 @@ export default function LandingPage() {
             <p style={{ color: C.slate, fontFamily: sans, fontSize: '12px' }}>Cancele quando quiser. Sem multa, sem fidelidade.</p>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px' }}>
-            <button onClick={checkoutMonthly}
+            <button onClick={checkoutMonthly1m}
               style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
                 fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
                 cursor: 'pointer', transition: 'background 0.18s' }}
               onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
               onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
-              Assinar Agora — R$ 129/mês
+              Assinar Agora — R$ 129/mês (1M)
             </button>
-            <button onClick={checkoutAnnual}
+            <button onClick={checkoutAnnual1m}
               style={{ background: 'transparent', color: C.emerald, border: `2px solid ${C.emerald}`,
                 borderRadius: '10px', fontFamily: sans, fontWeight: 600, fontSize: '16px',
                 padding: '13px 36px', cursor: 'pointer', transition: 'all 0.18s' }}
