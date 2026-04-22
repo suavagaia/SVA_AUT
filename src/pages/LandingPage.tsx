@@ -5,8 +5,10 @@ import { LogoIcon } from '@/components/LogoIcon';
 import { toast } from 'sonner';
 
 // ─── Price IDs Stripe ────────────────────────────────────────────────────────
-const PRICE_MONTHLY = 'price_1SUXQFGmx6vYOM03NfHHL89v';
-const PRICE_ANNUAL  = 'price_1SUXRUGmx6vYOM03MTVtneoX';
+const PRICE_MONTHLY_600K = 'price_1TP8QLGmx6vYOM03CLWb2x9H'; // R$99/mês — 600k tokens
+const PRICE_ANNUAL_600K  = 'price_1TP8QVGmx6vYOM03Fgvf6Urk'; // R$999/ano — 600k tokens
+const PRICE_MONTHLY_1M   = 'price_1TP8QgGmx6vYOM03RiFKAp9B'; // R$129/mês — 1M tokens
+const PRICE_ANNUAL_1M    = 'price_1TP8QqGmx6vYOM03ZwLhA6Ne'; // R$1.290/ano — 1M tokens
 const PRICE_CREDITS = 'price_1SAwTuGmx6vYOM03G4nuqdbQ';
 
 // ─── Dados dos agentes ───────────────────────────────────────────────────────
@@ -326,8 +328,10 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const checkoutMonthly = () => invokeCheckout(PRICE_MONTHLY, 'monthly', navigate);
-  const checkoutAnnual  = () => invokeCheckout(PRICE_ANNUAL, 'annual', navigate);
+  const checkoutMonthly600k = () => invokeCheckout(PRICE_MONTHLY_600K, 'monthly_600k', navigate);
+  const checkoutAnnual600k  = () => invokeCheckout(PRICE_ANNUAL_600K, 'annual_600k', navigate);
+  const checkoutMonthly1m   = () => invokeCheckout(PRICE_MONTHLY_1M, 'monthly_1m', navigate);
+  const checkoutAnnual1m    = () => invokeCheckout(PRICE_ANNUAL_1M, 'annual_1m', navigate);
   const checkoutCredits = () => invokeCheckout(PRICE_CREDITS, 'credits', navigate);
 
   return (
@@ -446,7 +450,7 @@ export default function LandingPage() {
             <a href="#planos" className="lp-nav-link">Planos</a>
             <a href="#faq" className="lp-nav-link">FAQ</a>
             <Link to="/auth/login" className="lp-nav-login">Entrar</Link>
-            <button onClick={checkoutMonthly} className="lp-cta-primary" style={{ padding: '10px 18px', fontSize: 13 }}>
+            <button onClick={checkoutMonthly1m} className="lp-cta-primary" style={{ padding: '10px 18px', fontSize: 13 }}>
               Assinar
             </button>
           </nav>
@@ -490,7 +494,7 @@ export default function LandingPage() {
                   concursos públicos de alto nível.
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 40 }}>
-                  <button onClick={checkoutMonthly} className="lp-cta-primary">
+                  <button onClick={checkoutMonthly1m} className="lp-cta-primary">
                     Assinar Agora — R$ 129/mês
                     <span className="lp-arrow">→</span>
                   </button>
@@ -594,7 +598,7 @@ export default function LandingPage() {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: 48 }}>
-            <button onClick={checkoutMonthly} className="lp-cta-primary">
+            <button onClick={checkoutMonthly1m} className="lp-cta-primary">
               Assinar Agora <span className="lp-arrow">→</span>
             </button>
           </div>
@@ -672,7 +676,7 @@ export default function LandingPage() {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: 48 }}>
-            <button onClick={checkoutMonthly} className="lp-cta-primary">
+            <button onClick={checkoutMonthly1m} className="lp-cta-primary">
               Assinar Agora <span className="lp-arrow">→</span>
             </button>
           </div>
@@ -718,7 +722,7 @@ export default function LandingPage() {
           </ul>
 
           <div style={{ textAlign: 'center', marginTop: 48 }}>
-            <button onClick={checkoutMonthly} className="lp-cta-primary">
+            <button onClick={checkoutMonthly1m} className="lp-cta-primary">
               Assinar Agora <span className="lp-arrow">→</span>
             </button>
           </div>
@@ -847,7 +851,7 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <button onClick={checkoutMonthly} className="lp-cta-primary" style={{ width: '100%', justifyContent: 'center' }}>
+              <button onClick={checkoutMonthly1m} className="lp-cta-primary" style={{ width: '100%', justifyContent: 'center' }}>
                 Assinar Agora <span className="lp-arrow">→</span>
               </button>
             </div>
@@ -878,7 +882,7 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <button onClick={checkoutAnnual} className="lp-cta-ghost" style={{ width: '100%', justifyContent: 'center' }}>
+              <button onClick={checkoutAnnual1m} className="lp-cta-ghost" style={{ width: '100%', justifyContent: 'center' }}>
                 Assinar Anual
               </button>
             </div>
@@ -959,10 +963,10 @@ export default function LandingPage() {
           </div>
 
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button onClick={checkoutMonthly} className="lp-cta-primary">
+            <button onClick={checkoutMonthly1m} className="lp-cta-primary">
               Assinar Agora — R$ 129/mês <span className="lp-arrow">→</span>
             </button>
-            <button onClick={checkoutAnnual} className="lp-cta-ghost">
+            <button onClick={checkoutAnnual1m} className="lp-cta-ghost">
               Plano Anual — R$ 1.290
             </button>
           </div>
