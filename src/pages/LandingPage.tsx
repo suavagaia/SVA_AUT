@@ -355,10 +355,10 @@ export default function LandingPage() {
             </span>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Link to="/auth/signup" className="lp-hide"
+            <Link to="/auth/login" className="lp-hide"
               style={{ color: C.slateLight, fontFamily: sans, fontSize: '14px', fontWeight: 500,
-                padding: '8px 16px', border: `1px solid ${C.border}`, borderRadius: '8px' }}>
-              Começar Grátis
+                padding: '8px 12px' }}>
+              Entrar
             </Link>
             <button onClick={checkoutMonthly}
               style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
