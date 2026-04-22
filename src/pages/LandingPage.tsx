@@ -226,60 +226,56 @@ interface AgentData {
   pq: string;
 }
 
-function AgentCard({ ag }: { ag: AgentData }) {
+function AgentRow({ ag }: { ag: AgentData }) {
   const [exp, setExp] = useState(false);
   const show = exp ? ag.itens : ag.itens.slice(0, 4);
   const more = ag.itens.length - 4;
 
   return (
-    <div style={{ background: C.navyMid, border: `1px solid ${C.borderEm}`, borderRadius: '16px',
-      display: 'flex', flexDirection: 'column', transition: 'border-color 0.2s' }}
-      onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(16,185,129,0.45)')}
-      onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = C.borderEm)}>
-
-      <div style={{ padding: '22px 22px 18px', borderBottom: `1px solid ${C.border}` }}>
-        <span style={{ background: 'rgba(16,185,129,0.1)', color: C.emeraldLight,
-          border: `1px solid rgba(16,185,129,0.18)`, fontSize: '10px', fontWeight: 700,
-          letterSpacing: '2px', textTransform: 'uppercase' as const, borderRadius: '100px',
-          padding: '3px 11px', display: 'inline-block', marginBottom: '10px', fontFamily: sans }}>
-          Agente {ag.n}
-        </span>
-        <h3 style={{ fontFamily: serif, color: C.offWhite, fontSize: '18px', fontWeight: 700,
-          margin: '0 0 7px', lineHeight: 1.25 }}>{ag.titulo}</h3>
-        <p style={{ fontFamily: sans, color: C.slate, fontSize: '13.5px', lineHeight: 1.6, margin: 0 }}>
-          {ag.sub}
-        </p>
+    <article className="lp-agent-row">
+      <div>
+        <div className="lp-agent-numeral">{String(ag.n).padStart(2, '0')}</div>
+        <div className="lp-eyebrow-muted" style={{ fontSize: 10, marginTop: 8 }}>Agente</div>
       </div>
 
-      <div style={{ padding: '18px 22px', flex: 1, display: 'flex', flexDirection: 'column', gap: '9px' }}>
-        {show.map((item, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '9px' }}>
-            <div style={{ marginTop: '2px' }}><Tick size={13} /></div>
-            <span style={{ fontFamily: sans, color: C.slateLight, fontSize: '13px', lineHeight: 1.55 }}>{item}</span>
+      <div>
+        <h3 style={{ fontFamily: serif, fontSize: 32, lineHeight: 1.1, letterSpacing: '-0.02em',
+          marginBottom: 14, color: C.offWhite, fontWeight: 400 }}>{ag.titulo}</h3>
+        <p style={{ fontSize: 15, color: C.slateLight, lineHeight: 1.6, marginBottom: 24,
+          maxWidth: 420, fontFamily: sans }}>{ag.sub}</p>
+        <div style={{ background: 'rgba(16,185,129,0.05)', borderLeft: `2px solid ${C.emerald}`,
+          padding: '12px 16px', maxWidth: 420 }}>
+          <div className="lp-eyebrow" style={{ fontSize: 10, letterSpacing: '0.2em', marginBottom: 6 }}>
+            Por que vale R$ 129/mês
           </div>
-        ))}
+          <p style={{ fontSize: 13, color: C.slateLighter, lineHeight: 1.6, fontFamily: sans }}>{ag.pq}</p>
+        </div>
+      </div>
+
+      <div>
+        <div className="lp-eyebrow-muted" style={{ fontSize: 10, marginBottom: 16 }}>
+          O que inclui · {ag.itens.length} items
+        </div>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {show.map((item, i) => (
+            <li key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+              <span style={{ fontFamily: mono, fontSize: 11, color: C.emerald, marginTop: 4, minWidth: 20 }}>
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span style={{ fontSize: 14, color: C.slateLighter, lineHeight: 1.6, fontFamily: sans }}>{item}</span>
+            </li>
+          ))}
+        </ul>
         {more > 0 && (
           <button onClick={() => setExp(!exp)}
-            style={{ color: C.emeraldLight, fontFamily: sans, fontSize: '12.5px', fontWeight: 600,
-              background: 'none', border: 'none', cursor: 'pointer', padding: '3px 0 0', textAlign: 'left' as const }}>
-            {exp ? 'Mostrar menos' : `Ver mais ${more} ${more === 1 ? 'item' : 'itens'}`}
+            style={{ marginTop: 16, background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+              color: C.emerald, fontSize: 13, fontWeight: 500, fontFamily: sans,
+              display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            {exp ? '— Mostrar menos' : `+ Ver mais ${more} ${more === 1 ? 'item' : 'itens'}`}
           </button>
         )}
       </div>
-
-      <div style={{ padding: '0 22px 22px' }}>
-        <div style={{ background: 'rgba(16,185,129,0.06)', border: `1px solid rgba(16,185,129,0.15)`,
-          borderRadius: '10px', padding: '13px 15px' }}>
-          <p style={{ color: C.emeraldLight, fontFamily: sans, fontSize: '10px', fontWeight: 700,
-            letterSpacing: '1.5px', textTransform: 'uppercase' as const, marginBottom: '5px' }}>
-            Por que vale R$129/mês:
-          </p>
-          <p style={{ color: C.slate, fontFamily: sans, fontSize: '12.5px', lineHeight: 1.6, margin: 0 }}>
-            {ag.pq}
-          </p>
-        </div>
-      </div>
-    </div>
+    </article>
   );
 }
 
@@ -336,7 +332,16 @@ export default function LandingPage() {
         .lp-areas{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
         .lp-gtext{background:linear-gradient(90deg,#10B981,#34D399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
         .lp-sec{padding:96px 0}
+        .lp-sec-border{border-top:1px solid ${C.border}}
         .lp-card-hover{transition:border-color 0.2s,background 0.2s}
+        .lp-agent-head{display:grid;grid-template-columns:100px 1fr;gap:48px;margin-bottom:40px}
+        .lp-agent-row{display:grid;grid-template-columns:100px 1fr 1fr;gap:48px;padding:48px 0;border-top:1px solid ${C.border};align-items:start}
+        .lp-agent-numeral{font-family:${serif};font-size:64px;line-height:1;color:${C.emerald};letter-spacing:-.02em}
+        @media(max-width:900px){
+          .lp-agent-head{grid-template-columns:1fr;gap:16px}
+          .lp-agent-row{grid-template-columns:1fr;gap:24px;padding:36px 0}
+          .lp-agent-numeral{font-size:48px}
+        }
         .lp-hero-grid{display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:start}
         .lp-hero-numeral{font-family:${serif};font-size:clamp(60px,9vw,140px);line-height:.95;letter-spacing:-.04em;color:${C.slate};opacity:.22}
         .lp-hero-h1{font-family:${serif};font-size:clamp(48px,7vw,96px);line-height:1.02;letter-spacing:-.03em;color:${C.offWhite};margin-bottom:32px}
@@ -459,23 +464,26 @@ export default function LandingPage() {
       </section>
 
       {/* ── AGENTES ── */}
-      <section className="lp-sec" style={{ background: C.navyCore }}>
+      <section id="agentes" className="lp-sec lp-sec-border" style={{ background: C.navyDeep }}>
         <div className="lp-wrap">
-          <div style={{ textAlign: 'center', marginBottom: '52px' }}>
-            <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
-              letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
-              O que você recebe por R$129/mês
-            </span>
-            <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
-              fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px', maxWidth: '560px', margin: '0 auto 12px' }}>
-              Agentes especializados em concursos públicos
-            </h2>
-            <p style={{ color: C.slate, fontFamily: sans, fontSize: '15px', lineHeight: 1.7 }}>
-              Cada um desenvolvido especificamente para uma área dos seus estudos.
-            </p>
+          <div className="lp-agent-head">
+            <div className="lp-eyebrow" style={{ paddingTop: 8 }}>§02</div>
+            <div style={{ maxWidth: 720 }}>
+              <div className="lp-eyebrow" style={{ marginBottom: 16 }}>
+                O que você recebe por R$ 129/mês
+              </div>
+              <h2 style={{ fontFamily: serif, fontSize: 'clamp(40px,5.5vw,68px)', lineHeight: 1.05,
+                letterSpacing: '-0.025em', marginBottom: 20, color: C.offWhite, fontWeight: 400 }}>
+                Agentes especializados<br />
+                em <em style={{ fontStyle: 'italic', color: C.emeraldLight }}>concursos públicos</em>
+              </h2>
+              <p style={{ fontSize: 17, color: C.slateLight, lineHeight: 1.6, maxWidth: 560, fontFamily: sans }}>
+                Cada um desenvolvido especificamente para uma área dos seus estudos.
+              </p>
+            </div>
           </div>
-          <div className="lp-agents">
-            {AGENTES.map((ag) => <AgentCard key={ag.n} ag={ag} />)}
+          <div>
+            {AGENTES.map((ag) => <AgentRow key={ag.n} ag={ag} />)}
           </div>
         </div>
       </section>
