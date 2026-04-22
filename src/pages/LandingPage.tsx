@@ -337,10 +337,16 @@ export default function LandingPage() {
         .lp-agent-head{display:grid;grid-template-columns:100px 1fr;gap:48px;margin-bottom:40px}
         .lp-agent-row{display:grid;grid-template-columns:100px 1fr 1fr;gap:48px;padding:48px 0;border-top:1px solid ${C.border};align-items:start}
         .lp-agent-numeral{font-family:${serif};font-size:64px;line-height:1;color:${C.emerald};letter-spacing:-.02em}
+        .lp-ledger{display:grid;grid-template-columns:1fr 1fr;border:1px solid ${C.border}}
+        .lp-ledger-col{padding:36px 36px 28px}
+        .lp-diff-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:80px;align-items:start}
         @media(max-width:900px){
           .lp-agent-head{grid-template-columns:1fr;gap:16px}
           .lp-agent-row{grid-template-columns:1fr;gap:24px;padding:36px 0}
           .lp-agent-numeral{font-size:48px}
+          .lp-ledger{grid-template-columns:1fr}
+          .lp-ledger-col{border-right:none!important;border-bottom:1px solid ${C.border}}
+          .lp-diff-grid{grid-template-columns:1fr;gap:32px}
         }
         .lp-hero-grid{display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:start}
         .lp-hero-numeral{font-family:${serif};font-size:clamp(60px,9vw,140px);line-height:.95;letter-spacing:-.04em;color:${C.slate};opacity:.22}
@@ -489,102 +495,98 @@ export default function LandingPage() {
       </section>
 
       {/* ── CUSTO-BENEFÍCIO ── */}
-      <section className="lp-sec" style={{ background: C.navyDeep }}>
-        <div className="lp-wrap-md">
-          <div style={{ textAlign: 'center', marginBottom: '44px' }}>
-            <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
-              letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
-              Análise de Custo-Benefício
-            </span>
-            <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
-              fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px' }}>
-              Quanto você economiza todo mês
+      <section className="lp-sec lp-sec-border" style={{ background: C.navyCore }}>
+        <div className="lp-wrap-sm">
+          <div style={{ textAlign: 'center', marginBottom: 72 }}>
+            <div className="lp-eyebrow" style={{ marginBottom: 16 }}>§03 — Análise de Custo-Benefício</div>
+            <h2 style={{ fontFamily: serif, fontSize: 'clamp(40px,5.5vw,68px)', lineHeight: 1.05,
+              letterSpacing: '-0.025em', color: C.offWhite, fontWeight: 400 }}>
+              Quanto você <em style={{ fontStyle: 'italic', color: C.emeraldLight }}>economiza</em> todo mês
             </h2>
           </div>
-          <div className="lp-col2">
-            <div style={{ background: C.navyMid, border: `1px solid ${C.redBorder}`, borderRadius: '16px', padding: '30px' }}>
-              <p style={{ color: C.red, fontFamily: sans, fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '22px' }}>
-                Sem o Sua Vaga IA
-              </p>
+
+          <div className="lp-ledger">
+            <div className="lp-ledger-col" style={{ borderRight: `1px solid ${C.border}` }}>
+              <div className="lp-eyebrow" style={{ color: C.red, marginBottom: 28 }}>Sem o Sua Vaga IA</div>
               {[['Livros de doutrina', 'R$ 2.000+'], ['Coaching / mentoria', 'R$ 2.000+'],
                 ['Simulados', 'R$ 500+'], ['Informativos', 'R$ 400+']].map(([item, val], k) => (
                 <div key={k} style={{ display: 'flex', justifyContent: 'space-between',
-                  paddingBottom: '13px', marginBottom: '13px', borderBottom: `1px solid ${C.border}` }}>
-                  <span style={{ color: C.slate, fontFamily: sans, fontSize: '14px' }}>{item}</span>
-                  <span style={{ color: C.red, fontFamily: sans, fontSize: '14px', fontWeight: 700 }}>{val}</span>
+                  padding: '16px 0', borderTop: k === 0 ? 'none' : `1px solid ${C.border}` }}>
+                  <span style={{ fontSize: 14, color: C.slateLight, fontFamily: sans }}>{item}</span>
+                  <span style={{ fontFamily: mono, fontSize: 14, color: C.red, fontWeight: 500 }}>{val}</span>
                 </div>
               ))}
-              <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '4px' }}>
-                <span style={{ color: C.slateLight, fontFamily: sans, fontWeight: 600 }}>Total mensal</span>
-                <span style={{ color: C.red, fontFamily: serif, fontSize: '26px', fontWeight: 700 }}>R$ 4.900+</span>
+              <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 24, marginTop: 8,
+                display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <span className="lp-eyebrow-muted">Total / mês</span>
+                <span style={{ fontFamily: serif, fontSize: 40, color: C.red, letterSpacing: '-0.02em' }}>
+                  R$ 4.900+
+                </span>
               </div>
             </div>
-            <div style={{ background: C.navyMid, border: `2px solid ${C.emerald}`, borderRadius: '16px',
-              padding: '30px', boxShadow: '0 0 60px rgba(16,185,129,0.1)', display: 'flex',
-              flexDirection: 'column', justifyContent: 'space-between' }}>
-              <p style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
-                letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '22px' }}>Com o Sua Vaga IA</p>
-              <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <span className="lp-gtext" style={{ fontFamily: serif, fontSize: '72px', fontWeight: 700 }}>R$ 129</span>
-                <span style={{ color: C.emeraldLight, fontFamily: sans, fontSize: '20px', fontWeight: 500 }}>/mês</span>
-                <p style={{ color: C.slate, fontFamily: sans, fontSize: '13px', marginTop: '4px' }}>
+
+            <div className="lp-ledger-col" style={{ background: 'rgba(16,185,129,0.04)' }}>
+              <div className="lp-eyebrow" style={{ marginBottom: 28 }}>Com o Sua Vaga IA</div>
+              <div style={{ padding: '32px 0', textAlign: 'center' }}>
+                <div style={{ fontFamily: serif, fontSize: 112, lineHeight: 0.9,
+                  letterSpacing: '-0.04em', color: C.offWhite, marginBottom: 4, whiteSpace: 'nowrap' }}>
+                  R$ 129
+                </div>
+                <div className="lp-eyebrow">por mês</div>
+                <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>
                   ou R$ 1.290/ano (≈ R$ 107,50/mês)
-                </p>
+                </div>
               </div>
-              <div style={{ background: 'rgba(16,185,129,0.08)', border: `1px solid rgba(16,185,129,0.2)`,
-                borderRadius: '12px', padding: '14px 16px', textAlign: 'center' }}>
-                <p style={{ color: C.emeraldLight, fontFamily: serif, fontSize: '18px', fontWeight: 700 }}>
+              <div style={{ borderTop: `1px solid ${C.borderEm}`, paddingTop: 20, textAlign: 'center' }}>
+                <div style={{ fontFamily: serif, fontSize: 22, color: C.emeraldLight,
+                  letterSpacing: '-0.01em', fontStyle: 'italic' }}>
                   Economia de R$ 4.700,00+ por mês
-                </p>
+                </div>
               </div>
             </div>
           </div>
-          <div style={{ textAlign: 'center', marginTop: '32px' }}>
-            <button onClick={checkoutMonthly}
-              style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
-                fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
-                cursor: 'pointer', transition: 'background 0.18s' }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
-              Assinar Agora
+
+          <div style={{ textAlign: 'center', marginTop: 48 }}>
+            <button onClick={checkoutMonthly} className="lp-cta-primary">
+              Assinar Agora <span className="lp-arrow">→</span>
             </button>
           </div>
         </div>
       </section>
 
       {/* ── DIFERENCIAL ── */}
-      <section className="lp-sec" style={{ background: C.navyCore }}>
-        <div className="lp-wrap-md" style={{ textAlign: 'center' }}>
-          <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
-            letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
-            Nosso Diferencial
-          </span>
-          <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
-            fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px', marginBottom: '10px' }}>
-            Por que o Sua Vaga IA é diferente de tudo
-          </h2>
-          <p style={{ color: C.slate, fontFamily: sans, fontSize: '15px', lineHeight: 1.7, marginBottom: '44px' }}>
-            Primeira plataforma de IA especializada em concursos públicos
-          </p>
-          <div className="lp-col2" style={{ textAlign: 'left' }}>
-            {[
-              'Inteligência artificial enriquecida com as melhores doutrinas',
-              'IA que prioriza e seleciona os últimos entendimentos jurisprudenciais',
-              'Casos práticos que facilitam o entendimento de cada tema',
-              'Estudo organizado, completo e personalizado para o seu edital',
-            ].map((item, i) => (
-              <div key={i} className="lp-card-hover" style={{ background: C.navyMid, border: `1px solid ${C.border}`,
-                borderRadius: '14px', padding: '20px', display: 'flex', alignItems: 'flex-start', gap: '13px' }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = C.borderEm)}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = C.border)}>
-                <div style={{ width: '30px', height: '30px', borderRadius: '8px',
-                  background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', flexShrink: 0, marginTop: '1px' }}>
-                  <Tick size={14} />
-                </div>
-                <p style={{ color: C.slateLight, fontFamily: sans, fontSize: '14px', lineHeight: 1.6 }}>{item}</p>
-              </div>
-            ))}
+      <section className="lp-sec lp-sec-border" style={{ background: C.navyDeep }}>
+        <div className="lp-wrap">
+          <div className="lp-diff-grid">
+            <div>
+              <div className="lp-eyebrow" style={{ marginBottom: 16 }}>§04 — Nosso Diferencial</div>
+              <h2 style={{ fontFamily: serif, fontSize: 'clamp(40px,5vw,64px)', lineHeight: 1.05,
+                letterSpacing: '-0.025em', marginBottom: 24, color: C.offWhite, fontWeight: 400 }}>
+                Por que o Sua Vaga IA é <em style={{ fontStyle: 'italic', color: C.emeraldLight }}>diferente</em> de tudo
+              </h2>
+              <p style={{ fontSize: 16, color: C.slateLight, lineHeight: 1.7, fontFamily: sans }}>
+                Primeira plataforma de IA especializada em concursos públicos
+              </p>
+            </div>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              {[
+                'Inteligência artificial enriquecida com as melhores doutrinas',
+                'IA que prioriza e seleciona os últimos entendimentos jurisprudenciais',
+                'Casos práticos que facilitam o entendimento de cada tema',
+                'Estudo organizado, completo e personalizado para o seu edital',
+              ].map((item, i, arr) => (
+                <li key={i} style={{ display: 'grid', gridTemplateColumns: '60px 1fr', gap: 24,
+                  padding: '28px 0', borderTop: `1px solid ${C.border}`,
+                  ...(i === arr.length - 1 ? { borderBottom: `1px solid ${C.border}` } : {}) }}>
+                  <div style={{ fontFamily: serif, fontSize: 28, color: C.emerald,
+                    lineHeight: 1, letterSpacing: '-0.02em' }}>
+                    {String(i + 1).padStart(2, '0')}
+                  </div>
+                  <p style={{ fontSize: 19, color: C.offWhite, lineHeight: 1.45,
+                    letterSpacing: '-0.005em', fontFamily: sans }}>{item}</p>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
