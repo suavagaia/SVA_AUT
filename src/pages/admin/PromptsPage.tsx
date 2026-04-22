@@ -38,8 +38,27 @@ interface Agent {
   max_completion_tokens: number;
   use_supabase_rag: boolean;
   supabase_rag_table: string | null;
+  rag_config: RagConfigItem[];
   subject_id: string | null;
 }
+
+interface RagConfigItem {
+  tipo: string;
+  tribunal: string;
+  max_results: number;
+}
+
+// Fontes disponíveis para RAG
+const RAG_SOURCES: { label: string; tipo: string; tribunal: string }[] = [
+  { label: "Informativos STJ", tipo: "informativo", tribunal: "STJ" },
+  { label: "Informativos STF", tipo: "informativo", tribunal: "STF" },
+  { label: "Informativos TST", tipo: "informativo", tribunal: "TST" },
+  { label: "Súmulas STJ", tipo: "sumula", tribunal: "STJ" },
+  { label: "Súmulas STF", tipo: "sumula", tribunal: "STF" },
+  { label: "Súmulas TST", tipo: "sumula", tribunal: "TST" },
+  { label: "Súmulas Vinculantes STF", tipo: "sumula_vinculante", tribunal: "STF" },
+  { label: "Orientações Jurisprudenciais TST", tipo: "oj_tst", tribunal: "TST" },
+];
 
 interface Area { id: string; name: string; }
 interface Contest { id: string; name: string; area_id: string; }
@@ -142,7 +161,7 @@ export default function AdminPromptsPage() {
   const fetchAgents = async () => {
     const { data } = await supabase
       .from('agents')
-      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, file_search_max_results, verbosity, response_format, max_completion_tokens, use_supabase_rag, supabase_rag_table, subject_id')
+      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, file_search_max_results, verbosity, response_format, max_completion_tokens, use_supabase_rag, supabase_rag_table, rag_config, subject_id')
       .order('display_order');
     setAgents((data as Agent[]) ?? []);
     setLoading(false);
@@ -199,6 +218,7 @@ export default function AdminPromptsPage() {
       tool_file_search_vector_store_ids: editing.tool_file_search_vector_store_ids,
       use_supabase_rag: editing.use_supabase_rag ?? false,
       supabase_rag_table: editing.use_supabase_rag ? (editing.supabase_rag_table || null) : null,
+      rag_config: editing.rag_config ?? [],
       max_completion_tokens: editing.max_completion_tokens ?? 8000,
     }).eq('id', editing.id);
     if (error) { setSaving(false); toast.error(error.message); return; }
@@ -505,30 +525,70 @@ export default function AdminPromptsPage() {
                 <Switch checked={editing.tool_web_search} onCheckedChange={(v) => updateField('tool_web_search', v)} />
               </div>
 
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-muted-light">Supabase RAG</Label>
-                  <p className="text-xs text-muted-foreground mt-0.5">Busca no banco de dados local antes de chamar o GPT</p>
+              {/* ─── Supabase RAG — Multiselect ─── */}
+              <div>
+                <Label className="text-muted-light">Supabase RAG</Label>
+                <p className="text-xs text-muted-foreground mt-0.5 mb-3">
+                  Selecione as fontes de jurisprudência e defina quantos resultados buscar de cada uma.
+                </p>
+                <div className="space-y-2">
+                  {RAG_SOURCES.map(source => {
+                    const key = `${source.tipo}|${source.tribunal}`;
+                    const existing = (editing.rag_config ?? []).find(
+                      r => r.tipo === source.tipo && r.tribunal === source.tribunal
+                    );
+                    const isSelected = !!existing;
+                    return (
+                      <div key={key} className={`rounded-md border px-3 py-2 ${isSelected ? 'border-emerald bg-emerald/5' : 'border-navy-border bg-navy-deep'}`}>
+                        <div className="flex items-center justify-between gap-3">
+                          <label className="flex items-center gap-2 cursor-pointer flex-1">
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={(checked) => {
+                                const current = editing.rag_config ?? [];
+                                if (checked) {
+                                  updateField('rag_config', [...current, { tipo: source.tipo, tribunal: source.tribunal, max_results: 3 }]);
+                                } else {
+                                  updateField('rag_config', current.filter(r => !(r.tipo === source.tipo && r.tribunal === source.tribunal)));
+                                }
+                              }}
+                            />
+                            <span className="text-sm text-light">{source.label}</span>
+                          </label>
+                          {isSelected && (
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span className="text-xs text-muted-foreground">Máx:</span>
+                              <input
+                                type="number"
+                                min={1}
+                                max={20}
+                                value={existing.max_results}
+                                onChange={(e) => {
+                                  const val = Math.max(1, Math.min(20, parseInt(e.target.value) || 1));
+                                  const current = editing.rag_config ?? [];
+                                  updateField('rag_config', current.map(r =>
+                                    r.tipo === source.tipo && r.tribunal === source.tribunal
+                                      ? { ...r, max_results: val }
+                                      : r
+                                  ));
+                                }}
+                                className="w-14 text-center rounded border border-navy-border bg-navy-deep text-light text-sm px-1 py-0.5"
+                              />
+                              <span className="text-xs text-muted-foreground">resultados</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <Switch checked={editing.use_supabase_rag ?? false} onCheckedChange={(v) => updateField('use_supabase_rag', v)} />
+                {(editing.rag_config ?? []).length > 0 && (
+                  <p className="text-xs text-emerald mt-2">
+                    ✓ {(editing.rag_config ?? []).length} fonte(s) ativa(s) — total máx: {(editing.rag_config ?? []).reduce((s, r) => s + r.max_results, 0)} resultados por pergunta
+                  </p>
+                )}
               </div>
-              {editing.use_supabase_rag && (
-                <div>
-                  <Label className="text-muted-light">Tabela RAG</Label>
-                  <select
-                    value={editing.supabase_rag_table ?? ''}
-                    onChange={(e) => updateField('supabase_rag_table', e.target.value || null)}
-                    className="mt-1 w-full rounded-md border border-navy-border bg-navy-deep text-light px-3 py-2 text-sm"
-                  >
-                    <option value="">Selecione a tabela</option>
-                    <option value="informativos">Informativos STF/STJ</option>
-                    <option value="sumulas">Súmulas STF/STJ/TST</option>
-                    <option value="sumulas_vinculantes">Súmulas Vinculantes STF</option>
-                    <option value="ojs_tst">OJs TST</option>
-                    <option value="jurisprudencia">Tudo (busca geral)</option>
-                  </select>
-                </div>
-              )}
+
               <div>
                 <Label className="text-muted-light">Max Completion Tokens</Label>
                 <p className="text-xs text-muted-foreground mt-1 mb-1">
