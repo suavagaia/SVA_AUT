@@ -340,6 +340,9 @@ export default function LandingPage() {
         .lp-ledger{display:grid;grid-template-columns:1fr 1fr;border:1px solid ${C.border}}
         .lp-ledger-col{padding:36px 36px 28px}
         .lp-diff-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:80px;align-items:start}
+        .lp-areas-grid{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid ${C.border}}
+        .lp-area-cell{padding:28px;display:flex;align-items:center;gap:16px;transition:background .2s}
+        .lp-area-cell:hover{background:rgba(16,185,129,0.04)}
         @media(max-width:900px){
           .lp-agent-head{grid-template-columns:1fr;gap:16px}
           .lp-agent-row{grid-template-columns:1fr;gap:24px;padding:36px 0}
@@ -347,6 +350,13 @@ export default function LandingPage() {
           .lp-ledger{grid-template-columns:1fr}
           .lp-ledger-col{border-right:none!important;border-bottom:1px solid ${C.border}}
           .lp-diff-grid{grid-template-columns:1fr;gap:32px}
+          .lp-areas-grid{grid-template-columns:repeat(2,1fr)}
+          .lp-area-cell{border-right:none!important}
+          .lp-area-cell:nth-child(odd){border-right:1px solid ${C.border}!important}
+        }
+        @media(max-width:540px){
+          .lp-areas-grid{grid-template-columns:1fr}
+          .lp-area-cell:nth-child(odd){border-right:none!important}
         }
         .lp-hero-grid{display:grid;grid-template-columns:auto 1fr;gap:40px;align-items:start}
         .lp-hero-numeral{font-family:${serif};font-size:clamp(60px,9vw,140px);line-height:.95;letter-spacing:-.04em;color:${C.slate};opacity:.22}
@@ -592,54 +602,58 @@ export default function LandingPage() {
       </section>
 
       {/* ── ÁREAS ATENDIDAS ── */}
-      <section className="lp-sec" style={{ background: C.navyDeep }}>
-        <div className="lp-wrap" style={{ textAlign: 'center' }}>
-          <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
-            letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
-            Expansão Constante
-          </span>
-          <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
-            fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px', marginBottom: '8px' }}>
-            Áreas atendidas
-          </h2>
-          <p style={{ color: C.slate, fontFamily: sans, fontSize: '15px', marginBottom: '36px' }}>
-            Disponíveis agora
-          </p>
-          <div className="lp-areas" style={{ marginBottom: '36px' }}>
-            {AREAS.map((area, i) => (
-              <div key={i} className="lp-card-hover" style={{ background: C.navyMid, border: `1px solid ${C.border}`,
-                borderRadius: '12px', padding: '16px 12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = C.borderEm)}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = C.border)}>
-                <span style={{ color: C.slateLight, fontFamily: sans, fontSize: '13px', fontWeight: 500, lineHeight: 1.3 }}>{area}</span>
-              </div>
-            ))}
+      <section id="areas" className="lp-sec lp-sec-border" style={{ background: C.navyCore }}>
+        <div className="lp-wrap">
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <div className="lp-eyebrow" style={{ marginBottom: 16 }}>§05 — Expansão Constante</div>
+            <h2 style={{ fontFamily: serif, fontSize: 'clamp(40px,5.5vw,68px)', lineHeight: 1.05,
+              letterSpacing: '-0.025em', marginBottom: 16, color: C.offWhite, fontWeight: 400 }}>
+              Áreas <em style={{ fontStyle: 'italic', color: C.emeraldLight }}>atendidas</em>
+            </h2>
+            <p style={{ fontSize: 16, color: C.slateLight, fontFamily: sans }}>Disponíveis agora</p>
           </div>
-          <button onClick={checkoutMonthly}
-            style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
-              fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
-              cursor: 'pointer', transition: 'background 0.18s' }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
-            Assinar Agora
-          </button>
+
+          <div className="lp-areas-grid">
+            {AREAS.map((area, i) => {
+              const col = i % 3;
+              const row = Math.floor(i / 3);
+              const lastRow = Math.floor((AREAS.length - 1) / 3);
+              return (
+                <div key={i} className="lp-area-cell" style={{
+                  borderRight: col < 2 ? `1px solid ${C.border}` : 'none',
+                  borderBottom: row < lastRow ? `1px solid ${C.border}` : 'none',
+                }}>
+                  <span style={{ fontFamily: mono, fontSize: 11, color: C.emerald,
+                    letterSpacing: '0.1em', minWidth: 28 }}>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span style={{ fontSize: 15, color: C.offWhite,
+                    letterSpacing: '-0.005em', fontFamily: sans }}>{area}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: 48 }}>
+            <button onClick={checkoutMonthly} className="lp-cta-primary">
+              Assinar Agora <span className="lp-arrow">→</span>
+            </button>
+          </div>
         </div>
       </section>
 
       {/* ── O QUE VOCÊ GANHA ── */}
-      <section className="lp-sec" style={{ background: C.navyCore }}>
+      <section className="lp-sec lp-sec-border" style={{ background: C.navyDeep }}>
         <div className="lp-wrap-sm">
-          <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-            <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
-              letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
-              Acesso imediato
-            </span>
-            <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
-              fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px' }}>
-              O que você ganha hoje
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <div className="lp-eyebrow" style={{ marginBottom: 16 }}>§06 — Acesso imediato</div>
+            <h2 style={{ fontFamily: serif, fontSize: 'clamp(40px,5.5vw,68px)', lineHeight: 1.05,
+              letterSpacing: '-0.025em', color: C.offWhite, fontWeight: 400 }}>
+              O que você <em style={{ fontStyle: 'italic', color: C.emeraldLight }}>ganha hoje</em>
             </h2>
           </div>
-          <div style={{ background: C.navyMid, border: `1px solid ${C.borderEm}`, borderRadius: '20px', padding: '30px' }}>
+
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, borderTop: `1px solid ${C.border}` }}>
             {[
               'Agentes de IA especializados em concursos públicos',
               'Análise doutrinária completa de qualquer tema do edital',
@@ -652,69 +666,72 @@ export default function LandingPage() {
               'Mentoria e gestão personalizada do tempo',
               '600.000 tokens por ciclo (≈ 400 interações)',
               'Atualizações constantes',
-            ].map((item, i, arr) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '11px',
-                paddingBottom: i < arr.length - 1 ? '13px' : 0,
-                marginBottom: i < arr.length - 1 ? '13px' : 0,
-                borderBottom: i < arr.length - 1 ? `1px solid ${C.border}` : 'none' }}>
+            ].map((item, i) => (
+              <li key={i} style={{ display: 'grid', gridTemplateColumns: '50px 24px 1fr',
+                gap: 16, alignItems: 'center', padding: '18px 0',
+                borderBottom: `1px solid ${C.border}` }}>
+                <span style={{ fontFamily: mono, fontSize: 11, color: C.slate, letterSpacing: '0.1em' }}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
                 <Tick size={14} />
-                <span style={{ color: C.slateLight, fontFamily: sans, fontSize: '14.5px' }}>{item}</span>
-              </div>
+                <span style={{ fontSize: 16, color: C.offWhite,
+                  letterSpacing: '-0.005em', fontFamily: sans }}>{item}</span>
+              </li>
             ))}
-          </div>
-          <div style={{ textAlign: 'center', marginTop: '28px' }}>
-            <button onClick={checkoutMonthly}
-              style={{ background: C.emerald, color: '#fff', border: 'none', borderRadius: '10px',
-                fontFamily: sans, fontWeight: 600, fontSize: '16px', padding: '15px 36px',
-                cursor: 'pointer', transition: 'background 0.18s' }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emeraldDark)}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = C.emerald)}>
-              Assinar Agora
+          </ul>
+
+          <div style={{ textAlign: 'center', marginTop: 48 }}>
+            <button onClick={checkoutMonthly} className="lp-cta-primary">
+              Assinar Agora <span className="lp-arrow">→</span>
             </button>
           </div>
         </div>
       </section>
 
       {/* ── ECONOMIA DE TEMPO ── */}
-      <section className="lp-sec" style={{ background: C.navyDeep }}>
-        <div className="lp-wrap-md">
-          <div style={{ textAlign: 'center', marginBottom: '44px' }}>
-            <span style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700,
-              letterSpacing: '2px', textTransform: 'uppercase', display: 'block', marginBottom: '14px' }}>
-              Eficiência
-            </span>
-            <h2 style={{ fontFamily: serif, color: C.offWhite, fontSize: 'clamp(30px,5vw,46px)',
-              fontWeight: 700, lineHeight: 1.1, letterSpacing: '-0.5px' }}>
-              Quanto tempo você vai economizar
+      <section className="lp-sec lp-sec-border" style={{ background: C.navyCore }}>
+        <div className="lp-wrap">
+          <div style={{ textAlign: 'center', marginBottom: 72 }}>
+            <div className="lp-eyebrow" style={{ marginBottom: 16 }}>§07 — Eficiência</div>
+            <h2 style={{ fontFamily: serif, fontSize: 'clamp(40px,5.5vw,68px)', lineHeight: 1.05,
+              letterSpacing: '-0.025em', color: C.offWhite, fontWeight: 400 }}>
+              Quanto <em style={{ fontStyle: 'italic', color: C.emeraldLight }}>tempo</em> você vai economizar
             </h2>
           </div>
-          <div className="lp-col2">
-            <div style={{ background: C.navyMid, border: `1px solid ${C.redBorder}`, borderRadius: '16px', padding: '26px' }}>
-              <p style={{ color: C.red, fontFamily: sans, fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '18px' }}>
-                Sem o Sua Vaga IA
-              </p>
-              {['Pesquisar legislação manualmente', 'Encontrar súmulas por conta própria',
-                'Buscar informativos dispersos', 'Pesquisar questões em vários sites',
-                'Organizar cronograma ou pagar mentoria'].map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '11px' }}>
-                  <span style={{ color: '#EF4444', fontFamily: 'monospace', marginTop: '1px', flexShrink: 0 }}>—</span>
-                  <span style={{ color: C.slate, fontFamily: sans, fontSize: '14px' }}>{item}</span>
-                </div>
-              ))}
+
+          <div className="lp-ledger">
+            <div className="lp-ledger-col" style={{ borderRight: `1px solid ${C.border}`, padding: 40 }}>
+              <div className="lp-eyebrow" style={{ color: C.red, marginBottom: 28 }}>Antes / Sem o SVA</div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {['Pesquisar legislação manualmente', 'Encontrar súmulas por conta própria',
+                  'Buscar informativos dispersos', 'Pesquisar questões em vários sites',
+                  'Organizar cronograma ou pagar mentoria'].map((item, i) => (
+                  <li key={i} style={{ display: 'flex', gap: 16, padding: '14px 0',
+                    borderTop: i === 0 ? 'none' : `1px solid ${C.border}` }}>
+                    <span style={{ color: C.red, fontSize: 18, lineHeight: 1 }}>—</span>
+                    <span style={{ fontSize: 15, color: C.slateLight, lineHeight: 1.5, fontFamily: sans }}>
+                      {item}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div style={{ background: C.navyMid, border: `1px solid ${C.borderEm}`, borderRadius: '16px', padding: '26px' }}>
-              <p style={{ color: C.emerald, fontFamily: sans, fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '18px' }}>
-                Com o Sua Vaga IA
-              </p>
-              {['Todo o conteúdo pronto e organizado', 'Economia de tempo e dinheiro',
-                'Legislação sempre atualizada', 'Melhores doutrinas sobre o tema',
-                'Informativos de jurisprudência atualizados', 'Questões de concursos para fixação',
-                'Casos práticos para entendimento', 'Mentoria e gestão do tempo'].map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '9px', marginBottom: '11px' }}>
-                  <div style={{ marginTop: '2px' }}><Tick size={13} /></div>
-                  <span style={{ color: C.slateLight, fontFamily: sans, fontSize: '14px' }}>{item}</span>
-                </div>
-              ))}
+            <div className="lp-ledger-col" style={{ background: 'rgba(16,185,129,0.04)', padding: 40 }}>
+              <div className="lp-eyebrow" style={{ marginBottom: 28 }}>Depois / Com o SVA</div>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {['Todo o conteúdo pronto e organizado', 'Economia de tempo e dinheiro',
+                  'Legislação sempre atualizada', 'Melhores doutrinas sobre o tema',
+                  'Informativos de jurisprudência atualizados', 'Questões de concursos para fixação',
+                  'Casos práticos para entendimento', 'Mentoria e gestão do tempo'].map((item, i) => (
+                  <li key={i} style={{ display: 'flex', gap: 16, padding: '14px 0',
+                    borderTop: i === 0 ? 'none' : `1px solid ${C.border}` }}>
+                    <Tick size={14} />
+                    <span style={{ fontSize: 15, color: C.offWhite, lineHeight: 1.5, fontFamily: sans }}>
+                      {item}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
