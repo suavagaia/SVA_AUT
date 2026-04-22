@@ -58,6 +58,7 @@ const RAG_SOURCES: { label: string; tipo: string; tribunal: string }[] = [
   { label: "Súmulas TST", tipo: "sumula", tribunal: "TST" },
   { label: "Súmulas Vinculantes STF", tipo: "sumula_vinculante", tribunal: "STF" },
   { label: "Orientações Jurisprudenciais TST", tipo: "oj_tst", tribunal: "TST" },
+  { label: "OJs Transitórias TST", tipo: "oj_tst_transitoria", tribunal: "TST" },
 ];
 
 interface Area { id: string; name: string; }
