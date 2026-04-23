@@ -19,7 +19,7 @@ export default function ConfirmPage() {
       const next = params.get('next') || '/app';
 
       if (!token_hash || !type) {
-        setError('Link inválido ou expirado.');
+        setError('Link invalido ou expirado.');
         setLoading(false);
         return;
       }
@@ -28,19 +28,16 @@ export default function ConfirmPage() {
       if (!error) {
         navigate(next, { replace: true });
       } else {
-        setError('Link inválido ou expirado. Solicite um novo link.');
+        setError('Link invalido ou expirado. Solicite um novo link.');
         setLoading(false);
       }
     };
 
     handleConfirm();
 
-    // Timeout de segurança — se demorar mais de 10s, mostra erro
     const timeout = setTimeout(() => {
-      if (loading) {
-        setError('Tempo esgotado. Solicite um novo link.');
-        setLoading(false);
-      }
+      setError('Tempo esgotado. Solicite um novo link.');
+      setLoading(false);
     }, 10000);
 
     return () => clearTimeout(timeout);
