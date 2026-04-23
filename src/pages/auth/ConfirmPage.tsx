@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 
 export default function ConfirmPage() {
@@ -47,12 +47,12 @@ export default function ConfirmPage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background">
         <p className="text-muted-foreground">{error}</p>
-        
-          href="/auth/forgot-password"
+        <Link
+          to="/auth/forgot-password"
           className="text-sm text-primary underline hover:opacity-80"
         >
           Solicitar novo link
-        </a>
+        </Link>
       </div>
     );
   }
