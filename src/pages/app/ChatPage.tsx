@@ -200,20 +200,22 @@ export default function ChatPage() {
     const slug = activeTab === 'agente' ? selectedAgent?.slug : 'agente-de-apoio';
     let thinkingHandled = false;
 
+    const doFetch = (attempt: number) => fetch(
+      `${SUPABASE_URL}/functions/v1/execute-prompt`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'apikey': SUPABASE_ANON,
+        },
+        body: JSON.stringify({ agent_slug: slug, message: userMsg.content, conversation_id: convId }),
+        signal: controller.signal,
+      }
+    );
+
     try {
-      const response = await fetch(
-        `${SUPABASE_URL}/functions/v1/execute-prompt`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`,
-            'apikey': SUPABASE_ANON,
-          },
-          body: JSON.stringify({ agent_slug: slug, message: userMsg.content, conversation_id: convId }),
-          signal: controller.signal,
-        }
-      );
+      let response = await doFetch(0);
 
       if (response.status === 401) {
         toast.error('Sessão expirada. Faça login novamente.');
@@ -223,6 +225,14 @@ export default function ChatPage() {
         toast.error('Seus tokens acabaram.', { action: { label: 'Ver planos', onClick: () => navigate('/app/upgrade') } });
         setIsStreaming(false); setMessages(prev => prev.slice(0, -1)); return;
       }
+
+      // Cold start: 504 → aguarda 2s e tenta uma vez
+      if (response.status === 504 || response.status === 503) {
+        toast.info('Aguardando modelo, tentando novamente...');
+        await new Promise(r => setTimeout(r, 2000));
+        response = await doFetch(1);
+      }
+
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const reader = response.body!.getReader();
