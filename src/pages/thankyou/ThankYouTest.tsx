@@ -32,7 +32,7 @@ export default function ThankYouTest() {
         </div>
 
         <div className="mt-6 rounded-lg bg-amber-50 p-4 text-sm text-amber-800">
-          💡 Quer mais? Para acesso aos agentes de estudo e 600k tokens, faça upgrade para um plano pago.
+          💡 Quer mais? Para acesso completo a todos os agentes e 1.000.000 tokens mensais, assine o plano por R$ 129/mês.
         </div>
 
         <div className="mt-4 rounded-lg border border-border bg-card p-4">
