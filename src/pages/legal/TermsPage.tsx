@@ -20,7 +20,7 @@ const sections = [
   },
   {
     title: '5. Tokens e Consumo',
-    content: 'Assinantes recebem 600.000 tokens por mês, renovados a cada ciclo de cobrança. Tokens não utilizados não são acumulados para o mês seguinte. Pacotes avulsos de tokens têm validade de 12 meses.',
+    content: 'Assinantes recebem 1.000.000 tokens por mês, renovados a cada ciclo de cobrança. Tokens não utilizados não são acumulados para o mês seguinte. Pacotes avulsos de tokens têm validade de 12 meses.',
   },
   {
     title: '6. Propriedade Intelectual',
