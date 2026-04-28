@@ -320,8 +320,9 @@ export default function SettingsPage() {
                 <span className="text-sm text-muted-foreground">Uso do mês</span>
                 {profile?.tokens_remaining != null && (() => {
                   const planMax = 1_000_000;
-                  const used = planMax - (profile.tokens_remaining ?? 0);
-                  const pct = Math.min(Math.round((used / planMax) * 100), 100);
+                  const rem = profile.tokens_remaining ?? 0;
+                  const used = Math.max(0, planMax - rem);
+                  const pct = rem > planMax ? 0 : Math.min(Math.round((used / planMax) * 100), 100);
                   const now = new Date();
                   const daysLeft = Math.ceil((new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime() - now.getTime()) / 86400000);
                   return (
