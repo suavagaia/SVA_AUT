@@ -5,8 +5,6 @@ import { LogoIcon } from '@/components/LogoIcon';
 import { toast } from 'sonner';
 
 // ─── Price IDs Stripe ────────────────────────────────────────────────────────
-const PRICE_MONTHLY_600K = 'price_1TP8QLGmx6vYOM03CLWb2x9H'; // R$99/mês — 600k tokens
-const PRICE_ANNUAL_600K  = 'price_1TP8QVGmx6vYOM03Fgvf6Urk'; // R$999/ano — 600k tokens
 const PRICE_MONTHLY_1M   = 'price_1TP8QgGmx6vYOM03RiFKAp9B'; // R$129,90/mês — 1M tokens
 const PRICE_ANNUAL_1M    = 'price_1TP8QqGmx6vYOM03ZwLhA6Ne'; // R$1.299/ano — 1M tokens
 const PRICE_CREDITS = 'price_1SAwTuGmx6vYOM03G4nuqdbQ';
@@ -462,8 +460,6 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const checkoutMonthly600k = () => invokeCheckout(PRICE_MONTHLY_600K, 'monthly_600k', navigate);
-  const checkoutAnnual600k  = () => invokeCheckout(PRICE_ANNUAL_600K, 'annual_600k', navigate);
   const checkoutMonthly1m   = () => invokeCheckout(PRICE_MONTHLY_1M, 'monthly_1m', navigate);
   const checkoutAnnual1m    = () => invokeCheckout(PRICE_ANNUAL_1M, 'annual_1m', navigate);
   const checkoutCredits = () => invokeCheckout(PRICE_CREDITS, 'credits', navigate);
@@ -493,7 +489,7 @@ export default function LandingPage() {
         .lp-areas-grid{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid ${C.border}}
         .lp-area-cell{padding:28px;display:flex;align-items:center;gap:16px;transition:background .2s}
         .lp-area-cell:hover{background:rgba(16,185,129,0.04)}
-        .lp-plans{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid ${C.border}}
+        .lp-plans{display:grid;grid-template-columns:1fr 1.4fr;border:1px solid ${C.border}}
         .lp-plan-col{padding:40px 32px 36px;display:flex;flex-direction:column;gap:24px;position:relative}
         .lp-plan-badge{position:absolute;top:0;left:0;right:0;height:28px;font-family:${mono};font-size:10px;letter-spacing:0.2em;text-transform:uppercase;display:flex;align-items:center;justify-content:center}
         .lp-plan-badge-on{background:${C.emerald};color:#fff}
@@ -629,7 +625,7 @@ export default function LandingPage() {
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 40 }}>
                   <button onClick={() => setShowPlanModal(true)} className="lp-cta-primary">
-                    Assinar Agora — R$ 99/mês
+                    Assinar Agora — R$ 129/mês
                     <span className="lp-arrow">→</span>
                   </button>
                   <Link to="/auth/signup" className="lp-cta-ghost">Começar Grátis</Link>
@@ -741,8 +737,8 @@ export default function LandingPage() {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: 48 }}>
-            <button onClick={checkoutMonthly600k} className="lp-cta-primary">
-              Assinar Agora — R$ 99/mês <span className="lp-arrow">→</span>
+            <button onClick={checkoutMonthly1m} className="lp-cta-primary">
+              Assinar Agora — R$ 129/mês <span className="lp-arrow">→</span>
             </button>
           </div>
         </div>
@@ -819,8 +815,8 @@ export default function LandingPage() {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: 48 }}>
-            <button onClick={checkoutMonthly600k} className="lp-cta-primary">
-              Assinar Agora <span className="lp-arrow">→</span>
+            <button onClick={checkoutMonthly1m} className="lp-cta-primary">
+              Assinar Agora — R$ 129/mês <span className="lp-arrow">→</span>
             </button>
           </div>
         </div>
@@ -875,8 +871,8 @@ export default function LandingPage() {
           </ul>
 
           <div style={{ textAlign: 'center', marginTop: 48 }}>
-            <button onClick={checkoutMonthly600k} className="lp-cta-primary">
-              Assinar Agora <span className="lp-arrow">→</span>
+            <button onClick={checkoutMonthly1m} className="lp-cta-primary">
+              Assinar Agora — R$ 129/mês <span className="lp-arrow">→</span>
             </button>
           </div>
         </div>
@@ -980,39 +976,7 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* 600k tokens */}
-            <div className="lp-plan-col" style={{ borderRight: `1px solid ${C.border}`, background: 'rgba(16,185,129,0.03)' }}>
-              <div className="lp-plan-badge lp-plan-badge-off">Plano Essencial</div>
-              <div style={{ marginTop: 20 }}>
-                <div className="lp-eyebrow-muted" style={{ marginBottom: 20 }}>600.000 tokens / mês</div>
-                <div style={{ fontFamily: serif, fontSize: 56, letterSpacing: '-0.03em',
-                  lineHeight: 1, color: C.offWhite }}>
-                  {planTab === 'mensal' ? 'R$ 99' : 'R$ 999'}
-                </div>
-                <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>
-                  {planTab === 'mensal' ? '/mês' : '/ano — ≈ R$ 83,25/mês'}
-                </div>
-              </div>
-              <div style={{ height: 1, background: C.border }} />
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex',
-                flexDirection: 'column', gap: 12, flex: 1 }}>
-                {['600.000 tokens por mês', 'Todos os agentes especializados',
-                  'Informativos STF/STJ/TST atualizados', 'Súmulas e OJs com casos práticos',
-                  'Mentoria e cronograma personalizados', 'Questões objetivas e certo/errado',
-                  'Cancele a qualquer momento',
-                  ...(planTab === 'anual' ? ['PIX e Boleto disponíveis', 'Parcelamento em até 12x no cartão'] : [])
-                ].map((f, j) => (
-                  <li key={j} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                    <div style={{ marginTop: 2 }}><Tick size={13} color={C.slateLight} /></div>
-                    <span style={{ fontSize: 13.5, color: C.slateLighter, lineHeight: 1.55, fontFamily: sans }}>{f}</span>
-                  </li>
-                ))}
-              </ul>
-              <button onClick={planTab === 'mensal' ? checkoutMonthly600k : checkoutAnnual600k}
-                className="lp-cta-ghost" style={{ width: '100%', justifyContent: 'center' }}>
-                {planTab === 'mensal' ? 'Assinar por R$ 99/mês' : 'Assinar por R$ 999/ano'} <span className="lp-arrow">→</span>
-              </button>
-            </div>
+
 
             {/* 1M tokens (featured) */}
             <div className="lp-plan-col" style={{ background: 'rgba(16,185,129,0.05)' }}>
@@ -1136,10 +1100,10 @@ export default function LandingPage() {
           </div>
 
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button onClick={checkoutMonthly600k} className="lp-cta-primary">
-              Assinar Agora — R$ 99/mês <span className="lp-arrow">→</span>
+            <button onClick={checkoutMonthly1m} className="lp-cta-primary">
+              Assinar Agora — R$ 129/mês <span className="lp-arrow">→</span>
             </button>
-            <button onClick={checkoutAnnual600k} className="lp-cta-ghost">
+            <button onClick={checkoutAnnual1m} className="lp-cta-ghost">
               Plano Anual — R$ 999
             </button>
           </div>
@@ -1257,64 +1221,32 @@ export default function LandingPage() {
               </div>
               <h3 style={{ fontFamily: serif, fontSize: 28, color: '#F8FAFC',
                 fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-                Qual plano faz mais sentido<br />para você?
+                Assine o Sua Vaga IA
               </h3>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-              <button
-                onClick={() => { setShowPlanModal(false); checkoutMonthly600k(); }}
-                style={{
-                  background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.12)',
-                  borderRadius: 6, padding: '24px 20px', cursor: 'pointer', textAlign: 'left' as const,
-                  transition: 'border-color .18s, background .18s', color: 'inherit',
-                }}
-              >
-                <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.15em',
-                  textTransform: 'uppercase', color: '#94A3B8', marginBottom: 12 }}>
-                  Essencial
-                </div>
-                <div style={{ fontFamily: serif, fontSize: 40, color: '#F8FAFC',
-                  letterSpacing: '-0.03em', lineHeight: 1, marginBottom: 4 }}>
-                  R$ 99
-                </div>
-                <div style={{ fontFamily: sans, fontSize: 12, color: '#64748B', marginBottom: 16 }}>
-                  por mês
-                </div>
-                <div style={{ fontFamily: sans, fontSize: 13, color: '#CBD5E1', lineHeight: 1.5 }}>
-                  600.000 tokens mensais<br />Todos os agentes inclusos
-                </div>
-              </button>
-
+            <div style={{ marginBottom: 24 }}>
               <button
                 onClick={() => { setShowPlanModal(false); checkoutMonthly1m(); }}
                 style={{
-                  background: 'rgba(16,185,129,0.06)', border: '1.5px solid #10B981',
-                  borderRadius: 6, padding: '24px 20px', cursor: 'pointer', textAlign: 'left' as const,
-                  transition: 'background .18s', color: 'inherit', position: 'relative',
+                  width: '100%', background: 'rgba(16,185,129,0.06)', border: '1.5px solid #10B981',
+                  borderRadius: 6, padding: '28px 24px', cursor: 'pointer', textAlign: 'left' as const,
+                  transition: 'background .18s', color: 'inherit',
                 }}
               >
-                <div style={{
-                  position: 'absolute', top: -1, right: 16,
-                  background: '#10B981', color: '#fff',
-                  fontFamily: mono, fontSize: 9, letterSpacing: '0.15em',
-                  textTransform: 'uppercase', padding: '3px 8px', borderRadius: '0 0 4px 4px',
-                }}>
-                  Mais Popular
-                </div>
                 <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.15em',
                   textTransform: 'uppercase', color: '#34D399', marginBottom: 12 }}>
-                  Premium
+                  Plano Único
                 </div>
-                <div style={{ fontFamily: serif, fontSize: 40, color: '#34D399',
+                <div style={{ fontFamily: serif, fontSize: 48, color: '#34D399',
                   letterSpacing: '-0.03em', lineHeight: 1, marginBottom: 4 }}>
                   R$ 129
                 </div>
                 <div style={{ fontFamily: sans, fontSize: 12, color: '#64748B', marginBottom: 16 }}>
-                  por mês
+                  por mês &nbsp;·&nbsp; ou R$ 1.299/ano
                 </div>
                 <div style={{ fontFamily: sans, fontSize: 13, color: '#CBD5E1', lineHeight: 1.5 }}>
-                  1.000.000 tokens mensais<br />Mais interações, mais estudo
+                  1.000.000 tokens mensais · Todos os agentes · Cancele quando quiser
                 </div>
               </button>
             </div>
