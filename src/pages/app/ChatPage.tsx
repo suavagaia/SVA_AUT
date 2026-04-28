@@ -763,7 +763,7 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
             )}
           </div>
           {tokensRemaining !== null && (() => {
-            const planMax = (tokensRemaining ?? 0) > 700_000 ? 1_000_000 : 600_000;
+            const planMax = 1_000_000;
             const used = planMax - (tokensRemaining ?? 0);
             const pct = Math.min(Math.round((used / planMax) * 100), 100);
             // Só exibe ao cruzar o limite — não repete a cada pergunta
