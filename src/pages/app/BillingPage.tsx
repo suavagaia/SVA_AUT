@@ -150,7 +150,7 @@ export default function BillingPage() {
               </div>
             ) : (
               (() => {
-                const planMax = (tokensRemaining ?? 0) > 700_000 ? 1_000_000 : 600_000;
+                const planMax = 1_000_000;
                 const used = planMax - (tokensRemaining ?? 0);
                 const pct = Math.min(Math.round((used / planMax) * 100), 100);
                 const now = new Date();
@@ -233,7 +233,7 @@ export default function BillingPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-foreground">Créditos Adicionais</h2>
-                <p className="text-muted-foreground text-sm mt-1">600.000 tokens extras por R$49,90. Válidos por 12 meses.</p>
+                <p className="text-muted-foreground text-sm mt-1">600.000 tokens adicionais por R$49,90. Sem expiração.</p>
               </div>
               <Button onClick={handleBuyCredits} disabled={creditsLoading} className="bg-emerald hover:bg-emerald/90 text-primary-foreground shrink-0">
                 <ShoppingCart className="mr-2 h-4 w-4" />
