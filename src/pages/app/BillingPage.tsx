@@ -13,7 +13,6 @@ import { RefreshCw, CheckCircle, Lock, ExternalLink, ShoppingCart } from 'lucide
 import { toast } from '@/hooks/use-toast';
 
 const SUPABASE_URL = 'https://lxteajwzovoeclbytdrp.supabase.co';
-const MAX_TOKENS = 600_000;
 const numFmt = new Intl.NumberFormat('pt-BR');
 const dateFmt = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
 
@@ -129,8 +128,6 @@ export default function BillingPage() {
   };
 
   // Derived
-  const tokenPct = tokensRemaining !== null ? Math.min((tokensRemaining / MAX_TOKENS) * 100, 100) : 0;
-  const tokenBarColor = tokenPct < 10 ? 'bg-destructive' : tokenPct < 20 ? 'bg-yellow-500' : 'bg-emerald';
   const isSubscriber = planInfo?.subscription_status === 'active' || planInfo?.subscription_status === 'past_due' || planInfo?.role === 'admin' || planInfo?.role === 'subscriber';
   const tierLabel = planInfo?.subscription_tier === 'monthly' ? 'Mensal' : planInfo?.subscription_tier === 'annual' ? 'Anual' : 'Gratuito';
   const tierBadgeVariant = planInfo?.subscription_tier === 'monthly' ? 'default' : planInfo?.subscription_tier === 'annual' ? 'secondary' : 'outline';
@@ -140,7 +137,7 @@ export default function BillingPage() {
   return (
     <AppLayout>
       <div className="space-y-8">
-        <h1 className="font-display text-3xl font-bold text-foreground">Meu Plano & Tokens</h1>
+        <h1 className="font-display text-3xl font-bold text-foreground">Meu Plano & Uso</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Token Balance */}
@@ -152,21 +149,39 @@ export default function BillingPage() {
                 <Skeleton className="h-4 w-full" />
               </div>
             ) : (
-              <>
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-foreground">Saldo de Tokens</h2>
-                  <Badge variant={tierBadgeVariant as any}>{tierLabel}</Badge>
-                </div>
-                <div>
-                  <span className="text-4xl font-bold text-emerald">{numFmt.format(tokensRemaining ?? 0)}</span>
-                  <p className="text-sm text-muted-foreground mt-1">tokens disponíveis</p>
-                </div>
-                <Progress value={tokenPct} className="h-3" indicatorClassName={tokenBarColor} />
-                <Button variant="outline" size="sm" onClick={handleSync} disabled={syncing}>
-                  <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
-                  Sincronizar
-                </Button>
-              </>
+              (() => {
+                const planMax = (tokensRemaining ?? 0) > 700_000 ? 1_000_000 : 600_000;
+                const used = planMax - (tokensRemaining ?? 0);
+                const pct = Math.min(Math.round((used / planMax) * 100), 100);
+                const now = new Date();
+                const daysLeft = Math.ceil((new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime() - now.getTime()) / 86400000);
+                const barColor = pct >= 95 ? 'bg-destructive' : pct >= 80 ? 'bg-yellow-500' : 'bg-emerald';
+                return (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-lg font-semibold text-foreground">Uso do Mês</h2>
+                      <Badge variant={tierBadgeVariant as any}>{tierLabel}</Badge>
+                    </div>
+                    <div>
+                      <span className="text-4xl font-bold text-emerald">{pct}%</span>
+                      <p className="text-sm text-muted-foreground mt-1">utilizado — renova em {daysLeft} dias</p>
+                    </div>
+                    <div className="w-full h-3 rounded-full bg-muted overflow-hidden">
+                      <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+                    </div>
+                    {pct >= 80 && pct < 95 && (
+                      <p className="text-sm text-yellow-500">⚠ Você usou 80% do plano. Considere fazer upgrade.</p>
+                    )}
+                    {pct >= 95 && (
+                      <p className="text-sm text-destructive">⚠ Limite crítico. Compre créditos ou faça upgrade.</p>
+                    )}
+                    <Button variant="outline" size="sm" onClick={handleSync} disabled={syncing}>
+                      <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+                      Atualizar
+                    </Button>
+                  </>
+                );
+              })()
             )}
           </Card>
 
@@ -246,7 +261,7 @@ export default function BillingPage() {
                       <TableHead>Data</TableHead>
                       <TableHead>Agente</TableHead>
                       <TableHead>Modelo</TableHead>
-                      <TableHead className="text-right">Tokens</TableHead>
+                      <TableHead className="text-right">Interação</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
