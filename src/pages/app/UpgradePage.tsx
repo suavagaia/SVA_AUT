@@ -47,7 +47,7 @@ export default function UpgradePage() {
   };
 
   const features600k = [
-    '600.000 tokens por mês',
+    'Uso mensal completo — plano Essencial',
     'Acesso a todos os agentes especializados',
     'Informativos STF/STJ atualizados',
     'Súmulas com casos práticos',
@@ -55,7 +55,7 @@ export default function UpgradePage() {
   ];
 
   const features1m = [
-    '1.000.000 tokens por mês',
+    'Uso mensal ampliado — plano Premium',
     'Acesso a todos os agentes especializados',
     'Informativos STF/STJ atualizados',
     'Súmulas com casos práticos',
@@ -78,7 +78,7 @@ export default function UpgradePage() {
         </p>
 
         <p className="mt-4 text-sm text-muted-foreground">
-          Seus tokens atuais: <strong className="text-foreground">{profile?.tokens_remaining || 0} tokens</strong>
+    
         </p>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -118,7 +118,7 @@ export default function UpgradePage() {
               <span className="text-muted-foreground text-sm">/ano</span>
             </div>
             <ul className="mt-6 space-y-2">
-              {['600.000 tokens por ciclo', 'Todos os benefícios do 600k Mensal', 'Economia de R$189 vs mensal', 'Acesso por 12 meses'].map((f) => (
+              {['Uso anual completo', 'Todos os benefícios do 600k Mensal', 'Economia de R$189 vs mensal', 'Acesso por 12 meses'].map((f) => (
                 <li key={f} className="flex items-start gap-2 text-xs text-card-foreground">
                   <Check size={13} className="mt-0.5 shrink-0 text-emerald" /> {f}
                 </li>
@@ -171,7 +171,7 @@ export default function UpgradePage() {
               <span className="text-muted-foreground text-sm">/ano</span>
             </div>
             <ul className="mt-6 space-y-2">
-              {['1.000.000 tokens por ciclo', 'Todos os benefícios do 1M Mensal', 'Economia de R$258 vs mensal', 'Acesso por 12 meses'].map((f) => (
+              {['Uso anual ampliado', 'Todos os benefícios do 1M Mensal', 'Economia de R$258 vs mensal', 'Acesso por 12 meses'].map((f) => (
                 <li key={f} className="flex items-start gap-2 text-xs text-card-foreground">
                   <Check size={13} className="mt-0.5 shrink-0 text-emerald" /> {f}
                 </li>
