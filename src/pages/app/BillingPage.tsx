@@ -151,8 +151,10 @@ export default function BillingPage() {
             ) : (
               (() => {
                 const planMax = 1_000_000;
-                const used = planMax - (tokensRemaining ?? 0);
-                const pct = Math.min(Math.round((used / planMax) * 100), 100);
+                const remaining = tokensRemaining ?? 0;
+                const isOverPlan = remaining > planMax; // admin ou créditos extras
+                const used = Math.max(0, planMax - remaining);
+                const pct = isOverPlan ? 0 : Math.min(Math.round((used / planMax) * 100), 100);
                 const now = new Date();
                 const daysLeft = Math.ceil((new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime() - now.getTime()) / 86400000);
                 const barColor = pct >= 95 ? 'bg-destructive' : pct >= 80 ? 'bg-yellow-500' : 'bg-emerald';
@@ -163,12 +165,23 @@ export default function BillingPage() {
                       <Badge variant={tierBadgeVariant as any}>{tierLabel}</Badge>
                     </div>
                     <div>
-                      <span className="text-4xl font-bold text-emerald">{pct}%</span>
-                      <p className="text-sm text-muted-foreground mt-1">utilizado — renova em {daysLeft} dias</p>
+                      {isOverPlan ? (
+                        <>
+                          <span className="text-4xl font-bold text-emerald">✓</span>
+                          <p className="text-sm text-muted-foreground mt-1">Acesso disponível — renova em {daysLeft} dias</p>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-4xl font-bold text-emerald">{pct}%</span>
+                          <p className="text-sm text-muted-foreground mt-1">utilizado — renova em {daysLeft} dias</p>
+                        </>
+                      )}
                     </div>
-                    <div className="w-full h-3 rounded-full bg-muted overflow-hidden">
-                      <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
-                    </div>
+                    {!isOverPlan && (
+                      <div className="w-full h-3 rounded-full bg-muted overflow-hidden">
+                        <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+                      </div>
+                    )}
                     {pct >= 80 && pct < 95 && (
                       <p className="text-sm text-yellow-500">⚠ Você usou 80% do plano. Considere fazer upgrade.</p>
                     )}
@@ -233,7 +246,7 @@ export default function BillingPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-foreground">Créditos Adicionais</h2>
-                <p className="text-muted-foreground text-sm mt-1">600.000 tokens adicionais por R$49,90. Sem expiração.</p>
+                <p className="text-muted-foreground text-sm mt-1">Créditos adicionais para o seu plano por R$49,90. Sem expiração.</p>
               </div>
               <Button onClick={handleBuyCredits} disabled={creditsLoading} className="bg-emerald hover:bg-emerald/90 text-primary-foreground shrink-0">
                 <ShoppingCart className="mr-2 h-4 w-4" />
