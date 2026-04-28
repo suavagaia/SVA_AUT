@@ -764,8 +764,10 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
           </div>
           {tokensRemaining !== null && (() => {
             const planMax = 1_000_000;
-            const used = planMax - (tokensRemaining ?? 0);
-            const pct = Math.min(Math.round((used / planMax) * 100), 100);
+            const remaining = tokensRemaining ?? 0;
+            const isOverPlan = remaining > planMax;
+            const used = Math.max(0, planMax - remaining);
+            const pct = isOverPlan ? 0 : Math.min(Math.round((used / planMax) * 100), 100);
             // Só exibe ao cruzar o limite — não repete a cada pergunta
             if (pct >= 95 && !alerted95Ref.current) {
               alerted95Ref.current = true;
