@@ -152,9 +152,8 @@ export default function BillingPage() {
               (() => {
                 const planMax = 1_000_000;
                 const remaining = tokensRemaining ?? 0;
-                const isOverPlan = remaining > planMax; // admin ou créditos extras
                 const used = Math.max(0, planMax - remaining);
-                const pct = isOverPlan ? 0 : Math.min(Math.round((used / planMax) * 100), 100);
+                const pct = Math.min(Math.round((used / planMax) * 100), 100);
                 const now = new Date();
                 const daysLeft = Math.ceil((new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime() - now.getTime()) / 86400000);
                 const barColor = pct >= 95 ? 'bg-destructive' : pct >= 80 ? 'bg-yellow-500' : 'bg-emerald';
@@ -165,23 +164,12 @@ export default function BillingPage() {
                       <Badge variant={tierBadgeVariant as any}>{tierLabel}</Badge>
                     </div>
                     <div>
-                      {isOverPlan ? (
-                        <>
-                          <span className="text-4xl font-bold text-emerald">✓</span>
-                          <p className="text-sm text-muted-foreground mt-1">Acesso disponível — renova em {daysLeft} dias</p>
-                        </>
-                      ) : (
-                        <>
-                          <span className="text-4xl font-bold text-emerald">{pct}%</span>
-                          <p className="text-sm text-muted-foreground mt-1">utilizado — renova em {daysLeft} dias</p>
-                        </>
-                      )}
+                      <span className="text-4xl font-bold text-emerald">{pct}%</span>
+                      <p className="text-sm text-muted-foreground mt-1">utilizado — renova em {daysLeft} dias</p>
                     </div>
-                    {!isOverPlan && (
-                      <div className="w-full h-3 rounded-full bg-muted overflow-hidden">
-                        <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
-                      </div>
-                    )}
+                    <div className="w-full h-3 rounded-full bg-muted overflow-hidden">
+                      <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+                    </div>
                     {pct >= 80 && pct < 95 && (
                       <p className="text-sm text-yellow-500">⚠ Você usou 80% do plano. Considere fazer upgrade.</p>
                     )}
