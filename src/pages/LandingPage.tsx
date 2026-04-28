@@ -988,7 +988,7 @@ export default function LandingPage() {
                 {['1.000.000 tokens por mês', 'Todos os benefícios do plano Essencial',
                   'Mais interações para estudar sem limites', 'Respostas mais longas e detalhadas',
                   'Cancele a qualquer momento',
-                  ...(planTab === 'anual' ? ['PIX e Boleto disponíveis', 'Parcelamento em até 12x no cartão'] : [])
+                  ...(planTab === 'anual' ? ['Boleto Bancário disponível'] : [])
                 ].map((f, j) => (
                   <li key={j} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                     <div style={{ marginTop: 2 }}><Tick size={13} color={C.emeraldLight} /></div>
@@ -1031,11 +1031,7 @@ export default function LandingPage() {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
               {[
                 { label: 'Cartão de crédito', obs: 'todos os planos' },
-                { label: 'Apple Pay', obs: 'todos os planos' },
-                { label: 'Link (Stripe)', obs: 'todos os planos' },
-                { label: 'PIX', obs: 'apenas planos anuais' },
                 { label: 'Boleto Bancário', obs: 'apenas planos anuais' },
-                { label: 'Parcelamento 12x', obs: 'planos anuais com juros do cartão' },
               ].map((p, i) => (
                 <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <span style={{ fontFamily: mono, fontSize: 11, color: C.slateLighter,
