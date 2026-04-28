@@ -86,6 +86,8 @@ export default function ChatPage() {
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
+  const alerted80Ref = useRef(false);   // aviso de 80% já foi exibido nesta sessão
+  const alerted95Ref = useRef(false);   // aviso de 95% já foi exibido nesta sessão
 
   // TTS state (global — one audio at a time)
   const [ttsState, setTtsState] = useState<'idle' | 'loading' | 'playing' | 'paused'>('idle');
@@ -764,17 +766,24 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
             const planMax = (tokensRemaining ?? 0) > 700_000 ? 1_000_000 : 600_000;
             const used = planMax - (tokensRemaining ?? 0);
             const pct = Math.min(Math.round((used / planMax) * 100), 100);
-            if (pct >= 95) return (
-              <p className="mt-2 text-xs text-destructive font-medium">
-                ⚠ Você está quase no limite do plano.{' '}
-                <button onClick={() => navigate('/app/upgrade')} className="underline">Fazer upgrade →</button>
-              </p>
-            );
-            if (pct >= 80) return (
-              <p className="mt-2 text-xs text-yellow-500">
-                Você usou 80% do seu plano. Considere fazer upgrade.
-              </p>
-            );
+            // Só exibe ao cruzar o limite — não repete a cada pergunta
+            if (pct >= 95 && !alerted95Ref.current) {
+              alerted95Ref.current = true;
+              return (
+                <p className="mt-2 text-xs text-destructive font-medium">
+                  ⚠ Você está quase no limite do plano.{' '}
+                  <button onClick={() => navigate('/app/upgrade')} className="underline">Fazer upgrade →</button>
+                </p>
+              );
+            }
+            if (pct >= 80 && pct < 95 && !alerted80Ref.current) {
+              alerted80Ref.current = true;
+              return (
+                <p className="mt-2 text-xs text-yellow-500">
+                  Você usou 80% do seu plano. Considere fazer upgrade.
+                </p>
+              );
+            }
             return null;
           })()}
         </div>
