@@ -7,8 +7,8 @@ import { toast } from 'sonner';
 // ─── Price IDs Stripe ────────────────────────────────────────────────────────
 const PRICE_MONTHLY_600K = 'price_1TP8QLGmx6vYOM03CLWb2x9H'; // R$99/mês — 600k tokens
 const PRICE_ANNUAL_600K  = 'price_1TP8QVGmx6vYOM03Fgvf6Urk'; // R$999/ano — 600k tokens
-const PRICE_MONTHLY_1M   = 'price_1TP8QgGmx6vYOM03RiFKAp9B'; // R$129/mês — 1M tokens
-const PRICE_ANNUAL_1M    = 'price_1TP8QqGmx6vYOM03ZwLhA6Ne'; // R$1.290/ano — 1M tokens
+const PRICE_MONTHLY_1M   = 'price_1TP8QgGmx6vYOM03RiFKAp9B'; // R$129,90/mês — 1M tokens
+const PRICE_ANNUAL_1M    = 'price_1TP8QqGmx6vYOM03ZwLhA6Ne'; // R$1.299/ano — 1M tokens
 const PRICE_CREDITS = 'price_1SAwTuGmx6vYOM03G4nuqdbQ';
 
 // ─── Dados dos agentes ───────────────────────────────────────────────────────
@@ -31,14 +31,17 @@ const AGENTES = [
     pq: 'Substitui 10+ livros doutrinários (economia de R$2.000+). Linguagem técnica para concursos. Exemplos práticos para fixação.',
   },
   {
-    n: 2, titulo: 'Legislação Sempre Atualizada',
-    sub: 'Verificação de vigência em tempo real',
+    n: 2, titulo: 'Legislação Comentada',
+    sub: 'Artigos de lei explicados didaticamente para concursos',
     itens: [
-      'Menciona apenas os artigos relacionados ao tema solicitado',
+      'Cole o artigo de lei e receba explicação completa e comentada',
+      'Linguagem acessível sem perder o rigor técnico',
       'Identifica artigos revogados total ou parcialmente',
       'Fornece apenas legislação, provimentos e resoluções vigentes',
+      'Contextualização do artigo no ordenamento jurídico',
+      'Relação com súmulas e jurisprudência aplicável',
     ],
-    pq: 'Seleciona apenas os artigos importantes sobre o assunto estudado. Segurança jurídica nas suas respostas.',
+    pq: 'Transforma texto frio de lei em estudo estratégico. Seleciona apenas os artigos importantes sobre o assunto estudado.',
   },
   {
     n: 3, titulo: 'Informativos STF/STJ Atualizados',
@@ -52,7 +55,7 @@ const AGENTES = [
       'Ementa resumida da decisão',
       'Caso prático para fixação e entendimento',
     ],
-    pq: 'Jurisprudência é 30% da prova em muitos concursos. Informativos esquematizados custam caro em outros sites.',
+    pq: 'Jurisprudência é 30% da prova em muitos concursos. Conteúdo organizado e direcionado para o que as bancas cobram.',
   },
   {
     n: 4, titulo: 'Súmulas STF/STJ',
@@ -62,7 +65,7 @@ const AGENTES = [
       'Verificação automática de cancelamento',
       'Explicação didática do entendimento de cada súmula',
       'Caso prático para cada súmula',
-      'Não informará súmulas canceladas',
+      'Não informará súmulas canceladas ou superadas',
       'Organização por tema que está sendo objeto de estudo',
     ],
     pq: 'Súmulas caem muito em provas. Organização temática economiza horas de pesquisa.',
@@ -81,7 +84,34 @@ const AGENTES = [
     pq: 'Súmulas vinculantes caem muito em concursos. Aplicação prática para melhor entendimento. Não informará súmulas canceladas.',
   },
   {
-    n: 6, titulo: 'Questões Objetivas de 5 Alternativas',
+    n: 6, titulo: 'Súmulas e Orientações Jurisprudenciais do TST',
+    sub: 'Direito do Trabalho e Processual do Trabalho dominados',
+    itens: [
+      'Súmulas do TST vigentes por tema solicitado',
+      'Orientações Jurisprudenciais da SBDI-1, SBDI-2 e SDC',
+      'OJs Transitórias do TST',
+      'Não informará súmulas ou OJs canceladas',
+      'Caso prático para cada enunciado',
+      'Contexto e fundamentação legal de cada verbete',
+      'Organização temática para estudo eficiente',
+    ],
+    pq: 'Direito do Trabalho exige domínio do TST. Cobertura completa de súmulas e OJs em um único agente.',
+  },
+  {
+    n: 7, titulo: 'Informativos do TST',
+    sub: 'Jurisprudência trabalhista atualizada para concursos',
+    itens: [
+      'Informativos do TST por tema solicitado',
+      'Prioriza entendimentos mais recentes',
+      'Tese firmada pelo tribunal em cada julgado',
+      'Caso prático para fixação',
+      'Formato estruturado para concursos',
+      'Cobertura de decisões de 2021 a 2026',
+    ],
+    pq: 'Direito do Trabalho é matéria pesada em concursos da área. Informativos do TST são cobrados nas melhores bancas.',
+  },
+  {
+    n: 8, titulo: 'Questões Objetivas de 5 Alternativas',
     sub: 'Questões de alta qualidade como as bancas fazem',
     itens: [
       'Questões de 5 alternativas por tema',
@@ -91,10 +121,10 @@ const AGENTES = [
       'Justificativa detalhada do erro de cada alternativa',
       'Justificativa detalhada do acerto da alternativa correta',
     ],
-    pq: 'Simulados custam caro em outros sites. Qualidade de banca organizadora. Fundamentação que ensina mais que aulas.',
+    pq: 'Qualidade de banca organizadora. Fundamentação que ensina mais que aulas.',
   },
   {
-    n: 7, titulo: 'Questões Certo/Errado',
+    n: 9, titulo: 'Questões de Certo ou Errado (CEBRASPE)',
     sub: 'Formato CESPE/CEBRASPE dominado',
     itens: [
       'Questões certo/errado por tema',
@@ -107,13 +137,105 @@ const AGENTES = [
     pq: 'Especialização em bancas CESPE/CEBRASPE. Fundamentação que ensina a lógica da banca.',
   },
   {
-    n: 8, titulo: 'Mentoria e Cronograma Personalizado',
-    sub: 'Sua vida organizada para a aprovação',
+    n: 10, titulo: 'Português',
+    sub: 'Gramática e interpretação no nível das bancas',
+    itens: [
+      'Gramática completa por tema solicitado',
+      'Interpretação de texto com metodologia de banca',
+      'Questões de fixação com gabarito comentado',
+      'Regras gramaticais com exemplos práticos',
+      'Pontuação, concordância, regência e colocação pronominal',
+      'Linguagem formal exigida nas provas',
+    ],
+    pq: 'Português é eliminatório em quase todos os concursos. Dominar a gramática formal é essencial para aprovação.',
+  },
+  {
+    n: 11, titulo: 'Informática',
+    sub: 'Tecnologia da informação para concursos públicos',
+    itens: [
+      'Pacote Office (Word, Excel, PowerPoint, Outlook)',
+      'Internet, navegadores e segurança da informação',
+      'Sistemas operacionais (Windows e Linux)',
+      'Hardware, software e redes de computadores',
+      'Conceitos de banco de dados e TI',
+      'Questões no estilo das bancas mais cobradas',
+    ],
+    pq: 'Informática básica é cobrada em praticamente todos os concursos públicos. Dominar o conteúdo garante pontos fáceis.',
+  },
+  {
+    n: 12, titulo: 'Raciocínio Lógico Matemático',
+    sub: 'Lógica e matemática com resolução passo a passo',
+    itens: [
+      'Lógica proposicional e sentenças lógicas',
+      'Raciocínio sequencial e diagramas lógicos',
+      'Matemática básica e financeira',
+      'Probabilidade e estatística descritiva',
+      'Resolução passo a passo de cada questão',
+      'Questões no nível das principais bancas',
+    ],
+    pq: 'Raciocínio lógico diferencia candidatos em concursos de alta concorrência. Dominar a metodologia de resolução é o segredo.',
+  },
+  {
+    n: 13, titulo: 'Contabilidade',
+    sub: 'Contabilidade geral e pública para concursos',
+    itens: [
+      'Contabilidade geral com plano de contas',
+      'Contabilidade pública e NBCASP',
+      'Balanços patrimoniais e demonstrações financeiras',
+      'Escrituração contábil e lançamentos',
+      'Lei de Responsabilidade Fiscal aplicada',
+      'Questões objetivas com gabarito comentado',
+    ],
+    pq: 'Contabilidade é exigida em concursos do TCU, TCE, Receita Federal e Câmara dos Deputados. Dominar o conteúdo é diferencial.',
+  },
+  {
+    n: 14, titulo: 'Estatística',
+    sub: 'Estatística e probabilidade com resolução detalhada',
+    itens: [
+      'Estatística descritiva completa',
+      'Medidas de tendência central e dispersão',
+      'Probabilidade e distribuições',
+      'Amostragem e inferência estatística',
+      'Resolução passo a passo de cada problema',
+      'Questões no padrão das bancas organizadoras',
+    ],
+    pq: 'Estatística é cobrada em concursos de alto nível. Resolução passo a passo garante entendimento real do tema.',
+  },
+  {
+    n: 15, titulo: 'Arquivologia',
+    sub: 'Arquivística completa para concursos específicos',
+    itens: [
+      'Gestão de documentos e arquivos correntes',
+      'Arquivos intermediários e permanentes',
+      'Legislação arquivística (Lei 8.159/91 e Decretos)',
+      'Classificação, avaliação e destinação de documentos',
+      'Preservação e conservação de acervos',
+      'Questões objetivas com gabarito comentado',
+    ],
+    pq: 'Arquivologia é matéria decisiva em concursos do STJ, TCU e Receita Federal. Dominar a legislação garante aprovação.',
+  },
+  {
+    n: 16, titulo: 'Redação',
+    sub: 'Correção e elaboração de redações para concursos',
+    itens: [
+      'Gera enunciado de redação no padrão das bancas',
+      'Correção da sua redação com critérios de banca',
+      'Padrão de resposta para comparação',
+      'Avaliação por critérios: coesão, coerência, argumentação',
+      'Comentários detalhados para evolução',
+      'Adequação ao estilo formal exigido em concursos',
+    ],
+    pq: 'Redação é eliminatória em concursos de alto nível. Praticar com correção especializada acelera muito a evolução.',
+  },
+  {
+    n: 17, titulo: 'Mentoria e Gestão do Tempo',
+    sub: 'Seu cronograma personalizado para a aprovação',
+    itemsLabel: 'Programar',
     itens: [
       'Horário de acordar em cada dia da semana',
       'Trabalho, deslocamento e compromissos fixos',
       'Academia, banho e alimentação no cronograma',
-      'Tempo de estudo proporcional ao peso de cada matéria',
+      'Tempo proporcional ao peso de cada matéria (número de questões)',
       'Distribuição inteligente ao longo da semana',
       'Máximo 2h seguidas com intervalos de 30 minutos',
       'Aproveitamento de 100% do tempo livre',
@@ -122,34 +244,40 @@ const AGENTES = [
   },
 ];
 
+// ─── Áreas atendidas ─────────────────────────────────────────────────────────
 const AREAS = [
-  'Direito Constitucional', 'Direito Administrativo', 'Direito Civil',
-  'Direito Penal', 'Direito Processual Civil', 'Direito Processual Penal',
-  'Direito Tributário', 'Direito Trabalhista', 'Direito Previdenciário',
-  'Direito Empresarial', 'Português', 'Raciocínio Lógico',
-  'Informática', 'Estatística', 'Arquivologia',
+  'Magistratura', 'Ministério Público', 'Delegado de Polícia',
+  'Cartórios', 'Procuradorias', 'Tribunais',
+  'Defensoria Pública', 'Carreiras Policiais', 'OAB',
+  'Auditoria Fiscal', 'Polícia Federal', 'Polícia Civil',
+  'Receita Federal', 'TCU / TCE', 'Advocacia Pública',
 ];
 
+// ─── FAQ ─────────────────────────────────────────────────────────────────────
 const FAQ = [
   {
-    q: 'A inteligência artificial realmente funciona para concursos públicos?',
-    a: 'Sim. Nossa IA foi enriquecida especificamente para concursos públicos, com as melhores doutrinas, questões no nível das bancas, legislação atualizada em tempo real e informativos de jurisprudência recentes dos Tribunais Superiores.',
+    q: 'A Inteligência Artificial realmente funciona para concursos públicos?',
+    a: 'Sim — e pode ser o diferencial que faltava para a sua aprovação. O Sua Vaga IA foi desenvolvido exclusivamente para o universo dos concursos e cobre as principais disciplinas cobradas em prova, como Português, Informática, Raciocínio Lógico, Matemática, Estatística, Contabilidade, Arquivologia e Redação. Além disso, a plataforma é constantemente atualizada com legislação vigente, doutrinas relevantes, jurisprudência dos Tribunais Superiores e conteúdos alinhados ao perfil das principais bancas examinadoras. Na prática, você não recebe apenas respostas: recebe explicações completas, organizadas e estratégicas, já direcionadas para o que realmente tem mais chance de cair na prova. Isso elimina horas de pesquisa, evita dúvidas mal resolvidas e acelera o seu aprendizado com foco total em resultado. Com o Sua Vaga IA, você transforma estudo em estratégia — e estratégia em aprovação.',
   },
   {
     q: 'Posso cancelar a qualquer momento?',
-    a: 'Sim. Você pode cancelar sua assinatura a qualquer momento, sem multa ou burocracia. O acesso continua até o fim do período pago.',
+    a: 'Sim — sem burocracia e sem compromisso. Você pode cancelar sua assinatura quando quiser, de forma simples e rápida, sem taxas ou multas. E o melhor: mesmo após o cancelamento, seu acesso continua normalmente até o final do período já pago. Assim, você tem total liberdade para testar a plataforma com tranquilidade e decidir se faz sentido para sua preparação.',
   },
   {
-    q: 'A plataforma funciona no celular ou tablet?',
-    a: 'Sim. Nossa plataforma é totalmente responsiva e funciona perfeitamente em celulares, tablets e computadores. Você pode estudar onde estiver, quando quiser.',
+    q: 'Posso acessar a plataforma em qualquer dispositivo e estudar em diferentes formatos?',
+    a: 'Sim — o Sua Vaga IA foi pensado para se adaptar totalmente à sua rotina. Você pode acessar a plataforma pelo celular, tablet ou computador, sem precisar instalar nada, e estudar de onde estiver, a qualquer momento. Além disso, você tem liberdade para escolher como aprender: pode ler as respostas diretamente na tela, imprimir para revisar no papel ou até ouvir o conteúdo em áudio — ideal para aproveitar momentos como deslocamentos, treinos ou tarefas do dia a dia. Na prática, isso significa mais flexibilidade, mais consistência nos estudos e a possibilidade de transformar qualquer momento em uma oportunidade de aprendizado.',
   },
   {
     q: 'Por que devo contratar o Sua Vaga IA, e não utilizar outras IAs?',
-    a: 'O Sua Vaga IA é constantemente alimentado e enriquecido com as melhores doutrinas e busca apenas fontes seguras de legislação e informativos dos Tribunais Superiores. Outras IAs buscam informações de qualquer fonte da internet, o que prejudica a credibilidade e a qualidade das informações.',
+    a: 'O Sua Vaga IA não é uma IA genérica — é uma ferramenta criada exclusivamente para quem quer ser aprovado em concursos públicos. Enquanto IAs comuns entregam respostas amplas e muitas vezes superficiais, o Sua Vaga IA fornece conteúdos completos, aprofundados e direcionados exatamente para o que as bancas cobram. Cada resposta é construída com base em legislação atualizada, doutrinas relevantes e informativos dos Tribunais Superiores, garantindo mais segurança e precisão nos seus estudos. Além disso, você não perde tempo filtrando informações: o Sua Vaga IA já organiza tudo de forma clara, didática e estratégica, destacando os pontos mais importantes para prova. Na prática, isso significa estudar com mais eficiência, entender mais rápido e aumentar suas chances reais de aprovação.',
   },
   {
-    q: 'Quantas perguntas posso fazer com 600.000 tokens?',
-    a: 'Cada pergunta aos agentes consome em média 1.500 tokens. Com 600.000 tokens mensais, você pode fazer aproximadamente 400 interações com os agentes por ciclo. Precisa de mais? Adquira pacotes avulsos de 600.000 tokens por R$49,90.',
+    q: 'Quantas perguntas posso fazer?',
+    a: 'Você pode fazer centenas de perguntas por mês. Nosso sistema utiliza créditos inteligentes que priorizam respostas completas e aprofundadas, garantindo que você tenha qualidade de estudo, não apenas quantidade. Na prática, isso significa liberdade para estudar à vontade, tirar dúvidas e aprofundar conteúdos sem se preocupar a cada pergunta.',
+  },
+  {
+    q: 'Posso imprimir as respostas ou ouvir em áudio?',
+    a: 'Sim — você escolhe como quer estudar. Na plataforma, você pode tanto imprimir as respostas para revisar no papel quanto ouvir o conteúdo em áudio, facilitando o aprendizado em diferentes momentos do dia. Isso permite adaptar seus estudos à sua rotina: revisar com calma, fazer anotações ou até aprender enquanto dirige, treina ou realiza outras atividades. Mais flexibilidade, mais praticidade e mais eficiência na sua preparação.',
   },
 ];
 
@@ -180,7 +308,7 @@ const mono  = "'JetBrains Mono', ui-monospace, monospace";
 // ─── Checkout helper ─────────────────────────────────────────────────────────
 async function invokeCheckout(
   priceId: string,
-  plan: 'monthly' | 'annual' | 'credits',
+  plan: string,
   navigate: ReturnType<typeof useNavigate>
 ) {
   const storageKey = 'sb-lxteajwzovoeclbytdrp-auth-token';
@@ -193,7 +321,9 @@ async function invokeCheckout(
   }
 
   try {
-    const successPath = plan === 'credits' ? '/thank-you/credits' : `/thank-you/${plan}`;
+    const isCredits = plan === 'credits';
+    const isAnnual = plan.includes('annual');
+    const successPath = isCredits ? '/thank-you/credits' : isAnnual ? '/thank-you/annual' : '/thank-you/monthly';
     const { data, error } = await supabase.functions.invoke('create-checkout', {
       body: {
         price_id: priceId,
@@ -226,12 +356,14 @@ interface AgentData {
   sub: string;
   itens: string[];
   pq: string;
+  itemsLabel?: string;
 }
 
 function AgentRow({ ag }: { ag: AgentData }) {
   const [exp, setExp] = useState(false);
   const show = exp ? ag.itens : ag.itens.slice(0, 4);
   const more = ag.itens.length - 4;
+  const label = ag.itemsLabel ?? 'O que inclui';
 
   return (
     <article className="lp-agent-row">
@@ -248,7 +380,7 @@ function AgentRow({ ag }: { ag: AgentData }) {
         <div style={{ background: 'rgba(16,185,129,0.05)', borderLeft: `2px solid ${C.emerald}`,
           padding: '12px 16px', maxWidth: 420 }}>
           <div className="lp-eyebrow" style={{ fontSize: 10, letterSpacing: '0.2em', marginBottom: 6 }}>
-            Por que vale R$ 129/mês
+            Por que vale a pena
           </div>
           <p style={{ fontSize: 13, color: C.slateLighter, lineHeight: 1.6, fontFamily: sans }}>{ag.pq}</p>
         </div>
@@ -256,7 +388,7 @@ function AgentRow({ ag }: { ag: AgentData }) {
 
       <div>
         <div className="lp-eyebrow-muted" style={{ fontSize: 10, marginBottom: 16 }}>
-          O que inclui · {ag.itens.length} items
+          {label} · {ag.itens.length} itens
         </div>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
           {show.map((item, i) => (
@@ -308,7 +440,7 @@ function FaqItem({ item, idx }: { item: FaqItemData; idx: number }) {
           transform: open ? 'rotate(45deg)' : 'none', justifySelf: 'end' }}>+</span>
       </button>
       <div style={{ overflow: 'hidden', transition: 'max-height .3s, padding .3s',
-        maxHeight: open ? 400 : 0, paddingBottom: open ? 28 : 0 }}>
+        maxHeight: open ? 600 : 0, paddingBottom: open ? 28 : 0 }}>
         <div style={{ paddingLeft: 68, paddingRight: 60, maxWidth: 820 }}>
           <p style={{ fontSize: 16, color: C.slateLight, lineHeight: 1.7, fontFamily: sans }}>{item.a}</p>
         </div>
@@ -321,6 +453,7 @@ function FaqItem({ item, idx }: { item: FaqItemData; idx: number }) {
 export default function LandingPage() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
+  const [planTab, setPlanTab] = useState<'mensal' | 'anual'>('mensal');
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -371,6 +504,8 @@ export default function LandingPage() {
         .lp-nav-login{color:${C.slateLight};font-size:14px;font-family:${sans};transition:color .18s}
         .lp-nav-login:hover{color:${C.offWhite}}
         .lp-footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px}
+        .lp-tab{padding:8px 20px;border-radius:4px;font-family:${mono};font-size:12px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border:1px solid ${C.borderStrong};background:transparent;color:${C.slateLight};transition:all .18s}
+        .lp-tab.active{background:${C.emerald};color:#fff;border-color:${C.emerald}}
         @media(max-width:900px){
           .lp-agent-head{grid-template-columns:1fr;gap:16px}
           .lp-agent-row{grid-template-columns:1fr;gap:24px;padding:36px 0}
@@ -403,7 +538,7 @@ export default function LandingPage() {
         .lp-hero-numeral{font-family:${serif};font-size:clamp(60px,9vw,140px);line-height:.95;letter-spacing:-.04em;color:${C.slate};opacity:.22}
         .lp-hero-h1{font-family:${serif};font-size:clamp(48px,7vw,96px);line-height:1.02;letter-spacing:-.03em;color:${C.offWhite};margin-bottom:32px}
         .lp-hero-h1 em{font-style:italic;color:${C.emeraldLight}}
-        .lp-hero-trust{margin-top:80px;padding-top:32px;border-top:1px solid ${C.border};display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+        .lp-hero-trust{margin-top:80px;padding-top:32px;border-top:1px solid ${C.border};display:grid;grid-template-columns:repeat(4,1fr);gap:32px}
         .lp-eyebrow{font-family:${mono};font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:${C.emerald}}
         .lp-eyebrow-muted{font-family:${mono};font-size:11px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:${C.slate}}
         .lp-cta-primary{display:inline-flex;align-items:center;gap:10px;background:${C.emerald};color:#fff;border:none;border-radius:4px;font-family:${sans};font-weight:600;font-size:14px;letter-spacing:.01em;padding:14px 24px;cursor:pointer;transition:background .18s}
@@ -417,13 +552,14 @@ export default function LandingPage() {
           .lp-sec{padding:72px 0}
           .lp-hero-grid{grid-template-columns:1fr;gap:20px}
           .lp-hero-numeral{font-size:80px}
-          .lp-hero-trust{grid-template-columns:1fr;gap:20px}
+          .lp-hero-trust{grid-template-columns:1fr 1fr;gap:20px}
         }
         @media(max-width:768px){
           .lp-agents{grid-template-columns:1fr}
           .lp-col2{grid-template-columns:1fr}
           .lp-areas{grid-template-columns:repeat(2,1fr)}
           .lp-hide{display:none!important}
+          .lp-hero-trust{grid-template-columns:1fr}
         }
       `}</style>
 
@@ -450,7 +586,7 @@ export default function LandingPage() {
             <a href="#planos" className="lp-nav-link">Planos</a>
             <a href="#faq" className="lp-nav-link">FAQ</a>
             <Link to="/auth/login" className="lp-nav-login">Entrar</Link>
-            <button onClick={checkoutMonthly1m} className="lp-cta-primary" style={{ padding: '10px 18px', fontSize: 13 }}>
+            <button onClick={checkoutMonthly600k} className="lp-cta-primary" style={{ padding: '10px 18px', fontSize: 13 }}>
               Assinar
             </button>
           </nav>
@@ -459,14 +595,12 @@ export default function LandingPage() {
 
       {/* ── HERO ── */}
       <section style={{ position: 'relative', padding: '80px 0 120px', overflow: 'hidden' }}>
-        {/* backdrop glows */}
         <div style={{ position: 'absolute', top: '-15%', right: '-10%', width: 700, height: 700, borderRadius: '50%',
           background: 'radial-gradient(circle,rgba(16,185,129,0.07) 0%,transparent 60%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '-30%', left: '-15%', width: 600, height: 600, borderRadius: '50%',
           background: 'radial-gradient(circle,rgba(59,130,246,0.04) 0%,transparent 60%)', pointerEvents: 'none' }} />
 
         <div className="lp-wrap" style={{ position: 'relative' }}>
-          {/* meta row */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 80, flexWrap: 'wrap', gap: 16 }}>
             <div className="lp-eyebrow-muted">
               <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%',
@@ -476,7 +610,6 @@ export default function LandingPage() {
             <div className="lp-eyebrow-muted">Concursos Públicos — Jurídicos</div>
           </div>
 
-          {/* headline grid */}
           <div className="lp-hero-grid">
             <div className="lp-hero-numeral">01</div>
             <div>
@@ -494,8 +627,8 @@ export default function LandingPage() {
                   concursos públicos de alto nível.
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 40 }}>
-                  <button onClick={checkoutMonthly1m} className="lp-cta-primary">
-                    Assinar Agora — R$ 129/mês
+                  <button onClick={checkoutMonthly600k} className="lp-cta-primary">
+                    Assinar Agora — R$ 99/mês
                     <span className="lp-arrow">→</span>
                   </button>
                   <Link to="/auth/signup" className="lp-cta-ghost">Começar Grátis</Link>
@@ -504,12 +637,12 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* trust strip */}
           <div className="lp-hero-trust">
             {[
               ['Dispositivo', 'Acesso por celular, tablet ou computador'],
-              ['Flexibilidade', 'Cancele a qualquer momento'],
-              ['Compromisso', 'Sem multa, sem fidelidade'],
+              ['Áudio', 'Ouça as respostas em qualquer lugar'],
+              ['Imprimir', 'Imprima as respostas para revisar no papel'],
+              ['Flexibilidade', 'Cancele a qualquer momento, sem multa'],
             ].map(([k, v], i) => (
               <div key={i}>
                 <div className="lp-eyebrow" style={{ fontSize: 10, letterSpacing: '0.2em', marginBottom: 8 }}>{k}</div>
@@ -527,7 +660,7 @@ export default function LandingPage() {
             <div className="lp-eyebrow" style={{ paddingTop: 8 }}>§02</div>
             <div style={{ maxWidth: 720 }}>
               <div className="lp-eyebrow" style={{ marginBottom: 16 }}>
-                O que você recebe por R$ 129/mês
+                O que você recebe
               </div>
               <h2 style={{ fontFamily: serif, fontSize: 'clamp(40px,5.5vw,68px)', lineHeight: 1.05,
                 letterSpacing: '-0.025em', marginBottom: 20, color: C.offWhite, fontWeight: 400 }}>
@@ -578,17 +711,26 @@ export default function LandingPage() {
 
             <div className="lp-ledger-col" style={{ background: 'rgba(16,185,129,0.04)' }}>
               <div className="lp-eyebrow" style={{ marginBottom: 28 }}>Com o Sua Vaga IA</div>
-              <div style={{ padding: '32px 0', textAlign: 'center' }}>
-                <div style={{ fontFamily: serif, fontSize: 112, lineHeight: 0.9,
-                  letterSpacing: '-0.04em', color: C.offWhite, marginBottom: 4, whiteSpace: 'nowrap' }}>
-                  R$ 129
+              <div style={{ padding: '20px 0', textAlign: 'center' }}>
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontFamily: serif, fontSize: 80, lineHeight: 0.9,
+                    letterSpacing: '-0.04em', color: C.offWhite, marginBottom: 4 }}>R$ 99</div>
+                  <div className="lp-eyebrow">por mês — 600k tokens</div>
+                  <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>
+                    ou R$ 999/ano (≈ R$ 83,25/mês)
+                  </div>
                 </div>
-                <div className="lp-eyebrow">por mês</div>
-                <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>
-                  ou R$ 1.290/ano (≈ R$ 107,50/mês)
+                <div style={{ borderTop: `1px solid ${C.borderEm}`, borderBottom: `1px solid ${C.borderEm}`,
+                  padding: '16px 0', margin: '16px 0' }}>
+                  <div style={{ fontFamily: serif, fontSize: 80, lineHeight: 0.9,
+                    letterSpacing: '-0.04em', color: C.emeraldLight, marginBottom: 4 }}>R$ 129</div>
+                  <div className="lp-eyebrow" style={{ color: C.emeraldLight }}>por mês — 1M tokens</div>
+                  <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>
+                    ou R$ 1.299/ano (≈ R$ 108,25/mês)
+                  </div>
                 </div>
               </div>
-              <div style={{ borderTop: `1px solid ${C.borderEm}`, paddingTop: 20, textAlign: 'center' }}>
+              <div style={{ paddingTop: 12, textAlign: 'center' }}>
                 <div style={{ fontFamily: serif, fontSize: 22, color: C.emeraldLight,
                   letterSpacing: '-0.01em', fontStyle: 'italic' }}>
                   Economia de R$ 4.700,00+ por mês
@@ -598,8 +740,8 @@ export default function LandingPage() {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: 48 }}>
-            <button onClick={checkoutMonthly1m} className="lp-cta-primary">
-              Assinar Agora <span className="lp-arrow">→</span>
+            <button onClick={checkoutMonthly600k} className="lp-cta-primary">
+              Assinar Agora — R$ 99/mês <span className="lp-arrow">→</span>
             </button>
           </div>
         </div>
@@ -676,7 +818,7 @@ export default function LandingPage() {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: 48 }}>
-            <button onClick={checkoutMonthly1m} className="lp-cta-primary">
+            <button onClick={checkoutMonthly600k} className="lp-cta-primary">
               Assinar Agora <span className="lp-arrow">→</span>
             </button>
           </div>
@@ -695,19 +837,7 @@ export default function LandingPage() {
           </div>
 
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, borderTop: `1px solid ${C.border}` }}>
-            {[
-              'Agentes de IA especializados em concursos públicos',
-              'Análise doutrinária completa de qualquer tema do edital',
-              'Legislação sempre atualizada',
-              'Informativos dos últimos anos (STF e STJ)',
-              'Todas as súmulas vigentes com casos práticos',
-              'Súmulas vinculantes explicadas e com casos práticos',
-              'Questões objetivas com explicação de cada alternativa',
-              'Questões certo/errado com explicação e fundamentação',
-              'Mentoria e gestão personalizada do tempo',
-              '600.000 tokens por ciclo (≈ 400 interações)',
-              'Atualizações constantes',
-            ].map((item, i) => (
+            {AGENTES.map((ag, i) => (
               <li key={i} style={{ display: 'grid', gridTemplateColumns: '50px 24px 1fr',
                 gap: 16, alignItems: 'center', padding: '18px 0',
                 borderBottom: `1px solid ${C.border}` }}>
@@ -716,13 +846,35 @@ export default function LandingPage() {
                 </span>
                 <Tick size={14} />
                 <span style={{ fontSize: 16, color: C.offWhite,
-                  letterSpacing: '-0.005em', fontFamily: sans }}>{item}</span>
+                  letterSpacing: '-0.005em', fontFamily: sans }}>{ag.titulo}</span>
               </li>
             ))}
+            <li style={{ display: 'grid', gridTemplateColumns: '50px 24px 1fr',
+              gap: 16, alignItems: 'center', padding: '18px 0',
+              borderBottom: `1px solid ${C.border}` }}>
+              <span style={{ fontFamily: mono, fontSize: 11, color: C.slate, letterSpacing: '0.1em' }}>
+                {String(AGENTES.length + 1).padStart(2, '0')}
+              </span>
+              <Tick size={14} />
+              <span style={{ fontSize: 16, color: C.offWhite, letterSpacing: '-0.005em', fontFamily: sans }}>
+                Respostas que podem ser impressas ou ouvidas em áudio
+              </span>
+            </li>
+            <li style={{ display: 'grid', gridTemplateColumns: '50px 24px 1fr',
+              gap: 16, alignItems: 'center', padding: '18px 0',
+              borderBottom: `1px solid ${C.border}` }}>
+              <span style={{ fontFamily: mono, fontSize: 11, color: C.slate, letterSpacing: '0.1em' }}>
+                {String(AGENTES.length + 2).padStart(2, '0')}
+              </span>
+              <Tick size={14} />
+              <span style={{ fontSize: 16, color: C.offWhite, letterSpacing: '-0.005em', fontFamily: sans }}>
+                Atualizações constantes da base jurídica
+              </span>
+            </li>
           </ul>
 
           <div style={{ textAlign: 'center', marginTop: 48 }}>
-            <button onClick={checkoutMonthly1m} className="lp-cta-primary">
+            <button onClick={checkoutMonthly600k} className="lp-cta-primary">
               Assinar Agora <span className="lp-arrow">→</span>
             </button>
           </div>
@@ -781,29 +933,35 @@ export default function LandingPage() {
       {/* ── PLANOS ── */}
       <section id="planos" className="lp-sec lp-sec-border" style={{ background: C.navyDeep }}>
         <div className="lp-wrap">
-          <div style={{ textAlign: 'center', marginBottom: 72 }}>
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <div className="lp-eyebrow" style={{ marginBottom: 16 }}>§08 — Comece hoje mesmo</div>
             <h2 style={{ fontFamily: serif, fontSize: 'clamp(40px,5.5vw,68px)', lineHeight: 1.05,
               letterSpacing: '-0.025em', marginBottom: 16, color: C.offWhite, fontWeight: 400 }}>
               Escolha <em style={{ fontStyle: 'italic', color: C.emeraldLight }}>seu plano</em>
             </h2>
-            <p style={{ fontSize: 16, color: C.slateLight, fontFamily: sans }}>
+            <p style={{ fontSize: 16, color: C.slateLight, fontFamily: sans, marginBottom: 32 }}>
               Sem multa, sem fidelidade — cancele quando quiser.
             </p>
+            {/* Tab mensal / anual */}
+            <div style={{ display: 'inline-flex', gap: 8, background: 'rgba(255,255,255,0.04)',
+              padding: 4, borderRadius: 6, border: `1px solid ${C.border}` }}>
+              <button className={`lp-tab${planTab === 'mensal' ? ' active' : ''}`}
+                onClick={() => setPlanTab('mensal')}>Mensal</button>
+              <button className={`lp-tab${planTab === 'anual' ? ' active' : ''}`}
+                onClick={() => setPlanTab('anual')}>
+                Anual — economize até 31%
+              </button>
+            </div>
           </div>
 
           <div className="lp-plans">
             {/* Grátis */}
             <div className="lp-plan-col" style={{ borderRight: `1px solid ${C.border}` }}>
-              <div style={{ marginBottom: 0 }}>
+              <div>
                 <div className="lp-eyebrow-muted" style={{ marginBottom: 20 }}>Grátis</div>
-                <div style={{ marginBottom: 4 }}>
-                  <div style={{ fontFamily: serif, fontSize: 56, letterSpacing: '-0.03em',
-                    lineHeight: 1, color: C.offWhite, whiteSpace: 'nowrap' }}>R$ 0</div>
-                  <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>
-                    para sempre
-                  </div>
-                </div>
+                <div style={{ fontFamily: serif, fontSize: 56, letterSpacing: '-0.03em',
+                  lineHeight: 1, color: C.offWhite }}>R$ 0</div>
+                <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>para sempre</div>
               </div>
               <div style={{ height: 1, background: C.border }} />
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex',
@@ -812,9 +970,7 @@ export default function LandingPage() {
                   'Explorar a plataforma sem compromisso'].map((f, j) => (
                   <li key={j} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                     <div style={{ marginTop: 2 }}><Tick size={13} color={C.slate} /></div>
-                    <span style={{ fontSize: 13.5, color: C.slateLight, lineHeight: 1.55, fontFamily: sans }}>
-                      {f}
-                    </span>
+                    <span style={{ fontSize: 13.5, color: C.slateLight, lineHeight: 1.55, fontFamily: sans }}>{f}</span>
                   </li>
                 ))}
               </ul>
@@ -823,67 +979,70 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Mensal (featured) */}
-            <div className="lp-plan-col lp-plan-featured" style={{
-              borderRight: `1px solid ${C.border}`,
-              background: 'rgba(16,185,129,0.05)' }}>
-              <div className="lp-plan-badge lp-plan-badge-on">Mais Popular</div>
+            {/* 600k tokens */}
+            <div className="lp-plan-col" style={{ borderRight: `1px solid ${C.border}`, background: 'rgba(16,185,129,0.03)' }}>
+              <div className="lp-plan-badge lp-plan-badge-off">Plano Essencial</div>
               <div style={{ marginTop: 20 }}>
-                <div className="lp-eyebrow" style={{ marginBottom: 20 }}>Mensal</div>
-                <div style={{ marginBottom: 4 }}>
-                  <div style={{ fontFamily: serif, fontSize: 56, letterSpacing: '-0.03em',
-                    lineHeight: 1, color: C.emeraldLight, whiteSpace: 'nowrap' }}>R$ 129</div>
-                  <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>/mês</div>
+                <div className="lp-eyebrow-muted" style={{ marginBottom: 20 }}>600.000 tokens / mês</div>
+                <div style={{ fontFamily: serif, fontSize: 56, letterSpacing: '-0.03em',
+                  lineHeight: 1, color: C.offWhite }}>
+                  {planTab === 'mensal' ? 'R$ 99' : 'R$ 999'}
+                </div>
+                <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>
+                  {planTab === 'mensal' ? '/mês' : '/ano — ≈ R$ 83,25/mês'}
                 </div>
               </div>
               <div style={{ height: 1, background: C.border }} />
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex',
                 flexDirection: 'column', gap: 12, flex: 1 }}>
                 {['600.000 tokens por mês', 'Todos os agentes especializados',
-                  'Informativos STF/STJ atualizados', 'Súmulas vigentes com casos práticos',
+                  'Informativos STF/STJ/TST atualizados', 'Súmulas e OJs com casos práticos',
                   'Mentoria e cronograma personalizados', 'Questões objetivas e certo/errado',
-                  'Cancele a qualquer momento'].map((f, j) => (
+                  'Cancele a qualquer momento',
+                  ...(planTab === 'anual' ? ['PIX e Boleto disponíveis', 'Parcelamento em até 12x no cartão'] : [])
+                ].map((f, j) => (
                   <li key={j} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                    <div style={{ marginTop: 2 }}><Tick size={13} color={C.emeraldLight} /></div>
-                    <span style={{ fontSize: 13.5, color: C.slateLighter, lineHeight: 1.55, fontFamily: sans }}>
-                      {f}
-                    </span>
+                    <div style={{ marginTop: 2 }}><Tick size={13} color={C.slateLight} /></div>
+                    <span style={{ fontSize: 13.5, color: C.slateLighter, lineHeight: 1.55, fontFamily: sans }}>{f}</span>
                   </li>
                 ))}
               </ul>
-              <button onClick={checkoutMonthly1m} className="lp-cta-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                Assinar Agora <span className="lp-arrow">→</span>
+              <button onClick={planTab === 'mensal' ? checkoutMonthly600k : checkoutAnnual600k}
+                className="lp-cta-ghost" style={{ width: '100%', justifyContent: 'center' }}>
+                {planTab === 'mensal' ? 'Assinar por R$ 99/mês' : 'Assinar por R$ 999/ano'} <span className="lp-arrow">→</span>
               </button>
             </div>
 
-            {/* Anual */}
-            <div className="lp-plan-col">
-              <div className="lp-plan-badge lp-plan-badge-off">Melhor Custo-Benefício</div>
+            {/* 1M tokens (featured) */}
+            <div className="lp-plan-col" style={{ background: 'rgba(16,185,129,0.05)' }}>
+              <div className="lp-plan-badge lp-plan-badge-on">Mais Popular</div>
               <div style={{ marginTop: 20 }}>
-                <div className="lp-eyebrow-muted" style={{ marginBottom: 20 }}>Anual</div>
-                <div style={{ marginBottom: 4 }}>
-                  <div style={{ fontFamily: serif, fontSize: 56, letterSpacing: '-0.03em',
-                    lineHeight: 1, color: C.offWhite, whiteSpace: 'nowrap' }}>R$ 1.290</div>
-                  <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>
-                    ≈ R$ 107,50/mês
-                  </div>
+                <div className="lp-eyebrow" style={{ marginBottom: 20 }}>1.000.000 tokens / mês</div>
+                <div style={{ fontFamily: serif, fontSize: 56, letterSpacing: '-0.03em',
+                  lineHeight: 1, color: C.emeraldLight }}>
+                  {planTab === 'mensal' ? 'R$ 129' : 'R$ 1.299'}
+                </div>
+                <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>
+                  {planTab === 'mensal' ? '/mês' : '/ano — ≈ R$ 108,25/mês'}
                 </div>
               </div>
               <div style={{ height: 1, background: C.border }} />
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex',
                 flexDirection: 'column', gap: 12, flex: 1 }}>
-                {['600.000 tokens por ciclo', 'Todos os benefícios do plano Mensal',
-                  'Economia de R$ 258,00 vs mensal', 'Acesso por 12 meses garantido'].map((f, j) => (
+                {['1.000.000 tokens por mês', 'Todos os benefícios do plano Essencial',
+                  'Mais interações para estudar sem limites', 'Respostas mais longas e detalhadas',
+                  'Cancele a qualquer momento',
+                  ...(planTab === 'anual' ? ['PIX e Boleto disponíveis', 'Parcelamento em até 12x no cartão'] : [])
+                ].map((f, j) => (
                   <li key={j} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                    <div style={{ marginTop: 2 }}><Tick size={13} color={C.slate} /></div>
-                    <span style={{ fontSize: 13.5, color: C.slateLight, lineHeight: 1.55, fontFamily: sans }}>
-                      {f}
-                    </span>
+                    <div style={{ marginTop: 2 }}><Tick size={13} color={C.emeraldLight} /></div>
+                    <span style={{ fontSize: 13.5, color: C.slateLighter, lineHeight: 1.55, fontFamily: sans }}>{f}</span>
                   </li>
                 ))}
               </ul>
-              <button onClick={checkoutAnnual1m} className="lp-cta-ghost" style={{ width: '100%', justifyContent: 'center' }}>
-                Assinar Anual
+              <button onClick={planTab === 'mensal' ? checkoutMonthly1m : checkoutAnnual1m}
+                className="lp-cta-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                {planTab === 'mensal' ? 'Assinar por R$ 129/mês' : 'Assinar por R$ 1.299/ano'} <span className="lp-arrow">→</span>
               </button>
             </div>
           </div>
@@ -909,17 +1068,30 @@ export default function LandingPage() {
             </button>
           </div>
 
-          {/* Pagamento */}
-          <div style={{ marginTop: 32, display: 'flex', justifyContent: 'center',
-            gap: 32, flexWrap: 'wrap' }}>
-            {['Cartão de crédito', 'Apple Pay', 'Link (Stripe)'].map((p, i) => (
-              <span key={i} style={{ fontFamily: mono, fontSize: 11, color: C.slate,
-                letterSpacing: '0.15em', textTransform: 'uppercase',
-                display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Tick size={11} color={C.slate} />
-                {p}
-              </span>
-            ))}
+          {/* Formas de pagamento */}
+          <div style={{ marginTop: 32, border: `1px solid ${C.border}`, padding: '20px 28px',
+            background: 'rgba(255,255,255,0.02)' }}>
+            <div className="lp-eyebrow-muted" style={{ marginBottom: 16, fontSize: 10 }}>Formas de pagamento aceitas</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
+              {[
+                { label: 'Cartão de crédito', obs: 'todos os planos' },
+                { label: 'Apple Pay', obs: 'todos os planos' },
+                { label: 'Link (Stripe)', obs: 'todos os planos' },
+                { label: 'PIX', obs: 'apenas planos anuais' },
+                { label: 'Boleto Bancário', obs: 'apenas planos anuais' },
+                { label: 'Parcelamento 12x', obs: 'planos anuais com juros do cartão' },
+              ].map((p, i) => (
+                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <span style={{ fontFamily: mono, fontSize: 11, color: C.slateLighter,
+                    letterSpacing: '0.1em', textTransform: 'uppercase',
+                    display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Tick size={11} color={C.emerald} />
+                    {p.label}
+                  </span>
+                  <span style={{ fontFamily: sans, fontSize: 11, color: C.slate, paddingLeft: 17 }}>{p.obs}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -963,11 +1135,11 @@ export default function LandingPage() {
           </div>
 
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button onClick={checkoutMonthly1m} className="lp-cta-primary">
-              Assinar Agora — R$ 129/mês <span className="lp-arrow">→</span>
+            <button onClick={checkoutMonthly600k} className="lp-cta-primary">
+              Assinar Agora — R$ 99/mês <span className="lp-arrow">→</span>
             </button>
-            <button onClick={checkoutAnnual1m} className="lp-cta-ghost">
-              Plano Anual — R$ 1.290
+            <button onClick={checkoutAnnual600k} className="lp-cta-ghost">
+              Plano Anual — R$ 999
             </button>
           </div>
         </div>
