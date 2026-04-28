@@ -319,7 +319,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Uso do mês</span>
                 {profile?.tokens_remaining != null && (() => {
-                  const planMax = (profile.tokens_remaining ?? 0) > 700_000 ? 1_000_000 : 600_000;
+                  const planMax = 1_000_000;
                   const used = planMax - (profile.tokens_remaining ?? 0);
                   const pct = Math.min(Math.round((used / planMax) * 100), 100);
                   const now = new Date();
@@ -330,7 +330,7 @@ export default function SettingsPage() {
                 })()}
               </div>
               {profile?.tokens_remaining != null && (() => {
-                const planMax = (profile.tokens_remaining ?? 0) > 700_000 ? 1_000_000 : 600_000;
+                const planMax = 1_000_000;
                 const used = planMax - (profile.tokens_remaining ?? 0);
                 const pct = Math.min(Math.round((used / planMax) * 100), 100);
                 const barColor = pct >= 95 ? 'bg-destructive' : pct >= 80 ? 'bg-yellow-500' : 'bg-emerald';
