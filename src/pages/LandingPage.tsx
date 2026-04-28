@@ -445,109 +445,6 @@ function FaqItem({ item, idx }: { item: FaqItemData; idx: number }) {
           <p style={{ fontSize: 16, color: C.slateLight, lineHeight: 1.7, fontFamily: sans }}>{item.a}</p>
         </div>
       </div>
-      {/* ── MODAL DE SELEÇÃO DE PLANO ── */}
-      {showPlanModal && (
-        <div
-          onClick={() => setShowPlanModal(false)}
-          style={{
-            position: 'fixed', inset: 0, zIndex: 200,
-            background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: '#0A1628', border: '1px solid rgba(255,255,255,0.12)',
-              borderRadius: 8, maxWidth: 560, width: '100%', padding: '40px 36px',
-            }}
-          >
-            <div style={{ textAlign: 'center', marginBottom: 32 }}>
-              <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.2em',
-                textTransform: 'uppercase', color: '#10B981', marginBottom: 12 }}>
-                Escolha seu plano
-              </div>
-              <h3 style={{ fontFamily: serif, fontSize: 28, color: '#F8FAFC',
-                fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-                Qual plano faz mais sentido<br />para você?
-              </h3>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-              {/* Plano R$99 */}
-              <button
-                onClick={() => { setShowPlanModal(false); checkoutMonthly600k(); }}
-                style={{
-                  background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.12)',
-                  borderRadius: 6, padding: '24px 20px', cursor: 'pointer', textAlign: 'left',
-                  transition: 'border-color .18s, background .18s', color: 'inherit',
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#10B981'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(16,185,129,0.05)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.12)'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.03)'; }}
-              >
-                <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.15em',
-                  textTransform: 'uppercase', color: '#94A3B8', marginBottom: 12 }}>
-                  Essencial
-                </div>
-                <div style={{ fontFamily: serif, fontSize: 40, color: '#F8FAFC',
-                  letterSpacing: '-0.03em', lineHeight: 1, marginBottom: 4 }}>
-                  R$ 99
-                </div>
-                <div style={{ fontFamily: sans, fontSize: 12, color: '#64748B', marginBottom: 16 }}>
-                  por mês
-                </div>
-                <div style={{ fontFamily: sans, fontSize: 13, color: '#CBD5E1', lineHeight: 1.5 }}>
-                  600.000 tokens mensais<br />Todos os agentes inclusos
-                </div>
-              </button>
-
-              {/* Plano R$129 */}
-              <button
-                onClick={() => { setShowPlanModal(false); checkoutMonthly1m(); }}
-                style={{
-                  background: 'rgba(16,185,129,0.06)', border: '1.5px solid #10B981',
-                  borderRadius: 6, padding: '24px 20px', cursor: 'pointer', textAlign: 'left',
-                  transition: 'background .18s', color: 'inherit', position: 'relative',
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(16,185,129,0.1)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(16,185,129,0.06)'; }}
-              >
-                <div style={{
-                  position: 'absolute', top: -1, right: 16,
-                  background: '#10B981', color: '#fff',
-                  fontFamily: mono, fontSize: 9, letterSpacing: '0.15em',
-                  textTransform: 'uppercase', padding: '3px 8px', borderRadius: '0 0 4px 4px',
-                }}>
-                  Mais Popular
-                </div>
-                <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.15em',
-                  textTransform: 'uppercase', color: '#34D399', marginBottom: 12 }}>
-                  Premium
-                </div>
-                <div style={{ fontFamily: serif, fontSize: 40, color: '#34D399',
-                  letterSpacing: '-0.03em', lineHeight: 1, marginBottom: 4 }}>
-                  R$ 129
-                </div>
-                <div style={{ fontFamily: sans, fontSize: 12, color: '#64748B', marginBottom: 16 }}>
-                  por mês
-                </div>
-                <div style={{ fontFamily: sans, fontSize: 13, color: '#CBD5E1', lineHeight: 1.5 }}>
-                  1.000.000 tokens mensais<br />Mais interações, mais estudo
-                </div>
-              </button>
-            </div>
-
-            <div style={{ textAlign: 'center' }}>
-              <button
-                onClick={() => setShowPlanModal(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer',
-                  fontFamily: sans, fontSize: 13, color: '#64748B', padding: '8px 16px' }}>
-                Fechar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -1335,6 +1232,104 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* ── MODAL DE SELEÇÃO DE PLANO ── */}
+      {showPlanModal && (
+        <div
+          onClick={() => setShowPlanModal(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#0A1628', border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 8, maxWidth: 560, width: '100%', padding: '40px 36px',
+            }}
+          >
+            <div style={{ textAlign: 'center', marginBottom: 32 }}>
+              <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.2em',
+                textTransform: 'uppercase', color: '#10B981', marginBottom: 12 }}>
+                Escolha seu plano
+              </div>
+              <h3 style={{ fontFamily: serif, fontSize: 28, color: '#F8FAFC',
+                fontWeight: 400, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                Qual plano faz mais sentido<br />para você?
+              </h3>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+              <button
+                onClick={() => { setShowPlanModal(false); checkoutMonthly600k(); }}
+                style={{
+                  background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: 6, padding: '24px 20px', cursor: 'pointer', textAlign: 'left' as const,
+                  transition: 'border-color .18s, background .18s', color: 'inherit',
+                }}
+              >
+                <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.15em',
+                  textTransform: 'uppercase', color: '#94A3B8', marginBottom: 12 }}>
+                  Essencial
+                </div>
+                <div style={{ fontFamily: serif, fontSize: 40, color: '#F8FAFC',
+                  letterSpacing: '-0.03em', lineHeight: 1, marginBottom: 4 }}>
+                  R$ 99
+                </div>
+                <div style={{ fontFamily: sans, fontSize: 12, color: '#64748B', marginBottom: 16 }}>
+                  por mês
+                </div>
+                <div style={{ fontFamily: sans, fontSize: 13, color: '#CBD5E1', lineHeight: 1.5 }}>
+                  600.000 tokens mensais<br />Todos os agentes inclusos
+                </div>
+              </button>
+
+              <button
+                onClick={() => { setShowPlanModal(false); checkoutMonthly1m(); }}
+                style={{
+                  background: 'rgba(16,185,129,0.06)', border: '1.5px solid #10B981',
+                  borderRadius: 6, padding: '24px 20px', cursor: 'pointer', textAlign: 'left' as const,
+                  transition: 'background .18s', color: 'inherit', position: 'relative',
+                }}
+              >
+                <div style={{
+                  position: 'absolute', top: -1, right: 16,
+                  background: '#10B981', color: '#fff',
+                  fontFamily: mono, fontSize: 9, letterSpacing: '0.15em',
+                  textTransform: 'uppercase', padding: '3px 8px', borderRadius: '0 0 4px 4px',
+                }}>
+                  Mais Popular
+                </div>
+                <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.15em',
+                  textTransform: 'uppercase', color: '#34D399', marginBottom: 12 }}>
+                  Premium
+                </div>
+                <div style={{ fontFamily: serif, fontSize: 40, color: '#34D399',
+                  letterSpacing: '-0.03em', lineHeight: 1, marginBottom: 4 }}>
+                  R$ 129
+                </div>
+                <div style={{ fontFamily: sans, fontSize: 12, color: '#64748B', marginBottom: 16 }}>
+                  por mês
+                </div>
+                <div style={{ fontFamily: sans, fontSize: 13, color: '#CBD5E1', lineHeight: 1.5 }}>
+                  1.000.000 tokens mensais<br />Mais interações, mais estudo
+                </div>
+              </button>
+            </div>
+
+            <div style={{ textAlign: 'center' }}>
+              <button
+                onClick={() => setShowPlanModal(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer',
+                  fontFamily: sans, fontSize: 13, color: '#64748B', padding: '8px 16px' }}>
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
