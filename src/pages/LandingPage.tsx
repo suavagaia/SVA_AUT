@@ -271,7 +271,7 @@ const FAQ = [
   },
   {
     q: 'Quantas perguntas posso fazer?',
-    a: 'Você pode fazer centenas de perguntas por mês. Nosso sistema utiliza créditos inteligentes que priorizam respostas completas e aprofundadas, garantindo que você tenha qualidade de estudo, não apenas quantidade. Na prática, isso significa liberdade para estudar à vontade, tirar dúvidas e aprofundar conteúdos sem se preocupar a cada pergunta.',
+    a: 'Você pode fazer centenas de perguntas por mês. Nossa plataforma prioriza respostas completas e aprofundadas, garantindo que você tenha qualidade de estudo, não apenas quantidade. Na prática, isso significa liberdade para estudar à vontade, tirar dúvidas e aprofundar conteúdos sem se preocupar a cada pergunta.',
   },
   {
     q: 'Posso imprimir as respostas ou ouvir em áudio?',
@@ -709,19 +709,10 @@ export default function LandingPage() {
             <div className="lp-ledger-col" style={{ background: 'rgba(16,185,129,0.04)' }}>
               <div className="lp-eyebrow" style={{ marginBottom: 28 }}>Com o Sua Vaga IA</div>
               <div style={{ padding: '20px 0', textAlign: 'center' }}>
-                <div style={{ marginBottom: 20 }}>
-                  <div style={{ fontFamily: serif, fontSize: 80, lineHeight: 0.9,
-                    letterSpacing: '-0.04em', color: C.offWhite, marginBottom: 4 }}>R$ 99</div>
-                  <div className="lp-eyebrow">por mês — 600k tokens</div>
-                  <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>
-                    ou R$ 999/ano (≈ R$ 83,25/mês)
-                  </div>
-                </div>
-                <div style={{ borderTop: `1px solid ${C.borderEm}`, borderBottom: `1px solid ${C.borderEm}`,
-                  padding: '16px 0', margin: '16px 0' }}>
+                <div style={{ padding: '16px 0' }}>
                   <div style={{ fontFamily: serif, fontSize: 80, lineHeight: 0.9,
                     letterSpacing: '-0.04em', color: C.emeraldLight, marginBottom: 4 }}>R$ 129</div>
-                  <div className="lp-eyebrow" style={{ color: C.emeraldLight }}>por mês — 1M tokens</div>
+                  <div className="lp-eyebrow" style={{ color: C.emeraldLight }}>por mês</div>
                   <div style={{ fontSize: 13, color: C.slate, marginTop: 8, fontFamily: sans }}>
                     ou R$ 1.299/ano (≈ R$ 108,25/mês)
                   </div>
@@ -982,7 +973,7 @@ export default function LandingPage() {
             <div className="lp-plan-col" style={{ background: 'rgba(16,185,129,0.05)' }}>
               <div className="lp-plan-badge lp-plan-badge-on">Mais Popular</div>
               <div style={{ marginTop: 20 }}>
-                <div className="lp-eyebrow" style={{ marginBottom: 20 }}>1.000.000 tokens / mês</div>
+                <div className="lp-eyebrow" style={{ marginBottom: 20 }}>Plano Único</div>
                 <div style={{ fontFamily: serif, fontSize: 56, letterSpacing: '-0.03em',
                   lineHeight: 1, color: C.emeraldLight }}>
                   {planTab === 'mensal' ? 'R$ 129' : 'R$ 1.299'}
@@ -1024,7 +1015,7 @@ export default function LandingPage() {
                   Pacote de Créditos Avulsos
                 </div>
                 <div style={{ fontSize: 13, color: C.slate, fontFamily: sans }}>
-                  600.000 tokens adicionais por R$ 49,90
+                  Créditos adicionais para o seu plano por R$ 49,90
                 </div>
               </div>
             </div>
@@ -1104,7 +1095,7 @@ export default function LandingPage() {
               Assinar Agora — R$ 129/mês <span className="lp-arrow">→</span>
             </button>
             <button onClick={checkoutAnnual1m} className="lp-cta-ghost">
-              Plano Anual — R$ 999
+              Plano Anual — R$ 1.299
             </button>
           </div>
         </div>
@@ -1246,7 +1237,7 @@ export default function LandingPage() {
                   por mês &nbsp;·&nbsp; ou R$ 1.299/ano
                 </div>
                 <div style={{ fontFamily: sans, fontSize: 13, color: '#CBD5E1', lineHeight: 1.5 }}>
-                  1.000.000 tokens mensais · Todos os agentes · Cancele quando quiser
+                  Todos os agentes · Cancele quando quiser
                 </div>
               </button>
             </div>
