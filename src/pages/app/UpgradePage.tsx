@@ -1,197 +1,120 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/AppLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check, Lock, Zap, X } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Plano 600k
-const PRICE_MONTHLY_600K = 'price_1TP8QLGmx6vYOM03CLWb2x9H';
-const PRICE_ANNUAL_600K  = 'price_1TP8QVGmx6vYOM03Fgvf6Urk';
-// Plano 1M
-const PRICE_MONTHLY_1M   = 'price_1TP8QgGmx6vYOM03RiFKAp9B';
-const PRICE_ANNUAL_1M    = 'price_1TP8QqGmx6vYOM03ZwLhA6Ne';
+const PRICE_MONTHLY_1M = 'price_1TP8QgGmx6vYOM03RiFKAp9B';
+const PRICE_ANNUAL_1M  = 'price_1TP8QqGmx6vYOM03ZwLhA6Ne';
+const SUPABASE_URL = 'https://lxteajwzovoeclbytdrp.supabase.co';
 
 export default function UpgradePage() {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const [tab, setTab] = useState<'mensal' | 'anual'>('mensal');
+  const [loading, setLoading] = useState(false);
 
-  const handleCheckout = async (priceId: string, plan: string) => {
+  const handleCheckout = async (priceId: string) => {
+    setLoading(true);
     try {
       const storageKey = 'sb-lxteajwzovoeclbytdrp-auth-token';
       const raw = localStorage.getItem(storageKey);
       const accessToken = raw ? JSON.parse(raw)?.access_token : null;
+      if (!accessToken) { navigate('/auth/login'); return; }
 
-      if (!accessToken) {
-        toast.error('Sessão expirada. Faça login novamente.');
-        return;
-      }
-
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/create-checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+        body: JSON.stringify({
           price_id: priceId,
-          success_url: `${window.location.origin}/thank-you/${plan}`,
+          success_url: `${window.location.origin}/thank-you/monthly`,
           cancel_url: `${window.location.origin}/app/upgrade`,
-        },
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        }),
       });
-
-      if (error) throw error;
-      if (data?.url) window.location.href = data.url;
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else toast.error('Erro ao iniciar checkout. Tente novamente.');
     } catch {
       toast.error('Erro ao iniciar checkout. Tente novamente.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const features600k = [
-    'Uso mensal completo — plano Essencial',
-    'Acesso a todos os agentes especializados',
-    'Informativos STF/STJ atualizados',
-    'Súmulas com casos práticos',
-    'Cancele a qualquer momento',
-  ];
-
-  const features1m = [
-    'Uso mensal ampliado — plano Premium',
-    'Acesso a todos os agentes especializados',
-    'Informativos STF/STJ atualizados',
-    'Súmulas com casos práticos',
-    'Melhor custo por pergunta',
+  const features = [
+    '1.000.000 tokens por mês',
+    'Todos os 17 agentes especializados',
+    'Informativos STF/STJ/TST atualizados',
+    'Súmulas e OJs com casos práticos',
+    'Mentoria e cronograma personalizados',
+    'Questões objetivas e certo/errado',
+    'Respostas em áudio e impressão',
     'Cancele a qualquer momento',
   ];
 
   return (
     <AppLayout>
-      <div className="mx-auto max-w-5xl text-center">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-amber-50 px-4 py-1.5 text-sm font-medium text-amber-700">
-          <Zap size={14} /> Plano Gratuito Ativo
+      <div className="max-w-md mx-auto space-y-6 py-8">
+        <div className="text-center space-y-2">
+          <h1 className="font-display text-3xl font-bold text-foreground">Assine o Sua Vaga IA</h1>
+          <p className="text-muted-foreground">Preparação completa para concursos públicos</p>
         </div>
 
-        <h1 className="font-display text-3xl text-foreground sm:text-4xl">
-          Faça Upgrade para Acesso Completo
-        </h1>
-        <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
-          Escolha o plano ideal para sua preparação. Cancele quando quiser.
-        </p>
-
-        <p className="mt-4 text-sm text-muted-foreground">
-    
-        </p>
-
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {/* 600k Mensal */}
-          <div className="relative rounded-lg border border-border bg-card p-6 text-left">
-            <h3 className="font-display text-lg text-card-foreground">600k · Mensal</h3>
-            <p className="mt-1 text-xs text-muted-foreground">ou R$999/ano</p>
-            <div className="mt-4">
-              <span className="font-display text-3xl text-card-foreground">R$ 99</span>
-              <span className="text-muted-foreground text-sm">/mês</span>
-            </div>
-            <ul className="mt-6 space-y-2">
-              {features600k.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-xs text-card-foreground">
-                  <Check size={13} className="mt-0.5 shrink-0 text-emerald" /> {f}
-                </li>
-              ))}
-            </ul>
-            <Button
-              onClick={() => handleCheckout(PRICE_MONTHLY_600K, 'monthly')}
-              variant="outline"
-              className="mt-6 w-full font-semibold text-sm"
-            >
-              Assinar 600k →
-            </Button>
-          </div>
-
-          {/* 600k Anual */}
-          <div className="relative rounded-lg border border-border bg-card p-6 text-left">
-            <div className="absolute -top-3 left-4 rounded-full bg-emerald/10 px-3 py-0.5 text-xs font-bold text-emerald">
-              Economize R$189
-            </div>
-            <h3 className="font-display text-lg text-card-foreground">600k · Anual</h3>
-            <p className="mt-1 text-xs text-muted-foreground">≈ R$83,25/mês</p>
-            <div className="mt-4">
-              <span className="font-display text-3xl text-card-foreground">R$ 999</span>
-              <span className="text-muted-foreground text-sm">/ano</span>
-            </div>
-            <ul className="mt-6 space-y-2">
-              {['Uso anual completo', 'Todos os benefícios do 600k Mensal', 'Economia de R$189 vs mensal', 'Acesso por 12 meses'].map((f) => (
-                <li key={f} className="flex items-start gap-2 text-xs text-card-foreground">
-                  <Check size={13} className="mt-0.5 shrink-0 text-emerald" /> {f}
-                </li>
-              ))}
-            </ul>
-            <Button
-              onClick={() => handleCheckout(PRICE_ANNUAL_600K, 'annual')}
-              variant="outline"
-              className="mt-6 w-full font-semibold text-sm"
-            >
-              Assinar 600k Anual →
-            </Button>
-          </div>
-
-          {/* 1M Mensal — Mais Popular */}
-          <div className="relative rounded-lg border-2 border-emerald bg-card p-6 text-left">
-            <div className="absolute -top-3 left-4 rounded-full bg-emerald px-3 py-0.5 text-xs font-bold text-primary-foreground">
-              Mais Popular
-            </div>
-            <h3 className="font-display text-lg text-card-foreground">1M · Mensal</h3>
-            <p className="mt-1 text-xs text-muted-foreground">ou R$1.290/ano</p>
-            <div className="mt-4">
-              <span className="font-display text-3xl text-card-foreground">R$ 129</span>
-              <span className="text-muted-foreground text-sm">/mês</span>
-            </div>
-            <ul className="mt-6 space-y-2">
-              {features1m.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-xs text-card-foreground">
-                  <Check size={13} className="mt-0.5 shrink-0 text-emerald" /> {f}
-                </li>
-              ))}
-            </ul>
-            <Button
-              onClick={() => handleCheckout(PRICE_MONTHLY_1M, 'monthly')}
-              className="mt-6 w-full bg-emerald hover:bg-emerald-hover text-primary-foreground font-semibold text-sm"
-            >
-              Assinar 1M →
-            </Button>
-          </div>
-
-          {/* 1M Anual — Melhor Custo-Benefício */}
-          <div className="relative rounded-lg border border-border bg-card p-6 text-left">
-            <div className="absolute -top-3 left-4 rounded-full bg-emerald/10 px-3 py-0.5 text-xs font-bold text-emerald">
-              Melhor Custo-Benefício
-            </div>
-            <h3 className="font-display text-lg text-card-foreground">1M · Anual</h3>
-            <p className="mt-1 text-xs text-muted-foreground">≈ R$107,50/mês</p>
-            <div className="mt-4">
-              <span className="font-display text-3xl text-card-foreground">R$ 1.290</span>
-              <span className="text-muted-foreground text-sm">/ano</span>
-            </div>
-            <ul className="mt-6 space-y-2">
-              {['Uso anual ampliado', 'Todos os benefícios do 1M Mensal', 'Economia de R$258 vs mensal', 'Acesso por 12 meses'].map((f) => (
-                <li key={f} className="flex items-start gap-2 text-xs text-card-foreground">
-                  <Check size={13} className="mt-0.5 shrink-0 text-emerald" /> {f}
-                </li>
-              ))}
-            </ul>
-            <Button
-              onClick={() => handleCheckout(PRICE_ANNUAL_1M, 'annual')}
-              variant="outline"
-              className="mt-6 w-full font-semibold text-sm"
-            >
-              Assinar 1M Anual →
-            </Button>
+        {/* Tab mensal / anual */}
+        <div className="flex justify-center">
+          <div className="inline-flex gap-1 bg-muted p-1 rounded-lg">
+            <button
+              onClick={() => setTab('mensal')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${tab === 'mensal' ? 'bg-background shadow text-foreground' : 'text-muted-foreground'}`}
+            >Mensal</button>
+            <button
+              onClick={() => setTab('anual')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${tab === 'anual' ? 'bg-background shadow text-foreground' : 'text-muted-foreground'}`}
+            >Anual — economize 16%</button>
           </div>
         </div>
 
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1"><Lock size={14} /> Pagamento Seguro via Stripe</span>
-          <span className="flex items-center gap-1"><Zap size={14} /> Ativação Imediata</span>
-          <span className="flex items-center gap-1"><X size={14} /> Cancele Quando Quiser</span>
-        </div>
+        <Card className="bg-card border-border rounded-xl p-6 space-y-6">
+          <div className="text-center space-y-1">
+            <div className="text-4xl font-bold text-emerald">
+              {tab === 'mensal' ? 'R$ 129' : 'R$ 1.299'}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {tab === 'mensal' ? '/mês' : '/ano — ≈ R$ 108,25/mês'}
+            </div>
+          </div>
+
+          <ul className="space-y-3">
+            {features.map((f, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <CheckCircle className="h-4 w-4 text-emerald mt-0.5 shrink-0" />
+                <span className="text-sm text-card-foreground">{f}</span>
+              </li>
+            ))}
+          </ul>
+
+          <Button
+            onClick={() => handleCheckout(tab === 'mensal' ? PRICE_MONTHLY_1M : PRICE_ANNUAL_1M)}
+            disabled={loading}
+            className="w-full bg-emerald hover:bg-emerald/90 text-primary-foreground"
+          >
+            {loading ? 'Processando...' : tab === 'mensal' ? 'Assinar por R$ 129/mês' : 'Assinar por R$ 1.299/ano'}
+          </Button>
+
+          {tab === 'anual' && (
+            <p className="text-xs text-center text-muted-foreground">
+              Planos anuais aceitam Cartão, Boleto e PIX
+            </p>
+          )}
+
+          <p className="text-xs text-center text-muted-foreground">
+            Sem fidelidade — cancele quando quiser
+          </p>
+        </Card>
       </div>
     </AppLayout>
   );
