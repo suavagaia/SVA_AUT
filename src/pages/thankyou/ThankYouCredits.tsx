@@ -13,12 +13,12 @@ export default function ThankYouCredits() {
         <p className="mt-2 text-muted-foreground">Seu Pacote de Créditos foi ativado com sucesso</p>
 
         <div className="mt-6 rounded-lg bg-blue-50 border border-blue-200 p-4 text-sm text-blue-800">
-          ⚡ 600.000 Tokens Adicionados!
+          ⚡ Créditos adicionais disponíveis na sua conta!
         </div>
 
         <div className="mt-4 rounded-lg border border-border bg-card p-6 text-center">
-          <p className="font-display text-3xl text-foreground">600.000</p>
-          <p className="mt-1 text-sm text-muted-foreground">Tokens disponíveis para todos os agentes</p>
+          <p className="font-display text-3xl text-foreground">✓</p>
+          <p className="mt-1 text-sm text-muted-foreground">Créditos disponíveis para todos os agentes</p>
         </div>
 
         <div className="mt-6 rounded-lg bg-emerald/5 border border-emerald/20 p-4 text-left text-sm text-emerald">
@@ -33,13 +33,10 @@ export default function ThankYouCredits() {
               Usar Créditos Agora!
             </Button>
           </Link>
-          <Button variant="outline" className="w-full" disabled>
-            Ver Saldo de Tokens →
-          </Button>
         </div>
 
         <p className="mt-4 text-xs text-muted-foreground">
-          Seus tokens foram creditados automaticamente na sua conta
+          Seus créditos foram adicionados automaticamente na sua conta
         </p>
       </div>
     </div>
