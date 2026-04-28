@@ -222,7 +222,7 @@ export default function ChatPage() {
         setIsStreaming(false); setMessages(prev => prev.slice(0, -1)); return;
       }
       if (response.status === 402) {
-        toast.error('Você atingiu o limite do plano.', { action: { label: 'Ver opções', onClick: () => navigate('/app/upgrade') } });
+        toast.error('Seus tokens acabaram.', { action: { label: 'Ver planos', onClick: () => navigate('/app/upgrade') } });
         setIsStreaming(false); setMessages(prev => prev.slice(0, -1)); return;
       }
 
@@ -695,7 +695,7 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
         {/* Token warning */}
         {noTokens && (
           <div className="flex items-center justify-between rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-2 mt-2">
-            <span className="text-sm text-destructive">⚠️ Você atingiu o limite do plano.</span>
+            <span className="text-sm text-destructive">⚠️ Seus tokens acabaram.</span>
             <Button size="sm" variant="link" onClick={() => navigate('/app/upgrade')} className="text-destructive font-semibold">Assinar agora →</Button>
           </div>
         )}
@@ -761,38 +761,21 @@ ${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.
             )}
           </div>
           {tokensRemaining !== null && (() => {
-            const planMax = tokensRemaining !== null
-              ? (tokensRemaining > 700_000 ? 1_000_000 : 600_000)
-              : 600_000;
+            const planMax = (tokensRemaining ?? 0) > 700_000 ? 1_000_000 : 600_000;
             const used = planMax - (tokensRemaining ?? 0);
             const pct = Math.min(Math.round((used / planMax) * 100), 100);
-            const now = new Date();
-            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-            const daysLeft = Math.ceil((endOfMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-            const barColor = pct >= 95 ? '#EF4444' : pct >= 80 ? '#F59E0B' : '#10B981';
-            return (
-              <div className="mt-2 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    Uso do mês: {pct}%
-                    {pct >= 80 && pct < 95 && <span className="ml-2 text-yellow-500 font-medium">⚠ Quase no limite</span>}
-                    {pct >= 95 && <span className="ml-2 text-destructive font-medium">⚠ Limite crítico</span>}
-                  </span>
-                  <span className="text-xs text-muted-foreground">Renova em {daysLeft}d</span>
-                </div>
-                <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                  <div style={{ width: `${pct}%`, background: barColor, height: '100%', borderRadius: '9999px', transition: 'width 0.3s' }} />
-                </div>
-                {pct >= 95 && (
-                  <button
-                    onClick={() => navigate('/app/upgrade')}
-                    className="text-xs text-destructive underline"
-                  >
-                    Ver opções de upgrade →
-                  </button>
-                )}
-              </div>
+            if (pct >= 95) return (
+              <p className="mt-2 text-xs text-destructive font-medium">
+                ⚠ Você está quase no limite do plano.{' '}
+                <button onClick={() => navigate('/app/upgrade')} className="underline">Fazer upgrade →</button>
+              </p>
             );
+            if (pct >= 80) return (
+              <p className="mt-2 text-xs text-yellow-500">
+                Você usou 80% do seu plano. Considere fazer upgrade.
+              </p>
+            );
+            return null;
           })()}
         </div>
       </div>
