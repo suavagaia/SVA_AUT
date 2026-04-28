@@ -315,13 +315,31 @@ export default function SettingsPage() {
               <span className="text-sm font-medium text-foreground">{planLabel}</span>
               <Badge className={statusColor}>{statusLabel}</Badge>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-muted-foreground">Tokens restantes:</span>
-              <span className="text-sm font-medium text-foreground">
-                {profile?.tokens_remaining != null
-                  ? new Intl.NumberFormat('pt-BR').format(profile.tokens_remaining)
-                  : '—'}
-              </span>
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Uso do mês</span>
+                {profile?.tokens_remaining != null && (() => {
+                  const planMax = (profile.tokens_remaining ?? 0) > 700_000 ? 1_000_000 : 600_000;
+                  const used = planMax - (profile.tokens_remaining ?? 0);
+                  const pct = Math.min(Math.round((used / planMax) * 100), 100);
+                  const now = new Date();
+                  const daysLeft = Math.ceil((new Date(now.getFullYear(), now.getMonth() + 1, 1).getTime() - now.getTime()) / 86400000);
+                  return (
+                    <span className="text-sm font-medium text-foreground">{pct}% — renova em {daysLeft}d</span>
+                  );
+                })()}
+              </div>
+              {profile?.tokens_remaining != null && (() => {
+                const planMax = (profile.tokens_remaining ?? 0) > 700_000 ? 1_000_000 : 600_000;
+                const used = planMax - (profile.tokens_remaining ?? 0);
+                const pct = Math.min(Math.round((used / planMax) * 100), 100);
+                const barColor = pct >= 95 ? 'bg-destructive' : pct >= 80 ? 'bg-yellow-500' : 'bg-emerald';
+                return (
+                  <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+                  </div>
+                );
+              })()}
             </div>
             <Button
               variant="link"
