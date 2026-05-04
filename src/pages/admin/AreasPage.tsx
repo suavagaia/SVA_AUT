@@ -56,12 +56,16 @@ export default function AdminAreasPage() {
   const openEdit = (a: Area) => { setEditing({ ...a }); setNameManualSlug(true); };
 
   const handleSave = async () => {
+    if (!editing?.icon?.trim()) {
+      alert('Por favor, informe o ícone da área antes de salvar.');
+      return;
+    }
     if (!editing) return;
     setSaving(true);
     const payload = {
       name: editing.name,
       slug: editing.slug,
-      icon: editing.icon || null,
+      icon: editing.icon || 'BookOpen',
       display_order: editing.display_order,
       is_active: editing.is_active,
     };
@@ -159,7 +163,7 @@ export default function AdminAreasPage() {
             </div>
             <div>
               <Label className="text-muted-light">Ícone (emoji ou nome)</Label>
-              <Input className="mt-1 border-navy-border bg-navy-deep text-light" value={editing?.icon ?? ''} onChange={(e) => setEditing((p) => p ? { ...p, icon: e.target.value } : p)} />
+              <Input className="mt-1 border-navy-border bg-navy-deep text-light" placeholder="Ex: BookOpen, Scale, Briefcase" required value={editing?.icon ?? ''} onChange={(e) => setEditing((p) => p ? { ...p, icon: e.target.value } : p)} />
             </div>
             <div>
               <Label className="text-muted-light">Ordem de exibição</Label>
@@ -172,7 +176,7 @@ export default function AdminAreasPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditing(null)} className="border-navy-border text-muted-light">Cancelar</Button>
-            <Button onClick={handleSave} disabled={saving || !editing?.name} className="bg-emerald hover:bg-emerald/90 text-white">
+            <Button onClick={handleSave} disabled={saving || !editing?.name || !editing?.icon?.trim()} className="bg-emerald hover:bg-emerald/90 text-white">
               {saving ? 'Salvando…' : 'Salvar'}
             </Button>
           </DialogFooter>
