@@ -39,11 +39,11 @@ export default function AreasPage() {
     navigate(`/app/contests/${area.slug}`);
   };
 
-  const getIcon = (iconName: string) => {
-    // Try exact match first, then PascalCase conversion for lowercase/kebab names
+  const getIcon = (iconName: string | null | undefined) => {
+    if (!iconName) return LucideIcons.BookOpen;
     const pascalName = iconName
       .split(/[-_\s]+/)
-      .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
       .join('');
     const Icon = (LucideIcons as any)[iconName] || (LucideIcons as any)[pascalName] || LucideIcons.BookOpen;
     return Icon;
