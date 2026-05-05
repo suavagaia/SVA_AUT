@@ -36,7 +36,7 @@ export default function SubjectsPage() {
 
   const handleSubjectClick = (subject: Subject) => {
     localStorage.setItem('selectedSubject', JSON.stringify({ id: subject.id, name: subject.name, slug: subject.slug }));
-    navigate(`/app/agents/${subject.id}`);
+    navigate(`/app/topics/${subject.id}`);
   };
 
   return (
@@ -49,7 +49,7 @@ export default function SubjectsPage() {
       </Link>
 
       <div className="mb-8">
-        <h1 className="font-display text-3xl text-foreground">Matérias — {selectedContest.name || 'Concurso'}</h1>
+        <h1 className="font-display text-3xl text-foreground">Cargos — {selectedContest.name || 'Concurso'}</h1>
       </div>
 
       {loading ? (
