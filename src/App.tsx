@@ -60,6 +60,7 @@ import AdminInteractionsPage from "@/pages/admin/InteractionsPage";
 import AdminVectorStoresPage from "@/pages/admin/VectorStoresPage";
 import AdminAreasPage from "@/pages/admin/AreasPage";
 import AdminContestsPage from "@/pages/admin/ContestsPage";
+import AdminTopicsPage from "@/pages/admin/TopicsPage";
 
 const queryClient = new QueryClient();
 
@@ -115,6 +116,7 @@ const App = () => (
             <Route path="/admin/vector-stores" element={<ProtectedRoute><AdminVectorStoresPage /></ProtectedRoute>} />
             <Route path="/admin/areas" element={<ProtectedRoute><AdminAreasPage /></ProtectedRoute>} />
             <Route path="/admin/contests" element={<ProtectedRoute><AdminContestsPage /></ProtectedRoute>} />
+            <Route path="/admin/topics" element={<ProtectedRoute><AdminTopicsPage /></ProtectedRoute>} />
 
             {/* Legal */}
             <Route path="/terms" element={<TermsPage />} />
