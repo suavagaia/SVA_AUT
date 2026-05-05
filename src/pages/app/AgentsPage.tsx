@@ -18,25 +18,26 @@ interface Agent {
 }
 
 export default function AgentsPage() {
-  const { subjectId } = useParams<{ subjectId: string }>();
+  const { topicId } = useParams<{ topicId: string }>();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { profile } = useAuth();
 
+  const selectedTopic   = JSON.parse(localStorage.getItem('selectedTopic')   || '{}');
   const selectedSubject = JSON.parse(localStorage.getItem('selectedSubject') || '{}');
   const selectedContest = JSON.parse(localStorage.getItem('selectedContest') || '{}');
 
   useEffect(() => {
     const fetchAgents = async () => {
       const { data } = await supabase
-        .from('agent_subjects')
-        .select('agents:agent_id(id, title, slug, description, icon, is_active, display_order, tool_file_search)')
-        .eq('subject_id', subjectId);
+        .from('topic_agents')
+        .select('display_order, agents:agent_id(id, title, slug, description, icon, is_active, tool_file_search)')
+        .eq('topic_id', topicId);
 
       if (data) {
         const parsed = data
-          .map((row: any) => row.agents)
+          .map((row: any) => ({ ...row.agents, display_order: row.display_order }))
           .filter((a: any) => a && a.is_active)
           .sort((a: any, b: any) => (a.display_order ?? 0) - (b.display_order ?? 0));
         setAgents(parsed);
@@ -44,7 +45,7 @@ export default function AgentsPage() {
       setLoading(false);
     };
     fetchAgents();
-  }, [subjectId]);
+  }, [topicId]);
 
   const handleAgentClick = (agent: Agent) => {
     const isFreeUser = profile?.role === 'free_user';
@@ -74,14 +75,15 @@ export default function AgentsPage() {
   return (
     <AppLayout>
       <Link
-        to={`/app/subjects/${selectedContest.id || ''}`}
+        to={`/app/topics/${selectedSubject.id || ''}`}
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft size={16} /> Voltar para Matérias
       </Link>
 
       <div className="mb-8">
-        <h1 className="font-display text-3xl text-foreground">Agentes — {selectedSubject.name || 'Matéria'}</h1>
+        <p className="text-sm text-muted-foreground mb-1">{selectedSubject.name}</p>
+        <h1 className="font-display text-3xl text-foreground">Agentes — {selectedTopic.name || 'Matéria'}</h1>
       </div>
 
       {loading ? (
