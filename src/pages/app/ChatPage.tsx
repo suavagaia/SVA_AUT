@@ -276,6 +276,24 @@ export default function ChatPage() {
                 return copy;
               });
             }
+            if (event.error === 'empty_response') {
+              setIsStreaming(false);
+              setIsThinking(false);
+              const isAdminUser = profile?.role === 'admin';
+              if (isAdminUser) {
+                toast.error(
+                  `Resposta vazia — tokens insuficientes. Prompt: ${event.prompt_tokens ?? '?'} tokens / Limite: ${event.max_tokens ?? '?'} tokens. Aumente o max_completion_tokens no admin.`,
+                  { duration: 12000 }
+                );
+              } else {
+                toast.error(
+                  'Não foi possível gerar a resposta. Entre em contato com o suporte: suporte@suavagaia.com.br',
+                  { duration: 8000 }
+                );
+              }
+              setMessages(prev => prev.slice(0, -1));
+              return;
+            }
             if (event.done) {
               // Capture message IDs from the done event if available
               if (event.user_message_id || event.assistant_message_id) {
