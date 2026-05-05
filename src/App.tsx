@@ -32,6 +32,7 @@ import AreasPage from "@/pages/app/AreasPage";
 import ContestsPage from "@/pages/app/ContestsPage";
 import SubjectsPage from "@/pages/app/SubjectsPage";
 import AgentsPage from "@/pages/app/AgentsPage";
+import TopicsPage from "@/pages/app/TopicsPage";
 import UpgradePage from "@/pages/app/UpgradePage";
 import ChatPage from "@/pages/app/ChatPage";
 import BillingPage from "@/pages/app/BillingPage";
@@ -89,7 +90,8 @@ const App = () => (
             <Route path="/app/areas" element={<ProtectedRoute><AreasPage /></ProtectedRoute>} />
             <Route path="/app/contests/:areaSlug" element={<ProtectedRoute><ContestsPage /></ProtectedRoute>} />
             <Route path="/app/subjects/:contestId" element={<ProtectedRoute><SubjectsPage /></ProtectedRoute>} />
-            <Route path="/app/agents/:subjectId" element={<ProtectedRoute><AgentsPage /></ProtectedRoute>} />
+            <Route path="/app/topics/:subjectId" element={<ProtectedRoute><TopicsPage /></ProtectedRoute>} />
+            <Route path="/app/agents/:topicId" element={<ProtectedRoute><AgentsPage /></ProtectedRoute>} />
             <Route path="/app/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
             <Route path="/app/upgrade" element={<ProtectedRoute><UpgradePage /></ProtectedRoute>} />
             <Route path="/app/billing" element={<ProtectedRoute><BillingPage /></ProtectedRoute>} />
