@@ -30,17 +30,31 @@ export default function AgentsPage() {
 
   useEffect(() => {
     const fetchAgents = async () => {
-      const { data } = await supabase
+      // Tenta buscar via topic_agents (novo modelo com matérias)
+      const { data: topicData } = await supabase
         .from('topic_agents')
         .select('display_order, agents:agent_id(id, title, slug, description, icon, is_active, tool_file_search)')
         .eq('topic_id', topicId);
 
-      if (data) {
-        const parsed = data
+      if (topicData && topicData.length > 0) {
+        const parsed = topicData
           .map((row: any) => ({ ...row.agents, display_order: row.display_order }))
           .filter((a: any) => a && a.is_active)
           .sort((a: any, b: any) => (a.display_order ?? 0) - (b.display_order ?? 0));
         setAgents(parsed);
+      } else {
+        // Fallback: busca via agent_subjects (modelo antigo sem matérias)
+        const { data: subjectData } = await supabase
+          .from('agent_subjects')
+          .select('agents:agent_id(id, title, slug, description, icon, is_active, display_order, tool_file_search)')
+          .eq('subject_id', topicId);
+        if (subjectData) {
+          const parsed = subjectData
+            .map((row: any) => row.agents)
+            .filter((a: any) => a && a.is_active)
+            .sort((a: any, b: any) => (a.display_order ?? 0) - (b.display_order ?? 0));
+          setAgents(parsed);
+        }
       }
       setLoading(false);
     };
