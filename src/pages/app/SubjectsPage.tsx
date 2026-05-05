@@ -34,9 +34,19 @@ export default function SubjectsPage() {
     fetchSubjects();
   }, [contestId]);
 
-  const handleSubjectClick = (subject: Subject) => {
+  const handleSubjectClick = async (subject: Subject) => {
     localStorage.setItem('selectedSubject', JSON.stringify({ id: subject.id, name: subject.name, slug: subject.slug }));
-    navigate(`/app/topics/${subject.id}`);
+    // Verifica se o cargo tem matérias (topics) cadastradas
+    const { count } = await supabase
+      .from('topics')
+      .select('id', { count: 'exact', head: true })
+      .eq('subject_id', subject.id)
+      .eq('is_active', true);
+    if (count && count > 0) {
+      navigate(`/app/topics/${subject.id}`);
+    } else {
+      navigate(`/app/agents/${subject.id}`);
+    }
   };
 
   return (
