@@ -264,7 +264,6 @@ export default function BillingPage() {
                       <TableHead>Data</TableHead>
                       <TableHead>Agente</TableHead>
                       <TableHead>Modelo</TableHead>
-                      <TableHead className="text-right">% do Plano</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -273,7 +272,6 @@ export default function BillingPage() {
                         <TableCell className="text-sm">{dateFmt.format(new Date(evt.created_at))}</TableCell>
                         <TableCell className="text-sm">{evt.agents?.title || '—'}</TableCell>
                         <TableCell className="text-sm font-mono">{evt.model_used}</TableCell>
-                        <TableCell className="text-sm text-right">{(evt.tokens_charged / 1_000_000 * 100).toFixed(2)}%</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

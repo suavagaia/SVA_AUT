@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CalendarDays, Brain, BookOpen, Clock, TrendingUp } from 'lucide-react';
+import { CalendarDays, Brain, BookOpen, Clock, TrendingUp, FileDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 const DAYS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
@@ -86,6 +86,35 @@ export default function SchedulePage() {
   const [selectedDay, setSelectedDay] = useState(String(new Date().getDay()));
   const [selectedMonthDay, setSelectedMonthDay] = useState<number | null>(null);
 
+  const handleDownloadPDF = async () => {
+    const contentEl = document.getElementById('schedule-content');
+    if (!contentEl) return;
+    try {
+      toast.info('Gerando PDF...');
+      const { default: html2canvas } = await import('html2canvas');
+      const { jsPDF } = await import('jspdf');
+      const canvas = await html2canvas(contentEl, { scale: 2, useCORS: true, logging: false });
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+      const imgData = canvas.toDataURL('image/png');
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+      heightLeft -= pdfHeight;
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+      pdf.save(`cronograma-${new Date().toISOString().slice(0, 10)}.pdf`);
+    } catch (err) {
+      toast.error('Erro ao gerar PDF. Tente novamente.');
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
     const fetchAll = async () => {
@@ -157,12 +186,17 @@ export default function SchedulePage() {
 
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div id="schedule-content" className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-foreground">Cronograma de Estudos</h1>
-          <Button variant="outline" onClick={() => navigate('/app/mentoria')} className="gap-2">
-            <Brain size={16} /> Gerar novo cronograma
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="gap-2" onClick={handleDownloadPDF}>
+              <FileDown size={15} /> Salvar PDF
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/app/mentoria')} className="gap-2">
+              <Brain size={16} /> Gerar novo cronograma
+            </Button>
+          </div>
         </div>
         {loading ? (
           <p className="text-muted-foreground">Carregando...</p>

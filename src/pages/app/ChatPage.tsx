@@ -193,6 +193,7 @@ export default function ChatPage() {
     setMessages(prev => [...prev, userMsg]);
     setInputText('');
     setIsStreaming(true);
+    setIsThinking(true);
 
     const assistantMsg: Message = { role: 'assistant', content: '' };
     setMessages(prev => [...prev, assistantMsg]);
@@ -221,11 +222,11 @@ export default function ChatPage() {
 
       if (response.status === 401) {
         toast.error('Sessão expirada. Faça login novamente.');
-        setIsStreaming(false); setMessages(prev => prev.slice(0, -1)); return;
+        setIsStreaming(false); setIsThinking(false); setMessages(prev => prev.slice(0, -1)); return;
       }
       if (response.status === 402) {
         toast.error('Seus tokens acabaram.', { action: { label: 'Ver planos', onClick: () => navigate('/app/upgrade') } });
-        setIsStreaming(false); setMessages(prev => prev.slice(0, -1)); return;
+        setIsStreaming(false); setIsThinking(false); setMessages(prev => prev.slice(0, -1)); return;
       }
 
       // Cold start: 504 → aguarda 2s e tenta uma vez
@@ -333,7 +334,7 @@ export default function ChatPage() {
     }
   };
 
-  const handleAbort = () => { abortControllerRef.current?.abort(); setIsStreaming(false); };
+  const handleAbort = () => { abortControllerRef.current?.abort(); setIsStreaming(false); setIsThinking(false); };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }

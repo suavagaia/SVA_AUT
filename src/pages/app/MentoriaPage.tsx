@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Plus, Trash2, Loader2, ArrowRight, ArrowLeft, Brain, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, Loader2, ArrowRight, ArrowLeft, Brain, AlertTriangle, FileDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 const SUPABASE_URL = 'https://lxteajwzovoeclbytdrp.supabase.co';
@@ -50,6 +50,35 @@ export default function MentoriaPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [generating, setGenerating] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    const contentEl = document.getElementById('mentoria-content');
+    if (!contentEl) return;
+    try {
+      toast.info('Gerando PDF...');
+      const { default: html2canvas } = await import('html2canvas');
+      const { jsPDF } = await import('jspdf');
+      const canvas = await html2canvas(contentEl, { scale: 2, useCORS: true, logging: false });
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+      const imgData = canvas.toDataURL('image/png');
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+      heightLeft -= pdfHeight;
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+      pdf.save(`mentoria-${new Date().toISOString().slice(0, 10)}.pdf`);
+    } catch (err) {
+      toast.error('Erro ao gerar PDF. Tente novamente.');
+    }
+  };
 
   // Usage info
   const [usage, setUsage] = useState<UsageInfo | null>(null);
@@ -204,10 +233,15 @@ export default function MentoriaPage() {
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto space-y-6">
-        <div className="flex items-center gap-3">
-          <Brain className="h-7 w-7 text-emerald" />
-          <h1 className="text-2xl font-bold text-foreground">Mentoria de Estudos</h1>
+      <div id="mentoria-content" className="max-w-2xl mx-auto space-y-6">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <Brain className="h-7 w-7 text-emerald" />
+            <h1 className="text-2xl font-bold text-foreground">Mentoria de Estudos</h1>
+          </div>
+          <Button variant="outline" size="sm" className="gap-2" onClick={handleDownloadPDF}>
+            <FileDown size={15} /> Salvar PDF
+          </Button>
         </div>
 
         {/* Usage card for free users */}
