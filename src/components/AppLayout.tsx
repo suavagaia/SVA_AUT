@@ -5,6 +5,7 @@ import { StudyTimerButton } from '@/components/StudyTimerButton';
 import { LogoDark } from '@/components/Logo';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { useNativePlatform } from '@/hooks/useNativePlatform';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +20,7 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const { profile, user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { isNative } = useNativePlatform();
   const isFreeUser = profile?.role === 'free_user';
   const isAdmin = profile?.role === 'admin';
 
@@ -28,7 +30,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen app-light bg-background text-foreground">
+    <div className={`min-h-screen app-light bg-background text-foreground ${isNative ? 'ios-safe-top' : ''}`}>
       <header className="sticky top-0 z-50 border-b border-border bg-card">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <LogoDark />

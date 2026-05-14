@@ -5,8 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
+import { useNativePlatform } from '@/hooks/useNativePlatform';
 
 const PRICE_MONTHLY_1M = 'price_1TP8QgGmx6vYOM03RiFKAp9B';
 const PRICE_ANNUAL_1M  = 'price_1TP8QqGmx6vYOM03ZwLhA6Ne';
@@ -17,6 +18,48 @@ export default function UpgradePage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<'mensal' | 'anual'>('mensal');
   const [loading, setLoading] = useState(false);
+  const { isNative } = useNativePlatform();
+
+  // iOS/Android: Apple não permite checkout externo no app.
+  // Exibir tela informativa — usuário assina pelo site.
+  if (isNative) {
+    return (
+      <AppLayout>
+        <div className="max-w-sm mx-auto flex flex-col items-center justify-center min-h-[60vh] space-y-6 px-4 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-emerald/10 flex items-center justify-center">
+            <Smartphone className="h-8 w-8 text-emerald" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-foreground">Assine pelo site</h1>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              Para assinar o Sua Vaga IA, acesse{' '}
+              <span className="text-emerald font-medium">suavagaia.com.br</span>{' '}
+              pelo seu navegador. Após assinar, volte ao app e acesse normalmente.
+            </p>
+          </div>
+          <div className="w-full space-y-3">
+            {[
+              '1.000.000 tokens por mês',
+              'Todos os agentes especializados',
+              'STF, STJ e TST atualizados',
+              'Mentoria e cronograma personalizados',
+            ].map((f) => (
+              <div key={f} className="flex items-center gap-3 text-left">
+                <CheckCircle className="h-4 w-4 text-emerald shrink-0" />
+                <span className="text-sm text-card-foreground">{f}</span>
+              </div>
+            ))}
+          </div>
+          <Card className="w-full bg-card border-border p-4 rounded-xl">
+            <p className="text-xs text-muted-foreground">
+              🌐 <span className="font-medium text-foreground">suavagaia.com.br</span>
+              {'\n'}Planos a partir de R$ 129/mês
+            </p>
+          </Card>
+        </div>
+      </AppLayout>
+    );
+  }
 
   const handleCheckout = async (priceId: string) => {
     setLoading(true);
