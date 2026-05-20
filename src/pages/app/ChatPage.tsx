@@ -254,6 +254,7 @@ export default function ChatPage() {
           if (!data) continue;
           try {
             const event = JSON.parse(data);
+            if (event.ping) continue; // keepalive v71 — ignorar
             if (event.conversation_id) {
               if (activeTab === 'agente') setAgentConvId(event.conversation_id);
               else setApoioConvId(event.conversation_id);
