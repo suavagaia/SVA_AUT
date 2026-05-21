@@ -70,6 +70,12 @@ export default function AdminPromptsPage() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Agent | null>(null);
   const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredAgents = agents.filter(a =>
+    a.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    a.slug?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const [areas, setAreas] = useState<Area[]>([]);
   const [contests, setContests] = useState<Contest[]>([]);
@@ -222,6 +228,7 @@ export default function AdminPromptsPage() {
       rag_config: editing.rag_config ?? [],
       max_completion_tokens: editing.max_completion_tokens ?? 8000,
       reasoning_effort: editing.reasoning_effort ?? 'none',
+      verbosity: editing.verbosity ?? 'low',
     }).eq('id', editing.id);
     if (error) { setSaving(false); toast.error(error.message); return; }
 
@@ -404,6 +411,18 @@ export default function AdminPromptsPage() {
           <CardTitle className="text-light text-base">Agentes / Prompts</CardTitle>
         </CardHeader>
         <CardContent className="overflow-x-auto">
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="Buscar por nome ou slug..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full max-w-sm rounded-md border border-navy-border bg-navy-deep px-3 py-2 text-sm text-light placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-emerald"
+            />
+            {searchQuery && (
+              <p className="mt-1 text-xs text-muted-foreground">{filteredAgents.length} agente(s) encontrado(s)</p>
+            )}
+          </div>
           {loading ? (
             <div className="flex justify-center py-10">
               <div className="h-6 w-6 animate-spin rounded-full border-4 border-emerald border-t-transparent" />
@@ -421,7 +440,7 @@ export default function AdminPromptsPage() {
                 </tr>
               </thead>
               <tbody>
-                {agents.map((a) => (
+                {filteredAgents.map((a) => (
                   <tr key={a.id} className="border-b border-navy-border/50 text-light">
                     <td className="py-2 pr-4">{a.title}</td>
                     <td className="py-2 pr-4 text-muted-light">{a.slug}</td>
@@ -617,6 +636,20 @@ export default function AdminPromptsPage() {
                   <option value="high">high</option>
                 </select>
                 <p className="mt-1 text-xs text-muted-foreground">none = sem tokens de raciocínio oculto</p>
+              </div>
+
+              <div>
+                <Label className="text-muted-light">Verbosity</Label>
+                <select
+                  value={editing.verbosity ?? 'low'}
+                  onChange={(e) => updateField('verbosity', e.target.value)}
+                  className="mt-1 h-9 w-32 rounded-md border border-navy-border bg-navy-deep px-2 text-sm text-light"
+                >
+                  <option value="low">low</option>
+                  <option value="medium">medium</option>
+                  <option value="high">high</option>
+                </select>
+                <p className="mt-1 text-xs text-muted-foreground">Controla a extensão da resposta</p>
               </div>
             </div>
           )}
