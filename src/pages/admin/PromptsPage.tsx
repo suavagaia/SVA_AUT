@@ -162,7 +162,7 @@ export default function AdminPromptsPage() {
   const fetchAgents = async () => {
     const { data } = await supabase
       .from('agents')
-      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, file_search_max_results, verbosity, response_format, max_completion_tokens, use_supabase_rag, supabase_rag_table, rag_config, subject_id')
+      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, file_search_max_results, verbosity, response_format, max_completion_tokens, use_supabase_rag, supabase_rag_table, rag_config, subject_id, reasoning_effort')
       .order('display_order');
     setAgents((data as Agent[]) ?? []);
     setLoading(false);
@@ -221,6 +221,7 @@ export default function AdminPromptsPage() {
       supabase_rag_table: editing.use_supabase_rag ? (editing.supabase_rag_table || null) : null,
       rag_config: editing.rag_config ?? [],
       max_completion_tokens: editing.max_completion_tokens ?? 8000,
+      reasoning_effort: editing.reasoning_effort ?? 'none',
     }).eq('id', editing.id);
     if (error) { setSaving(false); toast.error(error.message); return; }
 
@@ -601,6 +602,21 @@ export default function AdminPromptsPage() {
                   onChange={(e) => updateField('max_completion_tokens', parseInt(e.target.value) || 8000)}
                   className="mt-1 border-navy-border bg-navy-deep text-light w-40"
                 />
+              </div>
+
+              <div>
+                <Label className="text-muted-light">Reasoning Effort</Label>
+                <select
+                  value={editing.reasoning_effort ?? 'none'}
+                  onChange={(e) => updateField('reasoning_effort', e.target.value)}
+                  className="mt-1 h-9 w-32 rounded-md border border-navy-border bg-navy-deep px-2 text-sm text-light"
+                >
+                  <option value="none">none</option>
+                  <option value="low">low</option>
+                  <option value="medium">medium</option>
+                  <option value="high">high</option>
+                </select>
+                <p className="mt-1 text-xs text-muted-foreground">none = sem tokens de raciocínio oculto</p>
               </div>
             </div>
           )}
