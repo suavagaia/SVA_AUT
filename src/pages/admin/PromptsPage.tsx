@@ -252,68 +252,16 @@ export default function AdminPromptsPage() {
 
   return (
     <AdminLayout>
-      {/* Tabela de Custos */}
-      <div className="space-y-4 mb-6">
-        <div>
-          <h2 className="text-lg font-semibold text-light">Custos por Modelo</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Preços da OpenAI API por 1 milhão de tokens (USD). Atualizado março/2026.
-          </p>
-        </div>
-
-        <div className="rounded-xl border border-navy-border overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-navy-deep border-b border-navy-border">
-                <th className="text-left px-4 py-3 text-muted-foreground font-medium">Modelo</th>
-                <th className="text-left px-4 py-3 text-muted-foreground font-medium">Uso recomendado</th>
-                <th className="text-right px-4 py-3 text-muted-foreground font-medium">Input /1M</th>
-                <th className="text-right px-4 py-3 text-muted-foreground font-medium">Cache /1M</th>
-                <th className="text-right px-4 py-3 text-muted-foreground font-medium">Output /1M</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-navy-border">
-              {[
-                { model: 'gpt-5.4',      badge: 'Frontier',  uso: 'Raciocínio complexo, análise profunda', input: '$2.50',  cache: '$0.25',  output: '$15.00', highlight: false },
-                { model: 'gpt-5-mini',   badge: 'Recomendado', uso: 'Tarefas bem definidas, questões, súmulas', input: '$0.25',  cache: '$0.025', output: '$2.00',  highlight: true },
-                { model: 'gpt-5-nano',   badge: 'Econômico', uso: 'Busca simples, listagem, classificação', input: '$0.05',  cache: '$0.005', output: '$0.40',  highlight: false },
-                { model: 'gpt-5',        badge: 'Legado',    uso: 'Versão original ago/2025', input: '$1.25',  cache: '$0.125', output: '$10.00', highlight: false },
-                { model: 'gpt-4o',       badge: 'Legado',    uso: 'Modelos anteriores', input: '$2.50',  cache: '$0.25',  output: '$10.00', highlight: false },
-                { model: 'gpt-4o-mini',  badge: 'Legado',    uso: 'Modelos anteriores', input: '$0.15',  cache: '$0.015', output: '$0.60',  highlight: false },
-              ].map((row) => (
-                <tr
-                  key={row.model}
-                  className={row.highlight
-                    ? 'bg-emerald-950/20'
-                    : 'bg-navy-card hover:bg-navy-card-hover transition-colors'}
-                >
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-light">{row.model}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        row.badge === 'Frontier' ? 'bg-blue-500/20 text-blue-400' :
-                        row.badge === 'Recomendado' ? 'bg-emerald/20 text-emerald' :
-                        row.badge === 'Econômico' ? 'bg-yellow-500/20 text-yellow-400' :
-                        'bg-navy-border text-muted-foreground'
-                      }`}>{row.badge}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">{row.uso}</td>
-                  <td className="px-4 py-3 text-right font-mono text-light">{row.input}</td>
-                  <td className="px-4 py-3 text-right font-mono text-muted-foreground">{row.cache}</td>
-                  <td className="px-4 py-3 text-right font-mono text-light">{row.output}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <p className="text-xs text-muted-foreground">
-          Cache: 90% de desconto sobre o input para prompts repetidos. Batch API: 50% de desconto para processamento assíncrono em 24h.
-          <a href="https://openai.com/api/pricing/" target="_blank" rel="noopener" className="ml-1 text-emerald hover:underline">
-            Ver preços oficiais →
-          </a>
-        </p>
+      {/* Preços OpenAI */}
+      <div className="mb-6">
+        <a
+          href="https://openai.com/api/pricing/"
+          target="_blank"
+          rel="noopener"
+          className="inline-flex items-center gap-2 rounded-md border border-navy-border bg-navy-card px-4 py-2 text-sm text-light hover:bg-navy-card-hover transition-colors"
+        >
+          Ver preços da OpenAI API →
+        </a>
       </div>
 
       {/* Mentoria Prompt Section */}
