@@ -319,19 +319,20 @@ export default function ChatPage() {
               return;
             }
             if (event.done) {
-              // Capture message IDs from the done event if available
-              if (event.user_message_id || event.assistant_message_id) {
-                setMessages(prev => {
-                  const copy = [...prev];
-                  if (event.user_message_id && copy.length >= 2) {
-                    copy[copy.length - 2] = { ...copy[copy.length - 2], id: event.user_message_id };
-                  }
-                  if (event.assistant_message_id) {
-                    copy[copy.length - 1] = { ...copy[copy.length - 1], id: event.assistant_message_id };
-                  }
-                  return copy;
-                });
-              }
+              setMessages(prev => {
+                const copy = [...prev];
+                // full_content: substitui o acumulado pelo texto canônico do servidor
+                if (event.full_content && copy.length >= 1) {
+                  copy[copy.length - 1] = { ...copy[copy.length - 1], content: event.full_content };
+                }
+                if (event.user_message_id && copy.length >= 2) {
+                  copy[copy.length - 2] = { ...copy[copy.length - 2], id: event.user_message_id };
+                }
+                if (event.assistant_message_id) {
+                  copy[copy.length - 1] = { ...copy[copy.length - 1], id: event.assistant_message_id };
+                }
+                return copy;
+              });
               setIsStreaming(false);
               if (user) {
                 supabase

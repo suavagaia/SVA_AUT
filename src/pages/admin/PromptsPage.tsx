@@ -24,7 +24,10 @@ interface Agent {
   id: string;
   title: string;
   slug: string;
+  model_provider: 'openai' | 'anthropic' | 'google';
   model: string;
+  provider_config?: Record<string, unknown> | null;
+  temperature?: number | null;
   effort: string;
   is_active: boolean;
   display_order: number;
@@ -40,6 +43,15 @@ interface Agent {
   supabase_rag_table: string | null;
   rag_config: RagConfigItem[];
   subject_id: string | null;
+}
+
+interface LLMModelPrice {
+  id: string;
+  provider: 'openai' | 'anthropic' | 'google';
+  model: string;
+  input_price_per_1m: number;
+  output_price_per_1m: number;
+  active: boolean;
 }
 
 interface RagConfigItem {
@@ -81,6 +93,7 @@ export default function AdminPromptsPage() {
   const [contests, setContests] = useState<Contest[]>([]);
   const [subjectOptions, setSubjectOptions] = useState<SubjectOption[]>([]);
   const [editingSubjectIds, setEditingSubjectIds] = useState<string[]>([]);
+  const [llmModelPrices, setLlmModelPrices] = useState<LLMModelPrice[]>([]);
   // Mentoria prompt
   const [mentoriaPrompt, setMentoriaPrompt] = useState('');
   const [mentoriaDesc, setMentoriaDesc] = useState('');
@@ -168,10 +181,20 @@ export default function AdminPromptsPage() {
   const fetchAgents = async () => {
     const { data } = await supabase
       .from('agents')
-      .select('id, title, slug, model, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, file_search_max_results, verbosity, response_format, max_completion_tokens, use_supabase_rag, supabase_rag_table, rag_config, subject_id, reasoning_effort')
+      .select('id, title, slug, model_provider, model, provider_config, temperature, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, file_search_max_results, verbosity, response_format, max_completion_tokens, use_supabase_rag, supabase_rag_table, rag_config, subject_id, reasoning_effort')
       .order('display_order');
-    setAgents((data as Agent[]) ?? []);
+    setAgents(((data as Agent[]) ?? []).map(a => ({ ...a, model_provider: a.model_provider ?? 'openai' })));
     setLoading(false);
+  };
+
+  const fetchLlmModelPrices = async () => {
+    const { data } = await supabase
+      .from('llm_model_prices')
+      .select('id, provider, model, input_price_per_1m, output_price_per_1m, active')
+      .eq('active', true)
+      .order('provider')
+      .order('model');
+    setLlmModelPrices((data as LLMModelPrice[]) ?? []);
   };
 
   // Fetch areas, contests, subjects for the subject selector
@@ -202,7 +225,7 @@ export default function AdminPromptsPage() {
     fetchAgentSubjects();
   }, [editing?.id]);
 
-  useEffect(() => { fetchAgents(); fetchMentoriaPrompt(); fetchManual(); fetchMentoriaLimit(); }, []);
+  useEffect(() => { fetchAgents(); fetchLlmModelPrices(); fetchMentoriaPrompt(); fetchManual(); fetchMentoriaLimit(); }, []);
 
   const toggleActive = async (agent: Agent) => {
     const { error } = await supabase.from('agents').update({ is_active: !agent.is_active }).eq('id', agent.id);
@@ -217,7 +240,10 @@ export default function AdminPromptsPage() {
     const { error } = await supabase.from('agents').update({
       title: editing.title,
       system_prompt: editing.system_prompt,
+      model_provider: editing.model_provider ?? 'openai',
       model: editing.model,
+      provider_config: editing.provider_config ?? {},
+      temperature: editing.temperature ?? null,
       effort: editing.effort,
       is_active: editing.is_active,
       tool_web_search: editing.tool_web_search,
@@ -249,6 +275,14 @@ export default function AdminPromptsPage() {
   const updateField = <K extends keyof Agent>(key: K, value: Agent[K]) => {
     setEditing((prev) => prev ? { ...prev, [key]: value } : null);
   };
+
+  const providerLabels: Record<string, string> = {
+    openai: 'OpenAI',
+    anthropic: 'Anthropic / Claude',
+    google: 'Google',
+  };
+
+  const getModelsForProvider = (provider?: string) => llmModelPrices.filter(m => m.provider === (provider ?? 'openai'));
 
   return (
     <AdminLayout>
@@ -381,6 +415,7 @@ export default function AdminPromptsPage() {
                 <tr className="border-b border-navy-border text-muted-light text-left">
                   <th className="pb-2 pr-4">Nome</th>
                   <th className="pb-2 pr-4">Slug</th>
+                  <th className="pb-2 pr-4">Provider</th>
                   <th className="pb-2 pr-4">Modelo</th>
                   <th className="pb-2 pr-4">Max Tokens</th>
                   <th className="pb-2 pr-4">Ativo</th>
@@ -392,6 +427,7 @@ export default function AdminPromptsPage() {
                   <tr key={a.id} className="border-b border-navy-border/50 text-light">
                     <td className="py-2 pr-4">{a.title}</td>
                     <td className="py-2 pr-4 text-muted-light">{a.slug}</td>
+                    <td className="py-2 pr-4">{providerLabels[a.model_provider ?? 'openai'] ?? a.model_provider ?? 'openai'}</td>
                     <td className="py-2 pr-4">{a.model}</td>
                     <td className="py-2 pr-4">{a.max_completion_tokens ?? 8000}</td>
                     <td className="py-2 pr-4">
@@ -468,37 +504,74 @@ export default function AdminPromptsPage() {
                   className="mt-1 min-h-[300px] border-navy-border bg-navy-deep text-light font-mono text-xs"
                 />
               </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-muted-light">Provider</Label>
+                  <Select value={editing.model_provider ?? 'openai'} onValueChange={(v) => {
+                    const provider = v as Agent['model_provider'];
+                    const firstModel = getModelsForProvider(provider)[0]?.model ?? editing.model;
+                    setEditing(prev => prev ? { ...prev, model_provider: provider, model: firstModel } : prev);
+                  }}>
+                    <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="openai">OpenAI</SelectItem>
+                      <SelectItem value="anthropic">Anthropic / Claude</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="mt-1 text-xs text-muted-foreground">Escolha interna. O aluno não vê.</p>
+                </div>
+                <div>
+                  <Label className="text-muted-light">Modelo</Label>
+                  <Select value={editing.model} onValueChange={(v) => updateField('model', v)}>
+                    <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {getModelsForProvider(editing.model_provider).map((m) => (
+                        <SelectItem key={m.id} value={m.model}>{m.model} — in {Number(m.input_price_per_1m).toFixed(2)} / out {Number(m.output_price_per_1m).toFixed(2)}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="mt-1 text-xs text-muted-foreground">Modelos vêm de llm_model_prices.</p>
+                </div>
+              </div>
+
               <div>
-                <Label className="text-muted-light">Modelo</Label>
-                <Select value={editing.model} onValueChange={(v) => updateField('model', v)}>
-                  <SelectTrigger className="mt-1 border-navy-border bg-navy-deep text-light">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="gpt-5.4">GPT-5.4 (Frontier — recomendado)</SelectItem>
-                    <SelectItem value="gpt-5-mini">GPT-5 Mini (rápido e econômico)</SelectItem>
-                    <SelectItem value="gpt-5-nano">GPT-5 Nano (mais rápido e barato)</SelectItem>
-                    <SelectItem value="gpt-5">GPT-5 (original ago/2025)</SelectItem>
-                    <SelectItem value="gpt-4o">GPT-4o (legado)</SelectItem>
-                    <SelectItem value="gpt-4o-mini">GPT-4o Mini (legado)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label className="text-muted-light">Temperatura</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={2}
+                  step={0.1}
+                  value={editing.temperature ?? ''}
+                  onChange={(e) => updateField('temperature', e.target.value === '' ? null : Number(e.target.value))}
+                  placeholder="Padrão do provider"
+                  className="mt-1 border-navy-border bg-navy-deep text-light w-40"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">Vazio usa o padrão seguro da função.</p>
               </div>
 
               <div className="flex items-center justify-between">
                 <Label className="text-muted-light">Ativo</Label>
                 <Switch checked={editing.is_active} onCheckedChange={(v) => updateField('is_active', v)} />
               </div>
-              <div className="flex items-center justify-between">
-                <Label className="text-muted-light">Web Search</Label>
-                <Switch checked={editing.tool_web_search} onCheckedChange={(v) => updateField('tool_web_search', v)} />
-              </div>
+              {editing.model_provider === 'openai' ? (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-muted-light">Web Search</Label>
+                    <p className="text-xs text-muted-foreground">Campo OpenAI-only. Não é usado por Claude.</p>
+                  </div>
+                  <Switch checked={editing.tool_web_search} onCheckedChange={(v) => updateField('tool_web_search', v)} />
+                </div>
+              ) : (
+                <div className="rounded-md border border-navy-border bg-navy-deep px-3 py-2 text-xs text-muted-foreground">
+                  Web Search oculto: Claude usa apenas o contexto enviado pela função. Para base jurídica, use Supabase RAG abaixo.
+                </div>
+              )}
 
               {/* ─── Supabase RAG — Multiselect ─── */}
               <div>
                 <Label className="text-muted-light">Supabase RAG</Label>
                 <p className="text-xs text-muted-foreground mt-0.5 mb-3">
-                  Selecione as fontes de jurisprudência e defina quantos resultados buscar de cada uma.
+                  Provider-agnóstico: a função busca no Supabase e envia o contexto para OpenAI ou Claude.
                 </p>
                 <div className="space-y-2">
                   {RAG_SOURCES.map(source => {
@@ -571,34 +644,38 @@ export default function AdminPromptsPage() {
                 />
               </div>
 
-              <div>
-                <Label className="text-muted-light">Reasoning Effort</Label>
-                <select
-                  value={editing.reasoning_effort ?? 'none'}
-                  onChange={(e) => updateField('reasoning_effort', e.target.value)}
-                  className="mt-1 h-9 w-32 rounded-md border border-navy-border bg-navy-deep px-2 text-sm text-light"
-                >
-                  <option value="none">none</option>
-                  <option value="low">low</option>
-                  <option value="medium">medium</option>
-                  <option value="high">high</option>
-                </select>
-                <p className="mt-1 text-xs text-muted-foreground">none = sem tokens de raciocínio oculto</p>
-              </div>
+              {editing.model_provider === 'openai' && (
+                <div>
+                  <Label className="text-muted-light">Reasoning Effort</Label>
+                  <select
+                    value={editing.reasoning_effort ?? 'none'}
+                    onChange={(e) => updateField('reasoning_effort', e.target.value)}
+                    className="mt-1 h-9 w-32 rounded-md border border-navy-border bg-navy-deep px-2 text-sm text-light"
+                  >
+                    <option value="none">none</option>
+                    <option value="low">low</option>
+                    <option value="medium">medium</option>
+                    <option value="high">high</option>
+                  </select>
+                  <p className="mt-1 text-xs text-muted-foreground">OpenAI-only. Campos OpenAI-only ficam ocultos para Claude.</p>
+                </div>
+              )}
 
-              <div>
-                <Label className="text-muted-light">Verbosity</Label>
-                <select
-                  value={editing.verbosity ?? 'low'}
-                  onChange={(e) => updateField('verbosity', e.target.value)}
-                  className="mt-1 h-9 w-32 rounded-md border border-navy-border bg-navy-deep px-2 text-sm text-light"
-                >
-                  <option value="low">low</option>
-                  <option value="medium">medium</option>
-                  <option value="high">high</option>
-                </select>
-                <p className="mt-1 text-xs text-muted-foreground">Controla a extensão da resposta</p>
-              </div>
+              {editing.model_provider === 'openai' && (
+                <div>
+                  <Label className="text-muted-light">Verbosity</Label>
+                  <select
+                    value={editing.verbosity ?? 'low'}
+                    onChange={(e) => updateField('verbosity', e.target.value)}
+                    className="mt-1 h-9 w-32 rounded-md border border-navy-border bg-navy-deep px-2 text-sm text-light"
+                  >
+                    <option value="low">low</option>
+                    <option value="medium">medium</option>
+                    <option value="high">high</option>
+                  </select>
+                  <p className="mt-1 text-xs text-muted-foreground">OpenAI-only. Claude não usa este parâmetro.</p>
+                </div>
+              )}
             </div>
           )}
           <SheetFooter className="mt-6">
