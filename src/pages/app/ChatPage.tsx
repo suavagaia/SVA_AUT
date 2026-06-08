@@ -241,12 +241,34 @@ export default function ChatPage() {
       const reader = response.body!.getReader();
       const decoder = new TextDecoder();
       let assistantContent = '';
+      let lineBuffer = '';
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
+        if (done) {
+          if (lineBuffer.trim()) {
+            // processar último fragmento ao fechar a conexão
+            const line = lineBuffer.trim();
+            if (line.startsWith('data: ')) {
+              try {
+                const event = JSON.parse(line.slice(6).trim());
+                if (event.delta) {
+                  assistantContent += event.delta;
+                  const updated = assistantContent;
+                  setMessages(prev => {
+                    const copy = [...prev];
+                    copy[copy.length - 1] = { ...copy[copy.length - 1], role: 'assistant', content: updated };
+                    return copy;
+                  });
+                }
+              } catch (_) {}
+            }
+          }
+          break;
+        }
+        lineBuffer += decoder.decode(value, { stream: true });
+        const lines = lineBuffer.split('\n');
+        lineBuffer = lines.pop() ?? '';
 
         for (const line of lines) {
           if (!line.startsWith('data: ')) continue;
