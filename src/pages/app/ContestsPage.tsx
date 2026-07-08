@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { AppLayout } from '@/components/AppLayout';
+import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 interface Contest {
@@ -15,6 +16,7 @@ export default function ContestsPage() {
   const [contests, setContests] = useState<Contest[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { profile } = useAuth();
 
   const selectedArea = JSON.parse(localStorage.getItem('selectedArea') || '{}');
 
@@ -36,18 +38,23 @@ export default function ContestsPage() {
         localStorage.setItem('selectedArea', JSON.stringify({ id: area.id, name: area.name, slug: area.slug }));
       }
 
-      const { data } = await supabase
+      let query = supabase
         .from('contests')
         .select('id, name, slug')
         .eq('area_id', area.id)
         .eq('is_active', true)
         .order('display_order');
 
+      // Plano SINGLE: mostra apenas o concurso contratado
+      if (profile?.contest_id) query = query.eq('id', profile.contest_id);
+
+      const { data } = await query;
+
       if (data) setContests(data);
       setLoading(false);
     };
     fetchContests();
-  }, [areaSlug]);
+  }, [areaSlug, profile?.contest_id]);
 
   const handleContestClick = (contest: Contest) => {
     localStorage.setItem('selectedContest', JSON.stringify({ id: contest.id, name: contest.name, slug: contest.slug }));

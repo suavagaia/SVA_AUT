@@ -26,7 +26,7 @@ interface Agent {
 }
 
 function getAccessToken() {
-  const raw = localStorage.getItem('sb-lxteajwzovoeclbytdrp-auth-token');
+  const raw = sessionStorage.getItem('sb-lxteajwzovoeclbytdrp-auth-token');
   return raw ? JSON.parse(raw)?.access_token : null;
 }
 

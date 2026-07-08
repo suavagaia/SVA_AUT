@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { AppLayout } from '@/components/AppLayout';
+import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 interface Subject {
@@ -15,9 +16,17 @@ export default function SubjectsPage() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { profile } = useAuth();
 
   const selectedContest = JSON.parse(localStorage.getItem('selectedContest') || '{}');
   const selectedArea = JSON.parse(localStorage.getItem('selectedArea') || '{}');
+
+  // Plano SINGLE: bloqueia acesso a cargos de concursos fora do plano (via URL direta)
+  useEffect(() => {
+    if (profile?.contest_id && contestId && contestId !== profile.contest_id) {
+      navigate('/app/areas', { replace: true });
+    }
+  }, [profile?.contest_id, contestId, navigate]);
 
   useEffect(() => {
     const fetchSubjects = async () => {

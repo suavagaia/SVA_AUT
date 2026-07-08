@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { AppLayout } from '@/components/AppLayout';
+import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRight } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 
@@ -19,6 +20,7 @@ export default function AreasPage() {
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { profile } = useAuth();
 
   useEffect(() => {
     const fetchAreas = async () => {
@@ -28,11 +30,23 @@ export default function AreasPage() {
         .eq('is_active', true)
         .order('display_order');
 
-      if (data) setAreas(data);
+      let list = data ?? [];
+
+      // Plano SINGLE (contest_id != null): mostra só a área do concurso contratado
+      if (profile?.contest_id) {
+        const { data: contest } = await supabase
+          .from('contests')
+          .select('area_id')
+          .eq('id', profile.contest_id)
+          .single();
+        if (contest?.area_id) list = list.filter((a) => a.id === contest.area_id);
+      }
+
+      setAreas(list);
       setLoading(false);
     };
     fetchAreas();
-  }, []);
+  }, [profile?.contest_id]);
 
   const handleAreaClick = (area: Area) => {
     localStorage.setItem('selectedArea', JSON.stringify({ id: area.id, name: area.name, slug: area.slug }));

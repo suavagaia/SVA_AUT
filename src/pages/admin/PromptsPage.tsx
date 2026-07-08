@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 const SUPABASE_URL = 'https://lxteajwzovoeclbytdrp.supabase.co';
 
 function getAccessToken() {
-  const raw = localStorage.getItem('sb-lxteajwzovoeclbytdrp-auth-token');
+  const raw = sessionStorage.getItem('sb-lxteajwzovoeclbytdrp-auth-token');
   return raw ? JSON.parse(raw)?.access_token : null;
 }
 

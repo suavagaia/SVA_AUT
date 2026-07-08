@@ -11,6 +11,8 @@ interface UserProfile {
   subscription_plan: string | null;
   tokens_remaining: number;
   stripe_customer_id: string | null;
+  // null = plano FULL (todos os concursos); uuid = plano SINGLE (trava no concurso)
+  contest_id: string | null;
 }
 
 interface AuthContextType {
@@ -31,12 +33,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    if (data) setProfile(data);
+    // user_profiles (view) não expõe contest_id — buscamos direto de users
+    // (RLS permite o próprio usuário ler sua linha).
+    const [{ data }, { data: userRow }] = await Promise.all([
+      supabase.from('user_profiles').select('*').eq('id', userId).single(),
+      supabase.from('users').select('contest_id').eq('id', userId).single(),
+    ]);
+    if (data) setProfile({ ...data, contest_id: userRow?.contest_id ?? null });
   };
 
   const refreshProfile = async () => {

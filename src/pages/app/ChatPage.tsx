@@ -33,7 +33,6 @@ interface Message {
 
 type TabType = 'agente' | 'apoio';
 
-const STORAGE_KEY = 'sb-lxteajwzovoeclbytdrp-auth-token';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://lxteajwzovoeclbytdrp.supabase.co';
 const SUPABASE_ANON = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx4dGVhand6b3ZvZWNsYnl0ZHJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMzkxMzcsImV4cCI6MjA4ODkxNTEzN30.BLB9qSJcZMKsWhix46ASUbOW2lA0PSeyHN97jMQQGkQ';
 
@@ -224,9 +223,27 @@ export default function ChatPage() {
         toast.error('Sessão expirada. Faça login novamente.');
         setIsStreaming(false); setIsThinking(false); setMessages(prev => prev.slice(0, -1)); return;
       }
-      if (response.status === 402) {
-        toast.error('Seus tokens acabaram.', { action: { label: 'Ver planos', onClick: () => navigate('/app/upgrade') } });
-        setIsStreaming(false); setIsThinking(false); setMessages(prev => prev.slice(0, -1)); return;
+      // Limites / plano (execute-prompt retorna 402/403 com { code })
+      if (response.status === 402 || response.status === 403) {
+        let code: string | undefined;
+        try { code = (await response.json())?.code; } catch { /* corpo vazio */ }
+        setIsStreaming(false); setIsThinking(false); setMessages(prev => prev.slice(0, -1));
+        const verPlanos = { action: { label: 'Ver planos', onClick: () => navigate('/app/upgrade') } };
+        switch (code) {
+          case 'PLAN_CONTEST_FORBIDDEN':
+            toast.error('Este agente não faz parte do seu concurso.');
+            break;
+          case 'MONTHLY_LIMIT_EXCEEDED':
+            toast.error('Você atingiu o limite mensal de R$35.');
+            break;
+          case 'FIRST_WEEK_LIMIT_EXCEEDED':
+            toast.error('Limite de R$5 nos primeiros 7 dias atingido.');
+            break;
+          case 'INSUFFICIENT_BALANCE':
+          default:
+            toast.error('Seus tokens acabaram.', verPlanos);
+        }
+        return;
       }
 
       // Cold start: 504 → aguarda 2s e tenta uma vez

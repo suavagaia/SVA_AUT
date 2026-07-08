@@ -46,7 +46,7 @@ interface UsageInfo {
 }
 
 export default function MentoriaPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [generating, setGenerating] = useState(false);
@@ -103,9 +103,8 @@ export default function MentoriaPage() {
 
     const fetchUsage = async () => {
       try {
-        const storageKey = 'sb-lxteajwzovoeclbytdrp-auth-token';
-        const raw = localStorage.getItem(storageKey);
-        const accessToken = raw ? JSON.parse(raw)?.access_token : null;
+        const { data: { session } } = await supabase.auth.getSession();
+        const accessToken = session?.access_token ?? null;
 
         const res = await fetch(`${SUPABASE_URL}/functions/v1/mentorship-chat`, {
           method: 'GET',
@@ -127,10 +126,16 @@ export default function MentoriaPage() {
   }, [authLoading]);
 
   useEffect(() => {
-    supabase.from('contests').select('id, name').eq('is_active', true).order('name').then(({ data }) => {
-      setContests((data as Contest[]) ?? []);
+    let query = supabase.from('contests').select('id, name').eq('is_active', true).order('name');
+    // Plano SINGLE: só o concurso contratado
+    if (profile?.contest_id) query = query.eq('id', profile.contest_id);
+    query.then(({ data }) => {
+      const list = (data as Contest[]) ?? [];
+      setContests(list);
+      // Trava único concurso já pré-selecionado
+      if (profile?.contest_id && list.length === 1) setSelectedContestId(list[0].id);
     });
-  }, []);
+  }, [profile?.contest_id]);
 
   useEffect(() => {
     if (!selectedContestId) { setSubjects([]); return; }
@@ -174,9 +179,8 @@ export default function MentoriaPage() {
     setGenerating(true);
 
     try {
-      const storageKey = 'sb-lxteajwzovoeclbytdrp-auth-token';
-      const raw = localStorage.getItem(storageKey);
-      const accessToken = raw ? JSON.parse(raw)?.access_token : null;
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token ?? null;
 
       const res = await fetch(`${SUPABASE_URL}/functions/v1/mentorship-chat`, {
         method: 'POST',
