@@ -16,12 +16,18 @@ export default function ContestsPage() {
   const [contests, setContests] = useState<Contest[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
 
   const selectedArea = JSON.parse(localStorage.getItem('selectedArea') || '{}');
 
   useEffect(() => {
+    // Espera o perfil carregar antes de aplicar o filtro do plano — evita mostrar
+    // todos os concursos por um instante para quem é do plano SINGLE.
+    if (user && !profile) return;
+
+    let ignore = false;
     const fetchContests = async () => {
+      setLoading(true);
       // First get area by slug
       const { data: area } = await supabase
         .from('areas')
@@ -30,7 +36,7 @@ export default function ContestsPage() {
         .single();
 
       if (!area) {
-        setLoading(false);
+        if (!ignore) setLoading(false);
         return;
       }
 
@@ -50,11 +56,14 @@ export default function ContestsPage() {
 
       const { data } = await query;
 
-      if (data) setContests(data);
-      setLoading(false);
+      if (!ignore) {
+        if (data) setContests(data);
+        setLoading(false);
+      }
     };
     fetchContests();
-  }, [areaSlug, profile?.contest_id]);
+    return () => { ignore = true; };
+  }, [areaSlug, user, profile]);
 
   const handleContestClick = (contest: Contest) => {
     localStorage.setItem('selectedContest', JSON.stringify({ id: contest.id, name: contest.name, slug: contest.slug }));
