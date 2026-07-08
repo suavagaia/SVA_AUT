@@ -20,10 +20,16 @@ export default function AreasPage() {
   const [areas, setAreas] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
 
   useEffect(() => {
+    // Espera o perfil carregar antes de decidir o filtro do plano — evita mostrar
+    // todas as áreas por um instante para quem é do plano SINGLE.
+    if (user && !profile) return;
+
+    let ignore = false;
     const fetchAreas = async () => {
+      setLoading(true);
       const { data } = await supabase
         .from('areas')
         .select('*')
@@ -32,21 +38,25 @@ export default function AreasPage() {
 
       let list = data ?? [];
 
-      // Plano SINGLE (contest_id != null): mostra só a área do concurso contratado
+      // Plano SINGLE (contest_id != null): mostra só a área do concurso contratado.
+      // Se não conseguir resolver a área do concurso, não mostra nada (fail-closed).
       if (profile?.contest_id) {
         const { data: contest } = await supabase
           .from('contests')
           .select('area_id')
           .eq('id', profile.contest_id)
           .single();
-        if (contest?.area_id) list = list.filter((a) => a.id === contest.area_id);
+        list = contest?.area_id ? list.filter((a) => a.id === contest.area_id) : [];
       }
 
-      setAreas(list);
-      setLoading(false);
+      if (!ignore) {
+        setAreas(list);
+        setLoading(false);
+      }
     };
     fetchAreas();
-  }, [profile?.contest_id]);
+    return () => { ignore = true; };
+  }, [user, profile]);
 
   const handleAreaClick = (area: Area) => {
     localStorage.setItem('selectedArea', JSON.stringify({ id: area.id, name: area.name, slug: area.slug }));
