@@ -309,9 +309,8 @@ async function invokeCheckout(
   plan: string,
   navigate: ReturnType<typeof useNavigate>
 ) {
-  const storageKey = 'sb-lxteajwzovoeclbytdrp-auth-token';
-  const raw = localStorage.getItem(storageKey);
-  const accessToken = raw ? JSON.parse(raw)?.access_token : null;
+  const { data: { session } } = await supabase.auth.getSession();
+  const accessToken = session?.access_token ?? null;
 
   if (!accessToken) {
     navigate('/auth/signup');

@@ -10,11 +10,12 @@ import { ProtectedRoute, PublicOnlyRoute } from "@/components/RouteGuards";
 function LandingRoute() {
   const { user, loading } = useAuth();
   if (loading) return null;
-  return user ? <Navigate to="/app" replace /> : <LandingPage />;
+  // A landing (marketing) agora vive em repo/domínio próprio (suavagaia.com.br).
+  // Este app roda em app.suavagaia.com.br — a raiz só encaminha.
+  return <Navigate to={user ? "/app" : "/auth/login"} replace />;
 }
 
 // Pages
-import LandingPage from "@/pages/LandingPage";
 import NotFound from "@/pages/NotFound";
 
 // Auth
