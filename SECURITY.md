@@ -20,8 +20,12 @@ realizada em **2026-07-09**. Serve de referência para futuras mudanças.
 - **Entitlement é controlado só pelo servidor.** Colunas de assinatura/plano/saldo
   **nunca** devem ser escritas pelo cliente — apenas por `stripe-webhook` e
   `execute-prompt` (service-role) ou por admin.
-- **Admin exige 2FA.** Privilégio de admin (`has_role('admin')`) só é concedido a
-  sessões com nível de autenticação **AAL2** (segundo fator verificado).
+- **Admin exige 2FA (obrigatório).** Privilégio de admin (`has_role('admin')`) só é
+  concedido a sessões com nível de autenticação **AAL2** (segundo fator verificado).
+  Consequência: **um admin novo só consegue usar o painel depois de cadastrar e
+  verificar o 2FA** — sem isso, a sessão fica em AAL1 e o servidor nega toda ação
+  de admin. O login e o `AdminLayout` levam o admin sem AAL2 para configurar
+  (`/setup-2fa`) ou verificar (`/verify-2fa`) o segundo fator.
 
 ---
 
@@ -35,7 +39,7 @@ Legenda: 🔴 Crítico · 🟠 Alto · 🟡 Médio · 🔵 Baixo
 |---|------|----------|----------|
 | 1 | 🔴 | Usuário autenticado podia **editar as próprias colunas de cobrança** (`users.subscription_tier`, `stripe_subscription_status`, `contest_id`) e o **próprio saldo** (`user_token_balances`), forjando assinatura ativa, tokens ilimitados e furando a trava de concurso. O `execute-prompt` confiava nessas colunas. | Migração `harden_entitlement_write_access` |
 | 3 | 🟠 | Função `increment_first_week_cost_brl` executável por `anon`/`authenticated`, sem checagem, com parâmetros livres (inclusive `delta` negativo). | idem migração acima (`REVOKE EXECUTE`) |
-| 2 | 🟠 | 2FA **decorativo**: após senha, a sessão (AAL1) já era autorizada; nem rotas, nem RLS, nem Edge checavam AAL2. | Migração `require_aal2_for_admin_has_role` |
+| 2 | 🟠 | 2FA **decorativo**: após senha, a sessão (AAL1) já era autorizada; nem rotas, nem RLS, nem Edge checavam AAL2. | Migração `require_aal2_for_admin_has_role` + guarda de AAL2 no `AdminLayout` → **MFA obrigatório para admins** |
 | — | 🟡 | **XSS** no "Imprimir/Baixar PDF" do chat: `m.role` entrava sem escape em HTML aberto via `document.write` na mesma origem. | PR #3 (whitelist de `m.role` + escape de aspas em `escHtml`) |
 | 7a | 🔵 | Telas admin liam o token só de `sessionStorage` → quebravam no app nativo (token em `localStorage`). | PR #4 |
 | 7b | 🔵 | `system_prompts` sem policy de escrita → edição de prompts pela UI admin era bloqueada silenciosamente pelo RLS. | Migração `system_prompts_admin_write_policy` |
@@ -91,5 +95,7 @@ Legenda: 🔴 Crítico · 🟠 Alto · 🟡 Médio · 🔵 Baixo
 
 ## Recomendações em aberto (painel Supabase)
 
-- Ativar **Leaked Password Protection** e política de força de senha.
-- Considerar **exigir MFA** no projeto para novos admins.
+- Ativar **Leaked Password Protection** e política de força de senha (item #6).
+- **MFA para admins já é obrigatório** (via AAL2). Opcionalmente, ativar “Enforce
+  MFA” no projeto para exigir 2FA de **todos** os usuários — decisão de produto,
+  não necessária para a segurança do painel admin.
