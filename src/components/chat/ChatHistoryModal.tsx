@@ -97,7 +97,7 @@ export function ChatHistoryModal({ open, onClose, userId, agentId, agentSlug, on
     const userEmail = user?.email || '';
     const convTitle = conv.title || 'Conversa sem título';
 
-    const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 
     try {

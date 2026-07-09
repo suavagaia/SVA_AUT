@@ -638,7 +638,7 @@ export default function ChatPage() {
     if (messages.length === 0) { toast.info('Nenhuma mensagem para exportar.'); return null; }
     const agentName = activeTab === 'apoio' ? 'Agente de Apoio' : selectedAgent.name;
     const userName = user?.user_metadata?.full_name || user?.email || 'Usuário';
-    const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     const now = new Date().toLocaleString('pt-BR');
 
     const html = `<!DOCTYPE html>
@@ -656,7 +656,7 @@ export default function ChatPage() {
 </style></head><body>
 <h1>${escHtml(agentName)}</h1>
 <div class="meta">Usuário: ${escHtml(userName)} | Data: ${now}</div>
-${messages.map(m => `<div class="message ${m.role}"><div class="role-label">${m.role === 'user' ? 'Você' : 'Agente'}</div><div class="content">${escHtml(m.content)}</div></div>`).join('')}
+${messages.map(m => `<div class="message ${m.role === 'user' ? 'user' : 'assistant'}"><div class="role-label">${m.role === 'user' ? 'Você' : 'Agente'}</div><div class="content">${escHtml(m.content)}</div></div>`).join('')}
 </body></html>`;
 
     return html;
