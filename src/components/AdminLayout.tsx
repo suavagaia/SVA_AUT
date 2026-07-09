@@ -25,19 +25,34 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     if (loading) return;
     if (!user) { navigate('/auth/login'); return; }
 
-    // Check admin role
-    supabase
-      .from('user_profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-      .then(({ data }) => {
-        if (data?.role !== 'admin') {
-          navigate('/app');
-        } else {
-          setAuthorized(true);
+    // Check admin role + exige 2FA (AAL2). Sem AAL2, o servidor (has_role) nega
+    // qualquer ação de admin; aqui levamos o admin a configurar/verificar o 2FA
+    // em vez de mostrar um painel que só daria erro.
+    (async () => {
+      const { data } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (data?.role !== 'admin') {
+        navigate('/app');
+        return;
+      }
+
+      try {
+        const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        if (aal?.currentLevel !== 'aal2') {
+          // nextLevel 'aal2' = já tem fator, falta verificar; senão, precisa cadastrar
+          navigate(aal?.nextLevel === 'aal2' ? '/verify-2fa' : '/setup-2fa', { replace: true });
+          return;
         }
-      });
+      } catch {
+        // Falha na checagem de AAL: o servidor continua sendo o backstop real.
+      }
+
+      setAuthorized(true);
+    })();
   }, [user, loading, navigate]);
 
   if (loading || !authorized) {
