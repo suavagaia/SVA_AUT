@@ -76,6 +76,7 @@ export default function ChatPage() {
 
   const [historyOpen, setHistoryOpen] = useState(false);
   const [tokensRemaining, setTokensRemaining] = useState<number | null>(null);
+  const [interrupted, setInterrupted] = useState<string | null>(null);
 
   // STT state
   const [isRecording, setIsRecording] = useState(false);
@@ -191,6 +192,7 @@ export default function ChatPage() {
     const userMsg: Message = { role: 'user', content: text.trim() };
     setMessages(prev => [...prev, userMsg]);
     setInputText('');
+    setInterrupted(null);
     setIsStreaming(true);
     setIsThinking(true);
 
@@ -201,6 +203,7 @@ export default function ChatPage() {
     abortControllerRef.current = controller;
     const slug = activeTab === 'agente' ? selectedAgent?.slug : 'agente-de-apoio';
     let thinkingHandled = false;
+    let doneReceived = false;
 
     const doFetch = (attempt: number) => fetch(
       `${SUPABASE_URL}/functions/v1/execute-prompt`,
@@ -335,7 +338,24 @@ export default function ChatPage() {
               setMessages(prev => prev.slice(0, -1));
               return;
             }
+            if (event.error === 'save_failed') {
+              // resposta gerada, mas NÃO salva no servidor → você não foi cobrado
+              if (event.full_content) {
+                const fc = event.full_content;
+                setMessages(prev => {
+                  const copy = [...prev];
+                  copy[copy.length - 1] = { ...copy[copy.length - 1], content: fc };
+                  return copy;
+                });
+              }
+              setIsStreaming(false);
+              setIsThinking(false);
+              setInterrupted(userMsg.content);
+              toast.error('Não foi possível salvar a resposta (você não foi cobrado). Tente novamente.');
+              return;
+            }
             if (event.done) {
+              doneReceived = true;
               setMessages(prev => {
                 const copy = [...prev];
                 // full_content: substitui o acumulado pelo texto canônico do servidor
@@ -365,10 +385,19 @@ export default function ChatPage() {
       }
       setIsStreaming(false);
       setIsThinking(false);
+      // Stream terminou SEM 'done' (corte de tempo/queda) e não foi o usuário que parou:
+      // remove bolha vazia e oferece "tentar de novo" em vez de silêncio.
+      if (!doneReceived && !controller.signal.aborted) {
+        setMessages(prev => (prev.length && prev[prev.length - 1].role === 'assistant' && !prev[prev.length - 1].content)
+          ? prev.slice(0, -1) : prev);
+        setInterrupted(userMsg.content);
+      }
     } catch (err: any) {
       if (err.name !== 'AbortError') {
-        toast.error('Erro ao processar resposta. Tente novamente.');
-        setMessages(prev => prev.slice(0, -1));
+        toast.error('A resposta foi interrompida. Tente novamente.');
+        setMessages(prev => (prev.length && prev[prev.length - 1].role === 'assistant' && !prev[prev.length - 1].content)
+          ? prev.slice(0, -1) : prev);
+        setInterrupted(userMsg.content);
       }
       setIsStreaming(false);
       setIsThinking(false);
@@ -382,7 +411,19 @@ export default function ChatPage() {
   };
 
   // handleChipClick removed — no more suggestion chips
-  const handleNewChat = () => { setMessages([]); setConvId(null); };
+  const handleNewChat = () => { setMessages([]); setConvId(null); setInterrupted(null); };
+
+  const handleRetry = () => {
+    const text = interrupted;
+    if (!text) return;
+    setInterrupted(null);
+    // remove a pergunta que falhou (e o parcial) e regenera
+    setMessages(prev => {
+      const idx = prev.map(m => m.role).lastIndexOf('user');
+      return idx >= 0 ? prev.slice(0, idx) : prev;
+    });
+    handleSend(text);
+  };
 
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -759,6 +800,14 @@ ${messages.map(m => `<div class="message ${m.role === 'user' ? 'user' : 'assista
           <div className="flex items-center justify-between rounded-lg bg-destructive/10 border border-destructive/30 px-4 py-2 mt-2">
             <span className="text-sm text-destructive">⚠️ Seus tokens acabaram.</span>
             <Button size="sm" variant="link" onClick={() => navigate('/app/upgrade')} className="text-destructive font-semibold">Assinar agora →</Button>
+          </div>
+        )}
+
+        {/* Resposta interrompida — oferecer nova tentativa (corte/queda/save_failed) */}
+        {interrupted && !isStreaming && (
+          <div className="flex items-center justify-between rounded-lg bg-yellow-500/10 border border-yellow-500/30 px-4 py-2 mt-2">
+            <span className="text-sm text-yellow-600">⚠️ A resposta foi interrompida.</span>
+            <Button size="sm" variant="link" onClick={handleRetry} className="text-yellow-600 font-semibold">Tentar novamente →</Button>
           </div>
         )}
 
