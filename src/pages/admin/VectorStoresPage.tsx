@@ -26,7 +26,9 @@ interface Agent {
 }
 
 function getAccessToken() {
-  const raw = sessionStorage.getItem('sb-lxteajwzovoeclbytdrp-auth-token');
+  // web usa sessionStorage; app nativo usa localStorage — lê de ambos
+  const raw = sessionStorage.getItem('sb-lxteajwzovoeclbytdrp-auth-token')
+    || localStorage.getItem('sb-lxteajwzovoeclbytdrp-auth-token');
   return raw ? JSON.parse(raw)?.access_token : null;
 }
 
