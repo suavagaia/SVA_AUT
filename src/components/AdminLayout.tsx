@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { LayoutDashboard, Users, FileText, Activity, ArrowLeft, Database, Map, Trophy, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, Activity, ArrowLeft, Database, Map, Trophy, BookOpen, DollarSign } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -13,6 +13,7 @@ const navItems = [
   { label: 'Áreas', path: '/admin/areas', icon: Map },
   { label: 'Concursos', path: '/admin/contests', icon: Trophy },
   { label: 'Matérias', path: '/admin/topics', icon: BookOpen },
+  { label: 'Preços', path: '/admin/pricing', icon: DollarSign },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

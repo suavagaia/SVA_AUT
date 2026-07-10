@@ -62,6 +62,7 @@ import AdminVectorStoresPage from "@/pages/admin/VectorStoresPage";
 import AdminAreasPage from "@/pages/admin/AreasPage";
 import AdminContestsPage from "@/pages/admin/ContestsPage";
 import AdminTopicsPage from "@/pages/admin/TopicsPage";
+import AdminPricingPage from "@/pages/admin/PricingPage";
 
 const queryClient = new QueryClient();
 
@@ -118,6 +119,7 @@ const App = () => (
             <Route path="/admin/areas" element={<ProtectedRoute><AdminAreasPage /></ProtectedRoute>} />
             <Route path="/admin/contests" element={<ProtectedRoute><AdminContestsPage /></ProtectedRoute>} />
             <Route path="/admin/topics" element={<ProtectedRoute><AdminTopicsPage /></ProtectedRoute>} />
+            <Route path="/admin/pricing" element={<ProtectedRoute><AdminPricingPage /></ProtectedRoute>} />
 
             {/* Legal */}
             <Route path="/terms" element={<TermsPage />} />
