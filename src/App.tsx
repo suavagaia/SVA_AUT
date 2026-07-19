@@ -35,6 +35,7 @@ import SubjectsPage from "@/pages/app/SubjectsPage";
 import AgentsPage from "@/pages/app/AgentsPage";
 import TopicsPage from "@/pages/app/TopicsPage";
 import UpgradePage from "@/pages/app/UpgradePage";
+import MeusConcursosPage from "@/pages/app/MeusConcursosPage";
 import ChatPage from "@/pages/app/ChatPage";
 import BillingPage from "@/pages/app/BillingPage";
 import HistoryPage from "@/pages/app/HistoryPage";
@@ -52,6 +53,7 @@ import ThankYouCredits from "@/pages/thankyou/ThankYouCredits";
 // Legal
 import TermsPage from "@/pages/legal/TermsPage";
 import PrivacyPage from "@/pages/legal/PrivacyPage";
+import PoliticaUsoJustoPage from "@/pages/legal/PoliticaUsoJustoPage";
 
 // Admin
 import AdminDashboardPage from "@/pages/admin/DashboardPage";
@@ -62,6 +64,7 @@ import AdminVectorStoresPage from "@/pages/admin/VectorStoresPage";
 import AdminAreasPage from "@/pages/admin/AreasPage";
 import AdminContestsPage from "@/pages/admin/ContestsPage";
 import AdminTopicsPage from "@/pages/admin/TopicsPage";
+import AdminPricingPage from "@/pages/admin/PricingPage";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +99,7 @@ const App = () => (
             <Route path="/app/agents/:topicId" element={<ProtectedRoute><AgentsPage /></ProtectedRoute>} />
             <Route path="/app/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
             <Route path="/app/upgrade" element={<ProtectedRoute><UpgradePage /></ProtectedRoute>} />
+            <Route path="/app/meus-concursos" element={<ProtectedRoute><MeusConcursosPage /></ProtectedRoute>} />
             <Route path="/app/billing" element={<ProtectedRoute><BillingPage /></ProtectedRoute>} />
             <Route path="/app/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
             <Route path="/app/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
@@ -118,10 +122,12 @@ const App = () => (
             <Route path="/admin/areas" element={<ProtectedRoute><AdminAreasPage /></ProtectedRoute>} />
             <Route path="/admin/contests" element={<ProtectedRoute><AdminContestsPage /></ProtectedRoute>} />
             <Route path="/admin/topics" element={<ProtectedRoute><AdminTopicsPage /></ProtectedRoute>} />
+            <Route path="/admin/pricing" element={<ProtectedRoute><AdminPricingPage /></ProtectedRoute>} />
 
             {/* Legal */}
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/politica-uso-justo" element={<PoliticaUsoJustoPage />} />
 
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
