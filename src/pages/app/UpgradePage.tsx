@@ -172,6 +172,20 @@ export default function UpgradePage() {
       const accessToken = session?.access_token;
       if (!accessToken) { navigate('/auth/login'); return; }
 
+      // Registra o aceite dos checkboxes (prova de consentimento).
+      if (session?.user?.id) {
+        await supabase.from('subscription_consents').insert({
+          user_id: session.user.id,
+          plan: confirmPlan,
+          cadence: period,
+          price_id: PRICES[confirmPlan][period],
+          accepted_recurring: ckRecurring,
+          accepted_foco_price: needFoco ? ckFoco : null,
+          accepted_no_refund: needNoRefund ? ckNoRefund : null,
+          terms_version: 'v2-2026-07',
+        });
+      }
+
       // Multi cai direto na tela de escolher os 5 concursos; os demais no obrigado.
       const successPath = confirmPlan === 'multi'
         ? '/app/meus-concursos'

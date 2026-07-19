@@ -31,6 +31,9 @@ export default function AdminUsersPage() {
   const [roleDialog, setRoleDialog] = useState<{ user: UserRow; newRole: string } | null>(null);
   // Token dialog
   const [tokenDialog, setTokenDialog] = useState<{ user: UserRow; amount: string } | null>(null);
+  // Refund dialog
+  const [refundDialog, setRefundDialog] = useState<{ user: UserRow } | null>(null);
+  const [refunding, setRefunding] = useState(false);
 
   const fetchUsers = async () => {
     const { data } = await supabase
@@ -83,6 +86,18 @@ export default function AdminUsersPage() {
     if (error) { toast.error(error.message); return; }
     toast.success(`${amount} tokens adicionados`);
     setTokenDialog(null);
+    fetchUsers();
+  };
+
+  const handleRefund = async () => {
+    if (!refundDialog) return;
+    setRefunding(true);
+    const { data, error } = await supabase.functions.invoke('admin-refund', { body: { user_id: refundDialog.user.id } });
+    setRefunding(false);
+    if (error || (data as any)?.error) { toast.error((data as any)?.error || error?.message || 'Erro no reembolso'); return; }
+    const val = (data as any)?.refunded_amount_brl;
+    toast.success(`Reembolso concluído${val != null ? ` (R$ ${Number(val).toFixed(2)})` : ''} e acesso cortado.`);
+    setRefundDialog(null);
     fetchUsers();
   };
 
@@ -145,6 +160,9 @@ export default function AdminUsersPage() {
                           <DropdownMenuItem onClick={() => navigate(`/admin/interactions?user_email=${encodeURIComponent(u.email)}`)}>
                             Ver interações
                           </DropdownMenuItem>
+                          <DropdownMenuItem className="text-red-500 focus:text-red-500" onClick={() => setRefundDialog({ user: u })}>
+                            Reembolsar (7 dias)
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </td>
@@ -194,6 +212,26 @@ export default function AdminUsersPage() {
           />
           <DialogFooter>
             <Button onClick={handleAddTokens} className="bg-emerald hover:bg-emerald-hover text-primary-foreground">Confirmar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Refund Dialog */}
+      <Dialog open={!!refundDialog} onOpenChange={() => !refunding && setRefundDialog(null)}>
+        <DialogContent className="bg-navy border-navy-border text-light">
+          <DialogHeader>
+            <DialogTitle>Reembolso de 7 dias — {refundDialog?.user.email}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-light">
+            Esta ação <strong className="text-light">reembolsa integralmente</strong> a última cobrança no Stripe,
+            <strong className="text-light"> cancela a assinatura</strong> e <strong className="text-light">corta o acesso</strong> do
+            usuário imediatamente. É irreversível.
+          </p>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRefundDialog(null)} disabled={refunding}>Cancelar</Button>
+            <Button onClick={handleRefund} disabled={refunding} className="bg-red-600 hover:bg-red-700 text-white">
+              {refunding ? 'Processando...' : 'Reembolsar e cortar acesso'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
