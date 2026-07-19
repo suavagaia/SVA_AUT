@@ -52,6 +52,7 @@ import ThankYouCredits from "@/pages/thankyou/ThankYouCredits";
 // Legal
 import TermsPage from "@/pages/legal/TermsPage";
 import PrivacyPage from "@/pages/legal/PrivacyPage";
+import PoliticaUsoJustoPage from "@/pages/legal/PoliticaUsoJustoPage";
 
 // Admin
 import AdminDashboardPage from "@/pages/admin/DashboardPage";
@@ -124,6 +125,7 @@ const App = () => (
             {/* Legal */}
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/politica-uso-justo" element={<PoliticaUsoJustoPage />} />
 
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
