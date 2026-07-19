@@ -172,7 +172,10 @@ export default function UpgradePage() {
       const accessToken = session?.access_token;
       if (!accessToken) { navigate('/auth/login'); return; }
 
-      const successPath = period === 'anual' ? '/thank-you/annual' : '/thank-you/monthly';
+      // Multi cai direto na tela de escolher os 5 concursos; os demais no obrigado.
+      const successPath = confirmPlan === 'multi'
+        ? '/app/meus-concursos'
+        : (period === 'anual' ? '/thank-you/annual' : '/thank-you/monthly');
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
           price_id: PRICES[confirmPlan][period],

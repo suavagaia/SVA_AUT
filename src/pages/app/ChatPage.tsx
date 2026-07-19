@@ -45,6 +45,23 @@ async function getValidAccessToken(): Promise<string | null> {
   return null;
 }
 
+// "Comprar mais": pacote de créditos adicionais para uso imediato ao bater o teto.
+const CREDITS_PRICE_ID = 'price_1SAwTuGmx6vYOM03G4nuqdbQ';
+async function comprarCreditos() {
+  const token = await getValidAccessToken();
+  if (!token) { window.location.href = '/auth/login'; return; }
+  const { data, error } = await supabase.functions.invoke('create-checkout', {
+    body: {
+      price_id: CREDITS_PRICE_ID,
+      success_url: `${window.location.origin}/app/chat`,
+      cancel_url: `${window.location.origin}/app/chat`,
+    },
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (error || !data?.url) { toast.error('Erro ao abrir a compra. Tente novamente.'); return; }
+  window.location.href = data.url;
+}
+
 // ---- TTS audio cache (in-memory per session) ----
 const ttsCache = new Map<string, string>();
 
@@ -232,19 +249,22 @@ export default function ChatPage() {
         try { code = (await response.json())?.code; } catch { /* corpo vazio */ }
         setIsStreaming(false); setIsThinking(false); setMessages(prev => prev.slice(0, -1));
         const verPlanos = { action: { label: 'Ver planos', onClick: () => navigate('/app/upgrade') } };
+        const comprarMais = { action: { label: 'Comprar mais', onClick: () => { comprarCreditos(); } } };
         switch (code) {
           case 'PLAN_CONTEST_FORBIDDEN':
-            toast.error('Este agente não faz parte do seu concurso.');
+            toast.error('Este agente não faz parte do seu plano.');
             break;
-          case 'MONTHLY_LIMIT_EXCEEDED':
-            toast.error('Você atingiu o limite mensal de R$35.');
+          case 'FAIR_USE_LIMIT':
+            toast.error('Você atingiu o limite de uso deste ciclo (Política de Uso Justo). O acesso volta na renovação.', comprarMais);
             break;
-          case 'FIRST_WEEK_LIMIT_EXCEEDED':
-            toast.error('Limite de R$5 nos primeiros 7 dias atingido.');
+          case 'FOCO_QUESTION_LIMIT':
+            toast.error('Você atingiu o limite de perguntas do 1º mês do plano Foco.', comprarMais);
             break;
           case 'INSUFFICIENT_BALANCE':
+            toast.error('Você precisa de um plano ativo para usar os agentes.', verPlanos);
+            break;
           default:
-            toast.error('Seus tokens acabaram.', verPlanos);
+            toast.error('Não foi possível enviar sua mensagem. Tente novamente.', verPlanos);
         }
         return;
       }
