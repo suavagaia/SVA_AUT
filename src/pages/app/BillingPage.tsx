@@ -22,8 +22,33 @@ const TIER_NAME: Record<string, string> = {
   multi_monthly: 'Multiconcurso — Mensal', multi_semestral: 'Multiconcurso — Semestral', multi_annual: 'Multiconcurso — Anual',
   ilimitado_monthly: 'Passaporte — Mensal', ilimitado_semestral: 'Passaporte — Semestral', ilimitado_annual: 'Passaporte — Anual',
 };
-// Valor cheio mensal por escopo (para o aviso de renovação do Foco).
-const FULL_MONTHLY: Record<string, number> = { foco: 69.90, multi: 129.90, ilimitado: 199.90 };
+// Valor cobrado na renovação, por plano+modalidade (para o banner de renovação).
+const RENEWAL_VALUE: Record<string, number> = {
+  foco_monthly: 69.90, foco_semestral: 335.52, foco_annual: 587.16,
+  multi_monthly: 129.90, multi_semestral: 623.52, multi_annual: 1091.16,
+  ilimitado_monthly: 199.90, ilimitado_semestral: 959.52, ilimitado_annual: 1679.16,
+};
+
+function cadenceOf(tier: string | null): 'monthly' | 'semestral' | 'annual' {
+  if (!tier) return 'monthly';
+  if (tier.endsWith('annual')) return 'annual';
+  if (tier.endsWith('semestral')) return 'semestral';
+  return 'monthly';
+}
+
+// Próxima renovação: avança a data de início pela periodicidade até passar de hoje.
+function nextRenewal(startMs: number, cadence: 'monthly' | 'semestral' | 'annual'): Date {
+  const d = new Date(startMs);
+  const now = Date.now();
+  let guard = 0;
+  while (d.getTime() <= now && guard < 500) {
+    if (cadence === 'annual') d.setFullYear(d.getFullYear() + 1);
+    else if (cadence === 'semestral') d.setMonth(d.getMonth() + 6);
+    else d.setMonth(d.getMonth() + 1);
+    guard++;
+  }
+  return d;
+}
 
 interface TokenUsageEvent {
   id: string;
@@ -142,24 +167,33 @@ export default function BillingPage() {
   const usedPct = cap && cap > 0 ? Math.min(100, Math.round((plan!.monthlyCost / cap) * 100)) : null;
   const barColor = usedPct != null && usedPct >= 95 ? 'bg-destructive' : usedPct != null && usedPct >= 80 ? 'bg-yellow-500' : 'bg-emerald';
 
-  // Aviso do Foco: renovação de preço a partir do dia 25 do 1º mês
+  // Banner de renovação (data + valor). No Foco 1º mês, só a partir do dia 25 (aviso de mudança de preço).
   const subStartMs = plan?.subStart ? new Date(plan.subStart).getTime() : 0;
   const daysSinceStart = subStartMs ? (Date.now() - subStartMs) / DAY_MS : 0;
-  const showFocoRenewal = plan?.scope === 'foco' && daysSinceStart >= 25 && daysSinceStart < 32;
-  const focoRenewalDate = subStartMs ? dateFmt.format(new Date(subStartMs + 30 * DAY_MS)) : '';
+  const renewalValue = plan?.tier ? (RENEWAL_VALUE[plan.tier] ?? null) : null;
+  const renewalDate = subStartMs && plan?.tier ? nextRenewal(subStartMs, cadenceOf(plan.tier)) : null;
+  const isFocoFirstMonth = plan?.scope === 'foco' && daysSinceStart < 30;
+  const showRenewalBanner = isSubscriber && !isAdmin && renewalDate != null && renewalValue != null
+    && (isFocoFirstMonth ? daysSinceStart >= 25 : true);
 
   return (
     <AppLayout>
       <div className="space-y-8">
         <h1 className="font-display text-3xl font-bold text-foreground">Minha Assinatura</h1>
 
-        {/* Banner de renovação do Foco (dia 25+) */}
-        {showFocoRenewal && (
+        {/* Banner de renovação (data + valor) */}
+        {showRenewalBanner && renewalDate && renewalValue != null && (
           <div className="flex gap-3 rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-4">
             <Info className="h-5 w-5 shrink-0 text-yellow-500" />
             <p className="text-sm text-card-foreground">
-              Seu plano Foco renova em <strong>{focoRenewalDate}</strong> por <strong>R$ 69,90/mês</strong>, cobrado
-              automaticamente. Você pode cancelar ou trocar de plano a qualquer momento aqui.
+              {isFocoFirstMonth ? (
+                <>Seu plano Foco renova em <strong>{dateFmt.format(renewalDate)}</strong> e passa a{' '}
+                <strong>{brl(renewalValue)}/mês</strong>, cobrado automaticamente.</>
+              ) : (
+                <>Seu plano {planName} renova em <strong>{dateFmt.format(renewalDate)}</strong> por{' '}
+                <strong>{brl(renewalValue)}</strong>.</>
+              )}{' '}
+              Você pode cancelar ou trocar de plano a qualquer momento aqui.
             </p>
           </div>
         )}
