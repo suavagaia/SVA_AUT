@@ -16,7 +16,7 @@ function formatTime(seconds: number) {
 export function StudyTimerButton() {
   const {
     status, elapsed, selectedActivity, todayActivities, loadingActivities,
-    setSelectedActivity, fetchTodayActivities, start, pause, resume, stop,
+    setSelectedActivity, fetchTodayActivities, start, startFree, pause, resume, stop,
   } = useStudyTimer();
   const navigate = useNavigate();
   const isActive = status !== 'idle';
@@ -51,6 +51,13 @@ export function StudyTimerButton() {
             ) : todayActivities.length === 0 ? (
               <div className="text-center space-y-2">
                 <p className="text-xs text-muted-foreground">Nenhuma atividade programada para hoje.</p>
+                <Button
+                  onClick={startFree}
+                  size="sm"
+                  className="w-full bg-emerald hover:bg-emerald-hover text-primary-foreground gap-1.5"
+                >
+                  <Play size={14} /> Iniciar estudo livre
+                </Button>
                 <Button variant="link" size="sm" className="text-emerald" onClick={() => navigate('/app/schedule')}>
                   Ver cronograma
                 </Button>
@@ -82,6 +89,9 @@ export function StudyTimerButton() {
                   className="w-full bg-emerald hover:bg-emerald-hover text-primary-foreground gap-1.5"
                 >
                   <Play size={14} /> Iniciar
+                </Button>
+                <Button variant="ghost" size="sm" className="w-full text-xs text-muted-foreground" onClick={startFree}>
+                  ou iniciar estudo livre
                 </Button>
               </>
             )}

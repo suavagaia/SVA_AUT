@@ -23,6 +23,7 @@ interface StudyTimerContextType {
   setSelectedActivity: (a: ScheduleActivity | null) => void;
   fetchTodayActivities: () => Promise<void>;
   start: () => Promise<void>;
+  startFree: () => Promise<void>;
   pause: () => Promise<void>;
   resume: () => Promise<void>;
   stop: () => Promise<void>;
@@ -106,15 +107,14 @@ export function StudyTimerProvider({ children }: { children: ReactNode }) {
     setLoadingActivities(false);
   }, [user]);
 
-  const start = useCallback(async () => {
-    if (!user || !selectedActivity) return;
-
+  const beginSession = useCallback(async (entryId: string | null, name: string) => {
+    if (!user) return;
     const { data: session, error } = await supabase
       .from('study_sessions')
       .insert({
         user_id: user.id,
-        schedule_entry_id: selectedActivity.id,
-        activity_name: selectedActivity.subject,
+        schedule_entry_id: entryId,
+        activity_name: name,
         day_of_week: new Date().getDay(),
         start_time: new Date().toISOString(),
         status: 'em_progresso',
@@ -133,7 +133,18 @@ export function StudyTimerProvider({ children }: { children: ReactNode }) {
     setStartedAt(now);
     setElapsed(0);
     setStatus('running');
-  }, [user, selectedActivity]);
+  }, [user]);
+
+  const start = useCallback(async () => {
+    if (!selectedActivity) return;
+    await beginSession(selectedActivity.id, selectedActivity.subject);
+  }, [selectedActivity, beginSession]);
+
+  // Estudo livre: cronômetro sem atividade agendada (sempre disponível).
+  const startFree = useCallback(async () => {
+    setSelectedActivity({ id: '__free__', subject: 'Estudo livre', start_time: '', end_time: '', activity_type: 'livre' });
+    await beginSession(null, 'Estudo livre');
+  }, [beginSession]);
 
   const pause = useCallback(async () => {
     setStatus('paused');
@@ -184,7 +195,7 @@ export function StudyTimerProvider({ children }: { children: ReactNode }) {
   return (
     <StudyTimerContext.Provider value={{
       status, elapsed, selectedActivity, todayActivities, loadingActivities, currentSessionId,
-      setSelectedActivity, fetchTodayActivities, start, pause, resume, stop,
+      setSelectedActivity, fetchTodayActivities, start, startFree, pause, resume, stop,
     }}>
       {children}
     </StudyTimerContext.Provider>
