@@ -182,7 +182,7 @@ export default function AdminPromptsPage() {
 
   const fetchAgents = async () => {
     const { data } = await supabase
-      .from('agents')
+      .from('agents_admin_view')
       .select('id, title, slug, model_provider, model, provider_config, temperature, effort, is_active, display_order, system_prompt, tool_web_search, tool_file_search, tool_file_search_vector_store_ids, file_search_max_results, verbosity, response_format, max_completion_tokens, use_supabase_rag, supabase_rag_table, rag_config, subject_id, reasoning_effort')
       .order('display_order');
     setAgents(((data as Agent[]) ?? []).map(a => ({ ...a, model_provider: a.model_provider ?? 'openai' })));
