@@ -66,7 +66,7 @@ export default function VectorStoresPage() {
         headers: { Authorization: `Bearer ${token}` },
       }).then(r => r.json()).catch(() => ({ vector_stores: [] })),
       supabase
-        .from('agents')
+        .from('agents_admin_view')
         .select('id, title, slug, tool_file_search_vector_store_ids')
         .eq('tool_file_search', true)
         .order('title'),
