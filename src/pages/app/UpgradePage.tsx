@@ -170,7 +170,7 @@ export default function UpgradePage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const accessToken = session?.access_token;
-      if (!accessToken) { navigate('/auth/login'); return; }
+      if (!accessToken) { toast.error('Sessão expirada. Faça login novamente.'); navigate('/auth/login'); return; }
 
       // Registra o aceite dos checkboxes (prova de consentimento).
       if (session?.user?.id) {
